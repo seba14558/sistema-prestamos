@@ -1,20 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, Link, useLocation, useNavigate, Navigate } from 'react-router-dom';
 import { 
-  Box, Drawer, AppBar, Toolbar, List, Typography, Divider, 
-  IconButton, ListItem, ListItemButton, ListItemIcon, ListItemText, 
-  Avatar, Tooltip, Container, useTheme, useMediaQuery
+  Box, AppBar, Toolbar, Drawer, List, ListItem, ListItemButton, 
+  ListItemIcon, ListItemText, Typography, IconButton, Divider, 
+  useTheme, useMediaQuery, Avatar
 } from '@mui/material';
 import { 
-  Menu as MenuIcon, People, MonetizationOn, ExitToApp, AccountCircle,
-  AccountBalanceWallet, TrendingDown, ReportProblem, EventNote
+  Menu as MenuIcon, AccessTime as AccessTimeIcon, 
+  Warning as WarningIcon, CalendarToday as CalendarTodayIcon,
+  Logout as LogoutIcon
 } from '@mui/icons-material';
-
 import CollectionPage from './collector/CollectionPage';
 import DebtorsPage from './collector/DebtorsPage';
 import DueLoansPage from './collector/DueLoansPage';
-
-const drawerWidth = 260;
 
 const CollectorPanel: React.FC = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -55,21 +53,21 @@ const CollectorPanel: React.FC = () => {
   };
 
   const menuItems = [
-    { text: 'Registrar Cobro', path: 'collection', icon: <AccountBalanceWallet /> },
-    { text: 'Lista de Morosos', path: 'debtors', icon: <ReportProblem /> },
-    { text: 'Próximos Vencimientos', path: 'due', icon: <EventNote /> },
+    { text: 'Registro de Cobros', path: 'collection', icon: <AccessTimeIcon /> },
+    { text: 'Deudores Morosos', path: 'debtors', icon: <WarningIcon /> },
+    { text: 'Próximos Vencimientos', path: 'due', icon: <CalendarTodayIcon /> },
   ];
 
   const drawerContent = (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#062f4f', color: '#fff' }}>
+    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#062f4f', color: 'white' }}>
       {/* Brand Header */}
-      <Box sx={{ p: 3, display: 'flex', alignItems: 'center', gap: 1.5, background: 'linear-gradient(to right, #051e3e, #062f4f)' }}>
-        <Avatar sx={{ bgcolor: '#00b159', width: 40, height: 40 }}>C</Avatar>
+      <Box sx={{ p: 3, display: 'flex', alignItems: 'center', gap: 2, bgcolor: 'linear-gradient(90deg, #051e3e 0%, #062f4f 100%)' }}>
+        <Avatar sx={{ bgcolor: '#00b159', width: 40, height: 40, fontWeight: 'bold' }}>C</Avatar>
         <Box>
-          <Typography variant="subtitle1" fontWeight="bold" sx={{ color: '#fff', lineHeight: 1.2 }}>
-            Préstamos Ya
+          <Typography variant="subtitle2" fontWeight="bold" color="white" sx={{ lineHeight: 1.2 }}>
+            NUEVA OPCIÓN
           </Typography>
-          <Typography variant="caption" sx={{ color: '#00b159', fontWeight: 600 }}>
+          <Typography variant="caption" color="#00b159" fontWeight="bold" sx={{ display: 'block' }}>
             COBRADOR
           </Typography>
         </Box>
@@ -78,46 +76,41 @@ const CollectorPanel: React.FC = () => {
       <Divider sx={{ borderColor: 'rgba(255,255,255,0.06)' }} />
       
       {/* Navegación */}
-      <List sx={{ px: 2, py: 3, flexGrow: 1 }}>
+      <List sx={{ px: 1, py: 2, flex: 1 }}>
         {menuItems.map((item) => {
           const isActive = location.pathname.includes(item.path);
           
           return (
-            <ListItem key={item.text} disablePadding sx={{ mb: 1 }}>
+            <ListItem key={item.text} disablePadding sx={{ mb: 0.5 }}>
               <ListItemButton
                 component={Link}
                 to={item.path}
-                onClick={isMobile ? handleDrawerToggle : undefined}
+                onClick={() => setMobileOpen(false)}
+                selected={isActive}
                 sx={{
                   borderRadius: 2,
-                  py: 1.25,
                   px: 2,
-                  bgcolor: isActive ? 'rgba(0, 177, 89, 0.15)' : 'transparent',
-                  color: isActive ? '#00ff80' : '#b0c4de',
-                  '&:hover': {
-                    bgcolor: 'rgba(255,255,255,0.03)',
-                    color: '#fff',
-                    '& .MuiListItemIcon-root': {
-                      color: '#fff'
-                    }
+                  py: 1.5,
+                  '&.Mui-selected': {
+                    bgcolor: 'rgba(0, 177, 89, 0.15)',
+                    '&:hover': { bgcolor: 'rgba(0, 177, 89, 0.2)' }
                   },
-                  transition: 'all 0.2s',
+                  '&:hover': {
+                    bgcolor: 'rgba(255,255,255,0.03)'
+                  }
                 }}
               >
-                <ListItemIcon 
-                  sx={{ 
-                    color: isActive ? '#00b159' : '#8fa9c4',
-                    minWidth: 40,
-                    transition: 'color 0.2s'
-                  }}
-                >
+                <ListItemIcon sx={{ minWidth: 40, color: isActive ? '#00b159' : '#8fa9c4' }}>
                   {item.icon}
                 </ListItemIcon>
                 <ListItemText 
                   primary={item.text} 
-                  primaryTypographyProps={{ 
-                    fontSize: '0.95rem',
-                    fontWeight: isActive ? '600' : '500'
+                  sx={{ 
+                    '& .MuiTypography-root': { 
+                      fontSize: '0.875rem',
+                      fontWeight: isActive ? 600 : 500,
+                      color: isActive ? '#00ff80' : '#b0c4de'
+                    }
                   }} 
                 />
               </ListItemButton>
@@ -129,79 +122,40 @@ const CollectorPanel: React.FC = () => {
       <Divider sx={{ borderColor: 'rgba(255,255,255,0.06)' }} />
       
       {/* Botón Salir */}
-      <Box sx={{ p: 2 }}>
-        <ListItemButton
-          onClick={handleLogout}
-          sx={{
-            borderRadius: 2,
-            py: 1.25,
-            px: 2,
-            color: '#ff4d4d',
-            '&:hover': {
-              bgcolor: 'rgba(255, 77, 77, 0.08)',
-            },
-            transition: 'all 0.2s',
-          }}
-        >
-          <ListItemIcon sx={{ color: '#ff4d4d', minWidth: 40 }}>
-            <ExitToApp />
-          </ListItemIcon>
-          <ListItemText primary="Cerrar Sesión" primaryTypographyProps={{ fontSize: '0.95rem', fontWeight: '600' }} />
-        </ListItemButton>
+      <Box sx={{ p: 1 }}>
+        <ListItem disablePadding>
+          <ListItemButton
+            onClick={handleLogout}
+            sx={{
+              borderRadius: 2,
+              px: 2,
+              py: 1.5,
+              color: '#ff4d4d',
+              '&:hover': { bgcolor: 'rgba(255, 77, 77, 0.08)' }
+            }}
+          >
+            <ListItemIcon sx={{ minWidth: 40, color: '#ff4d4d' }}>
+              <LogoutIcon />
+            </ListItemIcon>
+            <ListItemText 
+              primary="Cerrar Sesión" 
+              sx={{ 
+                '& .MuiTypography-root': { 
+                  fontSize: '0.875rem',
+                  fontWeight: 600
+                }
+              }} 
+            />
+          </ListItemButton>
+        </ListItem>
       </Box>
     </Box>
   );
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: '#f4f6f9' }}>
-      {/* AppBar */}
-      <AppBar
-        position="fixed"
-        elevation={0}
-        sx={{
-          width: { md: `calc(100% - ${drawerWidth}px)` },
-          ml: { md: `${drawerWidth}px` },
-          bgcolor: '#fff',
-          borderBottom: '1px solid #e2e8f0',
-        }}
-      >
-        <Toolbar sx={{ justifyContent: 'space-between', px: { xs: 2, md: 3 } }}>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            edge="start"
-            onClick={handleDrawerToggle}
-            sx={{ mr: 2, display: { md: 'none' }, color: '#334155' }}
-          >
-            <MenuIcon />
-          </IconButton>
-          
-          <Typography variant="h6" fontWeight="bold" sx={{ color: '#1e293b', display: { xs: 'none', sm: 'block' } }}>
-            {location.pathname.includes('collection') ? 'Registro de Recaudación' : 
-             location.pathname.includes('debtors') ? 'Lista de Deudores Morosos' : 
-             location.pathname.includes('due') ? 'Próximos Vencimientos' : 'Panel de Cobranza'}
-          </Typography>
-
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, ml: 'auto' }}>
-            <Box sx={{ textAlign: 'right', display: { xs: 'none', sm: 'block' } }}>
-              <Typography variant="subtitle2" fontWeight="bold" sx={{ color: '#1e293b', lineHeight: 1 }}>
-                {collectorName}
-              </Typography>
-              <Typography variant="caption" color="text.secondary">
-                Cobrador Autorizado
-              </Typography>
-            </Box>
-            <Tooltip title="Perfil">
-              <Avatar sx={{ bgcolor: '#00b159', width: 40, height: 40 }}>
-                <AccountCircle />
-              </Avatar>
-            </Tooltip>
-          </Box>
-        </Toolbar>
-      </AppBar>
-
-      {/* Sidebars (Mobile / Desktop) */}
-      <Box component="nav" sx={{ width: { md: drawerWidth }, flexShrink: { md: 0 } }}>
+      {/* Mobile Sidebar */}
+      <Box component="nav" sx={{ width: { md: 256 }, flexShrink: { md: 0 } }}>
         <Drawer
           variant="temporary"
           open={mobileOpen}
@@ -209,7 +163,7 @@ const CollectorPanel: React.FC = () => {
           ModalProps={{ keepMounted: true }}
           sx={{
             display: { xs: 'block', md: 'none' },
-            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth, borderRight: 'none' },
+            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: 256 }
           }}
         >
           {drawerContent}
@@ -218,7 +172,7 @@ const CollectorPanel: React.FC = () => {
           variant="permanent"
           sx={{
             display: { xs: 'none', md: 'block' },
-            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth, borderRight: 'none' },
+            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: 256, border: 'none' }
           }}
           open
         >
@@ -226,27 +180,47 @@ const CollectorPanel: React.FC = () => {
         </Drawer>
       </Box>
 
-      {/* Main Content Area */}
-      <Box
-        component="main"
-        sx={{
-          flexGrow: 1,
-          p: { xs: 2.5, md: 4 },
-          width: { md: `calc(100% - ${drawerWidth}px)` },
-          minHeight: '100vh',
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-      >
-        <Toolbar /> {/* Espaciador de la barra superior */}
-        <Container maxWidth="xl" sx={{ flexGrow: 1, p: 0 }}>
+      {/* Main Content */}
+      <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+        {/* AppBar */}
+        <AppBar position="sticky" sx={{ bgcolor: 'white', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+          <Toolbar>
+            <IconButton
+              color="inherit"
+              edge="start"
+              onClick={handleDrawerToggle}
+              sx={{ mr: 2, display: { md: 'none' }, color: '#475569' }}
+            >
+              <MenuIcon />
+            </IconButton>
+            
+            <Typography variant="h6" component="div" sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' }, fontWeight: 'bold', color: '#1e293b' }}>
+              {location.pathname.includes('collection') ? 'Registro de Recaudación' : 
+               location.pathname.includes('debtors') ? 'Lista de Deudores Morosos' : 
+               location.pathname.includes('due') ? 'Próximos Vencimientos' : 'Panel de Cobranza'}
+            </Typography>
+
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, ml: 'auto' }}>
+              <Box sx={{ display: { xs: 'none', sm: 'block' }, textAlign: 'right' }}>
+                <Typography variant="body2" fontWeight="bold" color="#1e293b">{collectorName}</Typography>
+                <Typography variant="caption" color="#64748b">Cobrador Autorizado</Typography>
+              </Box>
+              <Avatar sx={{ bgcolor: '#00b159', width: 40, height: 40 }}>
+                <AccessTimeIcon />
+              </Avatar>
+            </Box>
+          </Toolbar>
+        </AppBar>
+
+        {/* Main Content Area */}
+        <Box component="main" sx={{ flexGrow: 1, p: { xs: 2, md: 3 } }}>
           <Routes>
             <Route path="collection" element={<CollectionPage />} />
             <Route path="debtors" element={<DebtorsPage />} />
             <Route path="due" element={<DueLoansPage />} />
             <Route path="" element={<Navigate to="collection" replace />} />
           </Routes>
-        </Container>
+        </Box>
       </Box>
     </Box>
   );

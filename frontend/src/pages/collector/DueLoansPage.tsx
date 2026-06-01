@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Box, Typography, Card, Table, TableBody, TableCell, 
-  TableContainer, TableHead, TableRow, Tabs, Tab, 
-  Alert, CircularProgress, Chip, Button
+  Box, Typography, Card, Table, TableBody, 
+  TableCell, TableContainer, TableHead, TableRow, 
+  Tabs, Tab, Alert, CircularProgress, Chip, Button
 } from '@mui/material';
-import { AccessTime, Warning, Home, Payments, CalendarMonth } from '@mui/icons-material';
+import { AccessTime, Warning, Home, Payments } from '@mui/icons-material';
 import api from '../../services/api';
 import { useNavigate } from 'react-router-dom';
 
@@ -85,16 +85,16 @@ const DueLoansPage: React.FC = () => {
     }
 
     return (
-      <TableContainer>
-        <Table>
+      <TableContainer sx={{ overflowX: 'auto' }}>
+        <Table sx={{ minWidth: 650 }}>
           <TableHead sx={{ bgcolor: '#f8fafc' }}>
             <TableRow>
               <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>ID Préstamo</TableCell>
               <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Cliente</TableCell>
-              <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Dirección de Cobro</TableCell>
-              <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Monto Pendiente</TableCell>
-              <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Fecha de Vencimiento</TableCell>
-              <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Plazo / Alerta</TableCell>
+              <TableCell sx={{ fontWeight: 'bold', color: '#475569', display: { xs: 'none', md: 'table-cell' } }}>Dirección de Cobro</TableCell>
+              <TableCell sx={{ fontWeight: 'bold', color: '#475569', display: { xs: 'none', sm: 'table-cell' } }}>Monto Pendiente</TableCell>
+              <TableCell sx={{ fontWeight: 'bold', color: '#475569', display: { xs: 'none', sm: 'table-cell' } }}>Fecha de Vencimiento</TableCell>
+              <TableCell sx={{ fontWeight: 'bold', color: '#475569', display: { xs: 'none', md: 'table-cell' } }}>Plazo / Alerta</TableCell>
               <TableCell align="center" sx={{ fontWeight: 'bold', color: '#475569' }}>Acción</TableCell>
             </TableRow>
           </TableHead>
@@ -103,29 +103,29 @@ const DueLoansPage: React.FC = () => {
               <TableRow 
                 key={loan.id} 
                 sx={{ 
-                  '&:hover': { bgcolor: isOverdue ? '#fff5f5' : '#f0fdf4' }, 
-                  transition: 'background-color 0.2s' 
+                  '&:hover': { bgcolor: isOverdue ? 'rgba(239, 68, 68, 0.04)' : 'rgba(16, 185, 129, 0.04)' }, 
+                  transition: 'background-color 0.2s'
                 }}
               >
                 <TableCell sx={{ fontWeight: 600, color: isOverdue ? '#ef4444' : '#10b981' }}>#{loan.id}</TableCell>
-                <TableCell sx={{ fontWeight: 500 }}>
+                <TableCell sx={{ fontWeight: 500, color: '#1e293b' }}>
                   {loan.cliente_nombre && loan.cliente_apellido 
                     ? `${loan.cliente_nombre} ${loan.cliente_apellido}` 
                     : `Cliente #${loan.cliente_id}`}
                 </TableCell>
-                <TableCell>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                    <Home sx={{ color: 'text.secondary', fontSize: 16 }} />
-                    <Typography variant="body2">{loan.cliente_direccion || 'No especificada'}</Typography>
+                <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Home sx={{ color: 'text.secondary', fontSize: 18 }} />
+                    <Typography variant="body2" color="#64748b">{loan.cliente_direccion || 'No especificada'}</Typography>
                   </Box>
                 </TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>
+                <TableCell sx={{ fontWeight: 'bold', color: '#0f172a', display: { xs: 'none', sm: 'table-cell' } }}>
                   ${Number(loan.monto).toLocaleString('es-AR', { minimumFractionDigits: 2 })}
                 </TableCell>
-                <TableCell sx={{ fontWeight: 500 }}>
+                <TableCell sx={{ fontWeight: 500, color: '#64748b', display: { xs: 'none', sm: 'table-cell' } }}>
                   {new Date(loan.fecha_vencimiento).toLocaleDateString('es-AR')}
                 </TableCell>
-                <TableCell>
+                <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>
                   <Chip 
                     label={getDaysRemainingOrOverdue(loan.fecha_vencimiento, isOverdue)} 
                     color={isOverdue ? 'error' : 'warning'} 
@@ -142,7 +142,6 @@ const DueLoansPage: React.FC = () => {
                     onClick={() => navigate('/cobrador/collection')}
                     sx={{ 
                       textTransform: 'none', 
-                      borderRadius: 1.5,
                       fontWeight: 'bold',
                       bgcolor: isOverdue ? '#ef4444' : '#10b981',
                       '&:hover': { bgcolor: isOverdue ? '#dc2626' : '#059669' }
@@ -172,7 +171,7 @@ const DueLoansPage: React.FC = () => {
       </Box>
 
       {error && (
-        <Alert severity="error" sx={{ mb: 4, borderRadius: 2 }}>
+        <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
           {error}
         </Alert>
       )}
@@ -182,39 +181,29 @@ const DueLoansPage: React.FC = () => {
           <CircularProgress color="primary" />
         </Box>
       ) : (
-        <Card sx={{ borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.03)', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
-          <Box sx={{ borderBottom: 1, borderColor: 'divider', bgcolor: '#fff' }}>
+        <Card sx={{ borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+          {/* Tabs */}
+          <Box sx={{ borderBottom: '1px solid #e2e8f0', bgcolor: '#fff' }}>
             <Tabs 
               value={activeTab} 
-              onChange={handleTabChange} 
-              aria-label="Vencimientos de Préstamos"
-              textColor="primary"
-              indicatorColor="primary"
-              sx={{
-                px: 2,
-                '& .MuiTab-root': {
+              onChange={(e, newValue) => setActiveTab(newValue)}
+              sx={{ 
+                '& .MuiTab-root': { 
+                  textTransform: 'none', 
                   fontWeight: 'bold',
-                  py: 2,
-                  fontSize: '0.95rem',
-                  textTransform: 'none'
+                  minHeight: 60
                 }
               }}
             >
               <Tab 
-                label={
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <AccessTime />
-                    Próximos a Vencer ({upcomingLoans.length})
-                  </Box>
-                } 
+                icon={<AccessTime />} 
+                label={`Próximos a Vencer (${upcomingLoans.length})`}
+                iconPosition="start"
               />
               <Tab 
-                label={
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Warning />
-                    Vencidos Históricos ({overdueLoans.length})
-                  </Box>
-                } 
+                icon={<Warning />} 
+                label={`Vencidos Históricos (${overdueLoans.length})`}
+                iconPosition="start"
               />
             </Tabs>
           </Box>

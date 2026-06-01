@@ -5,7 +5,7 @@ import {
   Dialog, DialogTitle, DialogContent, DialogActions, Grid, 
   InputAdornment, Alert, CircularProgress, Card
 } from '@mui/material';
-import { Add, Edit, Search, Person, Home } from '@mui/icons-material';
+import { Search, Edit, Person, LocationOn } from '@mui/icons-material';
 import api from '../../services/api';
 
 interface Client {
@@ -145,7 +145,7 @@ const ClientsPage: React.FC = () => {
         </Box>
         <Button
           variant="contained"
-          startIcon={<Add />}
+          startIcon={<Person />}
           onClick={() => handleOpenDialog()}
           sx={{
             py: 1.25,
@@ -207,13 +207,13 @@ const ClientsPage: React.FC = () => {
             <CircularProgress color="primary" />
           </Box>
         ) : (
-          <TableContainer>
-            <Table>
+          <TableContainer sx={{ overflowX: 'auto' }}>
+            <Table sx={{ minWidth: 650 }}>
               <TableHead sx={{ bgcolor: '#f8fafc' }}>
                 <TableRow>
                   <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>ID</TableCell>
                   <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Nombre Completo</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Dirección de Residencia</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', color: '#475569', display: { xs: 'none', sm: 'table-cell' } }}>Dirección de Residencia</TableCell>
                   <TableCell align="center" sx={{ fontWeight: 'bold', color: '#475569' }}>Acciones</TableCell>
                 </TableRow>
               </TableHead>
@@ -237,7 +237,7 @@ const ClientsPage: React.FC = () => {
                       <TableCell sx={{ fontWeight: 500, color: '#1e293b' }}>
                         {client.nombre} {client.apellido}
                       </TableCell>
-                      <TableCell color="text.secondary">{client.direccion}</TableCell>
+                      <TableCell sx={{ color: '#64748b', display: { xs: 'none', sm: 'table-cell' } }}>{client.direccion}</TableCell>
                       <TableCell align="center">
                         <IconButton
                           color="primary"
@@ -263,23 +263,23 @@ const ClientsPage: React.FC = () => {
       <Dialog 
         open={open} 
         onClose={handleCloseDialog} 
-        maxWidth="xs" 
+        maxWidth="sm" 
         fullWidth
         PaperProps={{
           sx: { borderRadius: 3, p: 1 }
         }}
       >
-        <DialogTitle sx={{ fontWeight: 'bold', pb: 1 }}>
+        <DialogTitle sx={{ fontWeight: 'bold' }}>
           {editMode ? 'Editar Información del Cliente' : 'Registrar Nuevo Cliente'}
         </DialogTitle>
         <Box component="form" onSubmit={handleSubmit}>
           <DialogContent sx={{ pt: 1 }}>
             {formError && (
-              <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>
+              <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
                 {formError}
               </Alert>
             )}
-            <Grid container spacing={2}>
+            <Grid container spacing={2.5}>
               <Grid item xs={12}>
                 <TextField
                   label="Nombre"
@@ -291,7 +291,7 @@ const ClientsPage: React.FC = () => {
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
-                        <Person sx={{ color: 'text.secondary' }} />
+                        <Person sx={{ color: 'text.secondary', mr: 0.5 }} />
                       </InputAdornment>
                     ),
                   }}
@@ -309,7 +309,7 @@ const ClientsPage: React.FC = () => {
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
-                        <Person sx={{ color: 'text.secondary' }} />
+                        <Person sx={{ color: 'text.secondary', mr: 0.5 }} />
                       </InputAdornment>
                     ),
                   }}
@@ -328,8 +328,8 @@ const ClientsPage: React.FC = () => {
                   disabled={formSubmitting}
                   InputProps={{
                     startAdornment: (
-                      <InputAdornment position="start" sx={{ alignSelf: 'flex-start', mt: 1 }}>
-                        <Home sx={{ color: 'text.secondary' }} />
+                      <InputAdornment position="start">
+                        <LocationOn sx={{ color: 'text.secondary', mr: 0.5 }} />
                       </InputAdornment>
                     ),
                   }}

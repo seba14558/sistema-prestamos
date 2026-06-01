@@ -32,7 +32,7 @@ Esta aplicación permite administrar clientes, préstamos y pagos, facilitando e
 
 ### Base de Datos
 
-* MySQL
+* PostgreSQL
 
 ## Estructura del proyecto
 
@@ -67,16 +67,45 @@ cd sistema-prestamos
 ```bash
 cd backend
 npm install
-npm start
+# Opcional: copia backend/.env.example a backend/.env y ajusta tus credenciales
+npm run dev
 ```
+
+Variables usadas por el backend:
+
+* `PORT`
+* `PGHOST`
+* `PGPORT`
+* `PGDATABASE`
+* `PGUSER`
+* `PGPASSWORD`
+* `JWT_SECRET`
 
 ### Frontend
 
 ```bash
 cd frontend
 npm install
-npm start
+npm run dev
 ```
+
+## Ejecución del proyecto
+
+1. Iniciar el backend:
+
+```bash
+cd backend
+npm run dev
+```
+
+2. Iniciar el frontend en otra terminal:
+
+```bash
+cd frontend
+npm run dev
+```
+
+El backend usa el archivo `backend/.env` para leer la configuración de PostgreSQL y el secreto JWT.
 
 ## Autor
 

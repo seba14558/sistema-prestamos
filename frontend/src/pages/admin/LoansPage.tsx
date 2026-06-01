@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Box, Button, TextField, Typography, Paper, Table, TableBody, 
-  TableCell, TableContainer, TableHead, TableRow, IconButton, 
-  Dialog, DialogTitle, DialogContent, DialogActions, Grid, 
-  InputAdornment, Alert, CircularProgress, Card, MenuItem, Chip
+  Box, Button, TextField, Typography, Table, TableBody, 
+  TableCell, TableContainer, TableHead, TableRow, Dialog, 
+  DialogTitle, DialogContent, DialogActions, Grid, 
+  InputAdornment, Alert, CircularProgress, Card, MenuItem, Chip, IconButton
 } from '@mui/material';
-import { Add, Edit, Search, CalendarToday, AttachMoney, Person } from '@mui/icons-material';
+import { Search, Add, Edit, AccountBalance, CalendarToday, AttachMoney } from '@mui/icons-material';
 import api from '../../services/api';
 
 interface Client {
@@ -189,15 +189,15 @@ const LoansPage: React.FC = () => {
   const getStatusChip = (status: string) => {
     switch (status) {
       case 'activo':
-        return <Chip label="Activo" color="success" size="small" sx={{ fontWeight: 'bold', minWidth: 80 }} />;
+        return <Chip label="Activo" size="small" color="success" sx={{ fontWeight: 'bold' }} />;
       case 'vencido':
-        return <Chip label="Vencido" color="warning" size="small" sx={{ fontWeight: 'bold', minWidth: 80 }} />;
+        return <Chip label="Vencido" size="small" color="warning" sx={{ fontWeight: 'bold' }} />;
       case 'pagado':
-        return <Chip label="Pagado" color="info" size="small" sx={{ fontWeight: 'bold', minWidth: 80 }} />;
+        return <Chip label="Pagado" size="small" color="info" sx={{ fontWeight: 'bold' }} />;
       case 'moroso':
-        return <Chip label="Moroso" color="error" size="small" sx={{ fontWeight: 'bold', minWidth: 80 }} />;
+        return <Chip label="Moroso" size="small" color="error" sx={{ fontWeight: 'bold' }} />;
       default:
-        return <Chip label={status} size="small" sx={{ fontWeight: 'bold', minWidth: 80 }} />;
+        return <Chip label={status} size="small" color="default" sx={{ fontWeight: 'bold' }} />;
     }
   };
 
@@ -277,16 +277,16 @@ const LoansPage: React.FC = () => {
             <CircularProgress color="primary" />
           </Box>
         ) : (
-          <TableContainer>
+          <TableContainer sx={{ overflowX: 'auto' }}>
             <Table sx={{ minWidth: 650 }}>
               <TableHead sx={{ bgcolor: '#f8fafc' }}>
                 <TableRow>
                   <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Préstamo ID</TableCell>
                   <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Cliente</TableCell>
                   <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Plan</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Monto Otorgado</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Fecha de Otorgamiento</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Vencimiento</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', color: '#475569', display: { xs: 'none', sm: 'table-cell' } }}>Monto Otorgado</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', color: '#475569', display: { xs: 'none', md: 'table-cell' } }}>Fecha de Otorgamiento</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', color: '#475569', display: { xs: 'none', md: 'table-cell' } }}>Vencimiento</TableCell>
                   <TableCell align="center" sx={{ fontWeight: 'bold', color: '#475569' }}>Estado</TableCell>
                   <TableCell align="center" sx={{ fontWeight: 'bold', color: '#475569' }}>Acciones</TableCell>
                 </TableRow>
@@ -314,13 +314,13 @@ const LoansPage: React.FC = () => {
                           : `Cliente ID: ${loan.cliente_id}`}
                       </TableCell>
                       <TableCell>
-                        <Chip label={loan.plan} variant="outlined" size="small" />
+                        <Chip label={loan.plan} size="small" variant="outlined" color="primary" />
                       </TableCell>
-                      <TableCell sx={{ fontWeight: 'bold', color: '#0f172a' }}>
+                      <TableCell sx={{ fontWeight: 'bold', color: '#0f172a', display: { xs: 'none', sm: 'table-cell' } }}>
                         ${Number(loan.monto).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </TableCell>
-                      <TableCell>{new Date(loan.fecha_inicio).toLocaleDateString('es-AR')}</TableCell>
-                      <TableCell>{new Date(loan.fecha_vencimiento).toLocaleDateString('es-AR')}</TableCell>
+                      <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>{new Date(loan.fecha_inicio).toLocaleDateString('es-AR')}</TableCell>
+                      <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>{new Date(loan.fecha_vencimiento).toLocaleDateString('es-AR')}</TableCell>
                       <TableCell align="center">{getStatusChip(loan.estado)}</TableCell>
                       <TableCell align="center">
                         <IconButton
@@ -353,7 +353,7 @@ const LoansPage: React.FC = () => {
           sx: { borderRadius: 3, p: 1 }
         }}
       >
-        <DialogTitle sx={{ fontWeight: 'bold', pb: 1 }}>
+        <DialogTitle sx={{ fontWeight: 'bold' }}>
           {editMode ? `Editar Préstamo #${selectedLoanId}` : 'Otorgar Nuevo Préstamo'}
         </DialogTitle>
         <Box component="form" onSubmit={handleSubmit}>
@@ -376,12 +376,13 @@ const LoansPage: React.FC = () => {
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
-                        <Person sx={{ color: 'text.secondary', mr: 0.5 }} />
+                        <AccountBalance sx={{ color: 'text.secondary', mr: 0.5 }} />
                       </InputAdornment>
                     ),
                   }}
                   sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
                 >
+                  <MenuItem value="">Seleccionar cliente...</MenuItem>
                   {clients.map((c) => (
                     <MenuItem key={c.id} value={c.id}>
                       {c.nombre} {c.apellido} (#{c.id})
@@ -390,7 +391,7 @@ const LoansPage: React.FC = () => {
                 </TextField>
               </Grid>
 
-              <Grid item xs={12} sm={6}>
+              <Grid item xs={6}>
                 <TextField
                   select
                   label="Plan de Pago"
@@ -407,7 +408,7 @@ const LoansPage: React.FC = () => {
                 </TextField>
               </Grid>
 
-              <Grid item xs={12} sm={6}>
+              <Grid item xs={6}>
                 <TextField
                   label="Monto del Préstamo"
                   fullWidth
@@ -419,7 +420,7 @@ const LoansPage: React.FC = () => {
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
-                        <AttachMoney sx={{ color: 'text.secondary' }} />
+                        <AttachMoney sx={{ color: 'text.secondary', mr: 0.5 }} />
                       </InputAdornment>
                     ),
                   }}
@@ -427,7 +428,7 @@ const LoansPage: React.FC = () => {
                 />
               </Grid>
 
-              <Grid item xs={12} sm={6}>
+              <Grid item xs={6}>
                 <TextField
                   label="Fecha de Otorgamiento"
                   fullWidth
@@ -448,14 +449,14 @@ const LoansPage: React.FC = () => {
                 />
               </Grid>
 
-              <Grid item xs={12} sm={6}>
+              <Grid item xs={6}>
                 <TextField
                   label="Fecha de Vencimiento Estimada"
                   fullWidth
                   required
                   type="date"
                   value={fechaVencimiento}
-                  disabled // Campo automatizado para evitar inconsistencias
+                  disabled
                   InputLabelProps={{ shrink: true }}
                   InputProps={{
                     startAdornment: (
@@ -464,9 +465,7 @@ const LoansPage: React.FC = () => {
                       </InputAdornment>
                     ),
                   }}
-                  sx={{ 
-                    '& .MuiOutlinedInput-root': { borderRadius: 2, bgcolor: '#f8fafc' }
-                  }}
+                  sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2, bgcolor: '#f8fafc' } }}
                 />
               </Grid>
 

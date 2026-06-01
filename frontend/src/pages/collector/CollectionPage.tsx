@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Box, Button, TextField, Typography, Paper, Table, TableBody, 
-  TableCell, TableContainer, TableHead, TableRow, Grid, 
-  InputAdornment, Alert, CircularProgress, Card, MenuItem, Chip
+  Box, Button, TextField, Typography, Table, TableBody, 
+  TableCell, TableContainer, TableHead, TableRow, 
+  InputAdornment, Alert, CircularProgress, Card, Grid, MenuItem
 } from '@mui/material';
-import { AccountBalanceWallet, AttachMoney, CalendarToday, CheckCircle } from '@mui/icons-material';
+import { Search, Payment, AttachMoney, CalendarToday } from '@mui/icons-material';
 import api from '../../services/api';
 
 interface Loan {
@@ -117,7 +117,7 @@ const CollectionPage: React.FC = () => {
       </Box>
 
       {error && (
-        <Alert severity="error" sx={{ mb: 4, borderRadius: 2 }}>
+        <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
           {error}
         </Alert>
       )}
@@ -127,31 +127,26 @@ const CollectionPage: React.FC = () => {
           <CircularProgress color="success" />
         </Box>
       ) : (
-        <Grid container spacing={4}>
+        <Grid container spacing={3}>
           {/* Formulario de registro de pago */}
           <Grid item xs={12} lg={4}>
-            <Card 
-              sx={{ 
-                borderRadius: 3, 
-                boxShadow: '0 4px 20px rgba(0,0,0,0.03)', 
-                border: '1px solid #e2e8f0',
-                borderTop: '5px solid #00b159' 
-              }}
-            >
-              <Box sx={{ p: 3 }}>
-                <Typography variant="h6" fontWeight="bold" color="#1e293b" sx={{ mb: 3, display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <AccountBalanceWallet sx={{ color: '#00b159' }} />
-                  Registrar Cobro Nuevo
-                </Typography>
+            <Card sx={{ borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0', borderTop: '5px solid #10b981' }}>
+              <Box sx={{ p: 4 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 4 }}>
+                  <Payment sx={{ color: '#10b981', fontSize: 28 }} />
+                  <Typography variant="h6" fontWeight="bold" color="#1e293b">
+                    Registrar Cobro Nuevo
+                  </Typography>
+                </Box>
 
                 {formError && (
-                  <Alert severity="error" sx={{ mb: 2.5, borderRadius: 2 }}>
+                  <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
                     {formError}
                   </Alert>
                 )}
 
                 {formSuccess && (
-                  <Alert severity="success" icon={<CheckCircle />} sx={{ mb: 2.5, borderRadius: 2 }}>
+                  <Alert severity="success" sx={{ mb: 3, borderRadius: 2 }}>
                     {formSuccess}
                   </Alert>
                 )}
@@ -169,6 +164,7 @@ const CollectionPage: React.FC = () => {
                         disabled={formSubmitting}
                         sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
                       >
+                        <MenuItem value="">Seleccionar préstamo...</MenuItem>
                         {loans.map((l) => (
                           <MenuItem key={l.id} value={l.id}>
                             Préstamo #{l.id} - {l.cliente_nombre} {l.cliente_apellido} (Monto: ${Number(l.monto)})
@@ -189,7 +185,7 @@ const CollectionPage: React.FC = () => {
                         InputProps={{
                           startAdornment: (
                             <InputAdornment position="start">
-                              <AttachMoney sx={{ color: '#00b159' }} />
+                              <AttachMoney sx={{ color: '#10b981' }} />
                             </InputAdornment>
                           ),
                         }}
@@ -210,7 +206,7 @@ const CollectionPage: React.FC = () => {
                         InputProps={{
                           startAdornment: (
                             <InputAdornment position="start">
-                              <CalendarToday sx={{ color: 'text.secondary', mr: 0.5 }} />
+                              <CalendarToday sx={{ color: 'text.secondary' }} />
                             </InputAdornment>
                           ),
                         }}
@@ -221,21 +217,15 @@ const CollectionPage: React.FC = () => {
                     <Grid item xs={12}>
                       <Button
                         type="submit"
-                        fullWidth
                         variant="contained"
+                        fullWidth
                         disabled={formSubmitting}
                         sx={{
                           py: 1.5,
-                          borderRadius: 2,
                           fontWeight: 'bold',
-                          fontSize: '1rem',
-                          textTransform: 'none',
-                          bgcolor: '#00b159',
-                          boxShadow: '0 4px 12px rgba(0, 177, 89, 0.25)',
-                          '&:hover': {
-                            bgcolor: '#009048',
-                            boxShadow: '0 6px 16px rgba(0, 177, 89, 0.35)',
-                          }
+                          bgcolor: '#10b981',
+                          '&:hover': { bgcolor: '#059669', boxShadow: '0 6px 16px rgba(16, 185, 129, 0.35)' },
+                          boxShadow: '0 4px 12px rgba(16, 185, 129, 0.25)'
                         }}
                       >
                         {formSubmitting ? 'Registrando...' : 'Registrar Cobro'}
@@ -249,25 +239,25 @@ const CollectionPage: React.FC = () => {
 
           {/* Historial de cobros personales */}
           <Grid item xs={12} lg={8}>
-            <Card sx={{ borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.03)', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+            <Card sx={{ borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
               <Box sx={{ p: 3, bgcolor: '#fff', borderBottom: '1px solid #e2e8f0' }}>
                 <Typography variant="h6" fontWeight="bold" color="#1e293b">
                   Mi Recaudación Personal Reciente
                 </Typography>
-                <Typography variant="caption" color="text.secondary">
+                <Typography variant="caption" color="#64748b">
                   Historial de cobros que has registrado tú en el sistema
                 </Typography>
               </Box>
 
-              <TableContainer>
-                <Table>
+              <TableContainer sx={{ overflowX: 'auto' }}>
+                <Table sx={{ minWidth: 650 }}>
                   <TableHead sx={{ bgcolor: '#f8fafc' }}>
                     <TableRow>
                       <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Cobro ID</TableCell>
                       <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Cliente</TableCell>
-                      <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>ID Préstamo</TableCell>
+                      <TableCell sx={{ fontWeight: 'bold', color: '#475569', display: { xs: 'none', sm: 'table-cell' } }}>ID Préstamo</TableCell>
                       <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Monto Cobrado</TableCell>
-                      <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Fecha de Cobro</TableCell>
+                      <TableCell sx={{ fontWeight: 'bold', color: '#475569', display: { xs: 'none', sm: 'table-cell' } }}>Fecha de Cobro</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -279,18 +269,18 @@ const CollectionPage: React.FC = () => {
                       </TableRow>
                     ) : (
                       payments.map((p) => (
-                        <TableRow key={p.id} sx={{ '&:hover': { bgcolor: '#f8fafc' } }}>
-                          <TableCell sx={{ fontWeight: 600, color: '#00b159' }}>#{p.id}</TableCell>
-                          <TableCell sx={{ fontWeight: 500 }}>
+                        <TableRow key={p.id} sx={{ '&:hover': { bgcolor: '#f8fafc' }, borderBottom: '1px solid #f1f5f9' }}>
+                          <TableCell sx={{ fontWeight: 600, color: '#10b981' }}>#{p.id}</TableCell>
+                          <TableCell sx={{ fontWeight: 500, color: '#1e293b' }}>
                             {p.cliente_nombre && p.cliente_apellido 
                               ? `${p.cliente_nombre} ${p.cliente_apellido}` 
                               : 'Cliente'}
                           </TableCell>
-                          <TableCell sx={{ color: '#475569' }}>#{p.prestamo_id}</TableCell>
-                          <TableCell sx={{ fontWeight: 'bold', color: '#00b159' }}>
+                          <TableCell sx={{ color: '#64748b', display: { xs: 'none', sm: 'table-cell' } }}>#{p.prestamo_id}</TableCell>
+                          <TableCell sx={{ fontWeight: 'bold', color: '#10b981' }}>
                             +${Number(p.monto).toLocaleString('es-AR', { minimumFractionDigits: 2 })}
                           </TableCell>
-                          <TableCell>{new Date(p.fecha_pago).toLocaleDateString('es-AR')}</TableCell>
+                          <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>{new Date(p.fecha_pago).toLocaleDateString('es-AR')}</TableCell>
                         </TableRow>
                       ))
                     )}

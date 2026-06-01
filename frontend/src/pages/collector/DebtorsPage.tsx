@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  Box, Typography, Card, TextField, Table, TableBody, 
-  TableCell, TableContainer, TableHead, TableRow, IconButton, 
-  InputAdornment, Alert, CircularProgress, Chip, Button
+  Box, Button, Typography, Table, TableBody, 
+  TableCell, TableContainer, TableHead, TableRow, 
+  Alert, CircularProgress, Card, Chip, TextField
 } from '@mui/material';
-import { Search, Warning, Home, Payments, ArrowForward } from '@mui/icons-material';
+import { Warning, Home, Payment } from '@mui/icons-material';
 import api from '../../services/api';
 
 interface Loan {
@@ -91,7 +91,7 @@ const DebtorsPage: React.FC = () => {
       </Box>
 
       {error && (
-        <Alert severity="error" sx={{ mb: 4, borderRadius: 2 }}>
+        <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
           {error}
         </Alert>
       )}
@@ -103,46 +103,28 @@ const DebtorsPage: React.FC = () => {
       ) : (
         <>
           {/* Tarjeta Resumen de Alerta */}
-          <Card 
-            sx={{ 
-              borderRadius: 3, 
-              mb: 4, 
-              p: 3, 
-              bgcolor: 'rgba(239, 68, 68, 0.04)', 
-              border: '1px solid rgba(239, 68, 68, 0.16)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 2
-            }}
-          >
-            <Box sx={{ p: 1.5, borderRadius: '50%', bgcolor: 'rgba(239, 68, 68, 0.1)', color: '#ef4444' }}>
+          <Box sx={{ mb: 4, p: 4, bgcolor: 'rgba(239, 68, 68, 0.04)', border: '1px solid rgba(239, 68, 68, 0.16)', borderRadius: 3, display: 'flex', alignItems: 'center', gap: 3 }}>
+            <Box sx={{ p: 2.5, borderRadius: '50%', bgcolor: 'rgba(239, 68, 68, 0.1)', color: '#ef4444' }}>
               <Warning sx={{ fontSize: 32 }} />
             </Box>
             <Box>
-              <Typography variant="subtitle1" fontWeight="bold" color="#991b1b">
+              <Typography variant="h6" fontWeight="bold" color="#991b1c">
                 Atención: {loans.length} Préstamos en Situación Irregular
               </Typography>
               <Typography variant="body2" color="#b91c1c">
                 Estos clientes presentan saldos pendientes vencidos y deben ser contactados para acordar un cobro.
               </Typography>
             </Box>
-          </Card>
+          </Box>
 
           {/* Tabla de Morosos */}
-          <Card sx={{ borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.03)', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+          <Card sx={{ borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
             <Box sx={{ p: 3, bgcolor: '#fff', borderBottom: '1px solid #e2e8f0' }}>
               <TextField
                 placeholder="Buscar por cliente, dirección o préstamo ID..."
                 fullWidth
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <Search sx={{ color: 'text.secondary' }} />
-                    </InputAdornment>
-                  ),
-                }}
                 sx={{
                   '& .MuiOutlinedInput-root': {
                     borderRadius: 2.5,
@@ -158,17 +140,17 @@ const DebtorsPage: React.FC = () => {
               />
             </Box>
 
-            <TableContainer>
-              <Table>
+            <TableContainer sx={{ overflowX: 'auto' }}>
+              <Table sx={{ minWidth: 650 }}>
                 <TableHead sx={{ bgcolor: '#f8fafc' }}>
                   <TableRow>
                     <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>ID Préstamo</TableCell>
                     <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Cliente</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Dirección de Cobro</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Plan</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Monto Prestado</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Vencimiento</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Atraso (Días)</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold', color: '#475569', display: { xs: 'none', md: 'table-cell' } }}>Dirección de Cobro</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold', color: '#475569', display: { xs: 'none', sm: 'table-cell' } }}>Plan</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold', color: '#475569', display: { xs: 'none', sm: 'table-cell' } }}>Monto Prestado</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold', color: '#475569', display: { xs: 'none', md: 'table-cell' } }}>Vencimiento</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold', color: '#475569', display: { xs: 'none', lg: 'table-cell' } }}>Atraso (Días)</TableCell>
                     <TableCell align="center" sx={{ fontWeight: 'bold', color: '#475569' }}>Cobrar</TableCell>
                   </TableRow>
                 </TableHead>
@@ -181,52 +163,45 @@ const DebtorsPage: React.FC = () => {
                     </TableRow>
                   ) : (
                     filteredLoans.map((loan) => (
-                      <TableRow key={loan.id} sx={{ '&:hover': { bgcolor: '#fff5f5' }, transition: 'background-color 0.2s' }}>
+                      <TableRow key={loan.id} sx={{ '&:hover': { bgcolor: 'rgba(239, 68, 68, 0.04)' }, borderBottom: '1px solid #f1f5f9' }}>
                         <TableCell sx={{ fontWeight: 600, color: '#ef4444' }}>#{loan.id}</TableCell>
-                        <TableCell sx={{ fontWeight: 500 }}>
+                        <TableCell sx={{ fontWeight: 500, color: '#1e293b' }}>
                           {loan.cliente_nombre && loan.cliente_apellido 
                             ? `${loan.cliente_nombre} ${loan.cliente_apellido}` 
                             : `Cliente #${loan.cliente_id}`}
                         </TableCell>
-                        <TableCell>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                            <Home sx={{ color: 'text.secondary', fontSize: 16 }} />
-                            <Typography variant="body2">{loan.cliente_direccion || 'No especificada'}</Typography>
+                        <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Home sx={{ color: 'text.secondary', fontSize: 18 }} />
+                            <Typography variant="body2" color="#64748b">{loan.cliente_direccion || 'No especificada'}</Typography>
                           </Box>
                         </TableCell>
-                        <TableCell>
-                          <Chip label={loan.plan} size="small" variant="outlined" color="error" />
+                        <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>
+                          <Chip label={loan.plan} size="small" color="error" variant="outlined" />
                         </TableCell>
-                        <TableCell sx={{ fontWeight: 'bold' }}>
+                        <TableCell sx={{ fontWeight: 'bold', color: '#0f172a', display: { xs: 'none', sm: 'table-cell' } }}>
                           ${Number(loan.monto).toLocaleString('es-AR', { minimumFractionDigits: 2 })}
                         </TableCell>
-                        <TableCell sx={{ color: '#ef4444', fontWeight: 500 }}>
+                        <TableCell sx={{ color: '#ef4444', fontWeight: 500, display: { xs: 'none', md: 'table-cell' } }}>
                           {new Date(loan.fecha_vencimiento).toLocaleDateString('es-AR')}
                         </TableCell>
-                        <TableCell sx={{ fontWeight: 'bold', color: '#991b1b' }}>
-                          <Chip 
-                            label={`${getDaysOverdue(loan.fecha_vencimiento)} días`} 
-                            color="error" 
-                            size="small" 
-                            sx={{ fontWeight: 'bold' }} 
-                          />
+                        <TableCell sx={{ fontWeight: 'bold', color: '#991b1c', display: { xs: 'none', lg: 'table-cell' } }}>
+                          <Chip label={`${getDaysOverdue(loan.fecha_vencimiento)} días`} size="small" color="error" />
                         </TableCell>
                         <TableCell align="center">
                           <Button
                             variant="contained"
-                            color="success"
                             size="small"
+                            startIcon={<Payment />}
                             onClick={() => navigate('/cobrador/collection')}
-                            startIcon={<Payments />}
-                            sx={{ 
-                              textTransform: 'none', 
-                              borderRadius: 1.5,
+                            sx={{
+                              textTransform: 'none',
                               fontWeight: 'bold',
                               bgcolor: '#10b981',
                               '&:hover': { bgcolor: '#059669' }
                             }}
                           >
-                            Ir a Cobrar
+                            Cobrar
                           </Button>
                         </TableCell>
                       </TableRow>

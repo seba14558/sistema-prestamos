@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Box, Typography, Grid, Card, CardContent, CircularProgress, 
-  Alert, Table, TableBody, TableCell, TableContainer, TableHead, 
-  TableRow, Paper, LinearProgress, Chip, useTheme
+  Box, Typography, Card, Grid, Table, TableBody, 
+  TableCell, TableContainer, TableHead, TableRow, CircularProgress 
 } from '@mui/material';
 import { 
-  TrendingUp, AttachMoney, PeopleAlt, AccountBalance, 
-  ShowChart, ReceiptLong, AssignmentTurnedIn
+  AccountBalanceWallet, TrendingUp, Alarm, People, 
+  MonetizationOn, AttachMoney, CalendarToday 
 } from '@mui/icons-material';
 import api from '../../services/api';
 
@@ -119,186 +118,151 @@ const DashboardPage: React.FC = () => {
       </Box>
 
       {error && (
-        <Alert severity="error" sx={{ mb: 4, borderRadius: 2 }}>
+        <Box sx={{ mb: 3, p: 3, bgcolor: 'rgba(239, 68, 68, 0.1)', borderRadius: 2, border: '1px solid rgba(239, 68, 68, 0.2)', color: '#ef4444' }}>
           {error}
-        </Alert>
+        </Box>
       )}
 
       {/* KPI Cards */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} sm={6} md={3}>
-          <Card 
-            sx={{ 
-              borderRadius: 3, 
-              boxShadow: '0 4px 20px rgba(0,0,0,0.03)',
-              border: '1px solid #f1f5f9',
-              transition: 'transform 0.2s',
-              '&:hover': { transform: 'translateY(-3px)' }
-            }}
-          >
-            <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <Box sx={{ p: 1.5, borderRadius: 2, bgcolor: 'rgba(99, 102, 241, 0.08)', color: '#6366f1' }}>
-                <AccountBalance sx={{ fontSize: 32 }} />
-              </Box>
-              <Box>
-                <Typography variant="caption" fontWeight="600" color="text.secondary">
-                  CAPITAL PRESTADO
-                </Typography>
-                <Typography variant="h5" fontWeight="bold" color="#1e293b">
-                  {formatCurrency(stats.totalPrestado)}
-                </Typography>
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        <Grid item xs={12} sm={6} md={3}>
-          <Card 
-            sx={{ 
-              borderRadius: 3, 
-              boxShadow: '0 4px 20px rgba(0,0,0,0.03)',
-              border: '1px solid #f1f5f9',
-              transition: 'transform 0.2s',
-              '&:hover': { transform: 'translateY(-3px)' }
-            }}
-          >
-            <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <Box sx={{ p: 1.5, borderRadius: 2, bgcolor: 'rgba(16, 185, 129, 0.08)', color: '#10b981' }}>
-                <TrendingUp sx={{ fontSize: 32 }} />
-              </Box>
-              <Box>
-                <Typography variant="caption" fontWeight="600" color="text.secondary">
-                  RECAUDADO
-                </Typography>
-                <Typography variant="h5" fontWeight="bold" color="#1e293b">
-                  {formatCurrency(stats.totalCobrado)}
-                </Typography>
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        <Grid item xs={12} sm={6} md={3}>
-          <Card 
-            sx={{ 
-              borderRadius: 3, 
-              boxShadow: '0 4px 20px rgba(0,0,0,0.03)',
-              border: '1px solid #f1f5f9',
-              transition: 'transform 0.2s',
-              '&:hover': { transform: 'translateY(-3px)' }
-            }}
-          >
-            <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <Box sx={{ p: 1.5, borderRadius: 2, bgcolor: 'rgba(245, 158, 11, 0.08)', color: '#f59e0b' }}>
+        <Grid item xs={12} sm={6} lg={3}>
+          <Card sx={{ borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid #f1f5f9', p: 3, '&:hover': { transform: 'translateY(-4px)', transition: 'transform 0.2s' } }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <Box sx={{ p: 2, borderRadius: 2, bgcolor: 'rgba(99, 102, 241, 0.08)', color: '#6366f1' }}>
                 <AttachMoney sx={{ fontSize: 32 }} />
               </Box>
               <Box>
-                <Typography variant="caption" fontWeight="600" color="text.secondary">
-                  SALDO EN CALLE
+                <Typography variant="caption" fontWeight="bold" color="#64748b" sx={{ fontSize: '0.75rem' }}>
+                  CAPITAL PRESTADO
                 </Typography>
-                <Typography variant="h5" fontWeight="bold" color="#1e293b">
-                  {formatCurrency(stats.totalPendiente)}
+                <Typography variant="h6" fontWeight="bold" color="#1e293b">
+                  {formatCurrency(stats.totalPrestado)}
                 </Typography>
               </Box>
-            </CardContent>
+            </Box>
           </Card>
         </Grid>
 
-        <Grid item xs={12} sm={6} md={3}>
-          <Card 
-            sx={{ 
-              borderRadius: 3, 
-              boxShadow: '0 4px 20px rgba(0,0,0,0.03)',
-              border: '1px solid #f1f5f9',
-              transition: 'transform 0.2s',
-              '&:hover': { transform: 'translateY(-3px)' }
-            }}
-          >
-            <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <Box sx={{ p: 1.5, borderRadius: 2, bgcolor: 'rgba(239, 68, 68, 0.08)', color: '#ef4444' }}>
-                <PeopleAlt sx={{ fontSize: 32 }} />
+        <Grid item xs={12} sm={6} lg={3}>
+          <Card sx={{ borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid #f1f5f9', p: 3, '&:hover': { transform: 'translateY(-4px)', transition: 'transform 0.2s' } }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <Box sx={{ p: 2, borderRadius: 2, bgcolor: 'rgba(16, 185, 129, 0.08)', color: '#10b981' }}>
+                <TrendingUp sx={{ fontSize: 32 }} />
               </Box>
               <Box>
-                <Typography variant="caption" fontWeight="600" color="text.secondary">
+                <Typography variant="caption" fontWeight="bold" color="#64748b" sx={{ fontSize: '0.75rem' }}>
+                  RECAUDADO
+                </Typography>
+                <Typography variant="h6" fontWeight="bold" color="#1e293b">
+                  {formatCurrency(stats.totalCobrado)}
+                </Typography>
+              </Box>
+            </Box>
+          </Card>
+        </Grid>
+
+        <Grid item xs={12} sm={6} lg={3}>
+          <Card sx={{ borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid #f1f5f9', p: 3, '&:hover': { transform: 'translateY(-4px)', transition: 'transform 0.2s' } }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <Box sx={{ p: 2, borderRadius: 2, bgcolor: 'rgba(245, 158, 11, 0.08)', color: '#f59e0b' }}>
+                <Alarm sx={{ fontSize: 32 }} />
+              </Box>
+              <Box>
+                <Typography variant="caption" fontWeight="bold" color="#64748b" sx={{ fontSize: '0.75rem' }}>
+                  SALDO EN CALLE
+                </Typography>
+                <Typography variant="h6" fontWeight="bold" color="#1e293b">
+                  {formatCurrency(stats.totalPendiente)}
+                </Typography>
+              </Box>
+            </Box>
+          </Card>
+        </Grid>
+
+        <Grid item xs={12} sm={6} lg={3}>
+          <Card sx={{ borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid #f1f5f9', p: 3, '&:hover': { transform: 'translateY(-4px)', transition: 'transform 0.2s' } }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <Box sx={{ p: 2, borderRadius: 2, bgcolor: 'rgba(239, 68, 68, 0.08)', color: '#ef4444' }}>
+                <People sx={{ fontSize: 32 }} />
+              </Box>
+              <Box>
+                <Typography variant="caption" fontWeight="bold" color="#64748b" sx={{ fontSize: '0.75rem' }}>
                   TOTAL CLIENTES
                 </Typography>
-                <Typography variant="h5" fontWeight="bold" color="#1e293b">
+                <Typography variant="h6" fontWeight="bold" color="#1e293b">
                   {loans.length} Préstamos
                 </Typography>
               </Box>
-            </CardContent>
+            </Box>
           </Card>
         </Grid>
       </Grid>
 
       {/* Porcentaje de recuperación */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} md={8}>
-          <Card sx={{ borderRadius: 3, p: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.03)', border: '1px solid #f1f5f9' }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+        <Grid item xs={12} lg={8}>
+          <Card sx={{ borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid #f1f5f9', p: 4 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <ShowChart color="primary" />
-                <Typography variant="subtitle1" fontWeight="bold" color="#1e293b">
+                <MonetizationOn sx={{ color: '#6366f1' }} />
+                <Typography variant="h6" fontWeight="bold" color="#1e293b">
                   Tasa de Recuperación Financiera
                 </Typography>
               </Box>
-              <Typography variant="subtitle2" fontWeight="bold" color="#6366f1">
+              <Typography variant="body1" fontWeight="bold" color="#6366f1">
                 {stats.porcentajeRecuperacion.toFixed(1)}% Cobrado
               </Typography>
             </Box>
             
-            <LinearProgress 
-              variant="determinate" 
-              value={stats.porcentajeRecuperacion} 
-              sx={{ 
-                height: 12, 
-                borderRadius: 6, 
-                bgcolor: '#e2e8f0',
-                '& .MuiLinearProgress-bar': {
+            <Box sx={{ width: '100%', height: 12, bgcolor: '#e2e8f0', borderRadius: 6, overflow: 'hidden', mb: 2 }}>
+              <Box 
+                sx={{ 
+                  height: '100%', 
+                  bgcolor: 'linear-gradient(90deg, #6366f1 0%, #10b981 100%)', 
                   borderRadius: 6,
-                  background: 'linear-gradient(90deg, #6366f1 0%, #10b981 100%)',
-                }
-              }}
-            />
+                  width: `${stats.porcentajeRecuperacion}%`
+                }}
+              />
+            </Box>
             
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+            <Typography variant="body2" color="#64748b">
               El porcentaje refleja la relación de cobro efectivo de cuotas contra el capital original prestado en circulación.
             </Typography>
           </Card>
         </Grid>
 
-        <Grid item xs={12} md={4}>
-          <Card sx={{ borderRadius: 3, p: 3, height: '100%', boxShadow: '0 4px 20px rgba(0,0,0,0.03)', border: '1px solid #f1f5f9' }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2.5 }}>
-              <AssignmentTurnedIn color="primary" />
-              <Typography variant="subtitle1" fontWeight="bold" color="#1e293b">
+        <Grid item xs={12} lg={4}>
+          <Card sx={{ borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid #f1f5f9', p: 4, height: '100%' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
+              <AccountBalanceWallet sx={{ color: '#6366f1' }} />
+              <Typography variant="h6" fontWeight="bold" color="#1e293b">
                 Préstamos por Estado
               </Typography>
             </Box>
 
             <Grid container spacing={2}>
               <Grid item xs={6}>
-                <Box sx={{ p: 2, borderRadius: 2, bgcolor: '#f0fdf4', textAlign: 'center', border: '1px solid #dcfce7' }}>
-                  <Typography variant="h6" fontWeight="bold" color="#15803d">{stats.prestamosActivos}</Typography>
-                  <Typography variant="caption" fontWeight="600" color="#166534">Activos</Typography>
+                <Box sx={{ p: 2, borderRadius: 2, bgcolor: '#dcfce7', textAlign: 'center', border: '1px solid #86efac' }}>
+                  <Typography variant="h5" fontWeight="bold" color="#166534">{stats.prestamosActivos}</Typography>
+                  <Typography variant="caption" fontWeight="bold" color="#15803d">Activos</Typography>
                 </Box>
               </Grid>
               <Grid item xs={6}>
-                <Box sx={{ p: 2, borderRadius: 2, bgcolor: '#fffbeb', textAlign: 'center', border: '1px solid #fef3c7' }}>
-                  <Typography variant="h6" fontWeight="bold" color="#b45309">{stats.prestamosVencidos}</Typography>
-                  <Typography variant="caption" fontWeight="600" color="#92400e">Vencidos</Typography>
+                <Box sx={{ p: 2, borderRadius: 2, bgcolor: '#fef3c7', textAlign: 'center', border: '1px solid #fde68a' }}>
+                  <Typography variant="h5" fontWeight="bold" color="#b45309">{stats.prestamosVencidos}</Typography>
+                  <Typography variant="caption" fontWeight="bold" color="#92400e">Vencidos</Typography>
                 </Box>
               </Grid>
               <Grid item xs={6}>
-                <Box sx={{ p: 2, borderRadius: 2, bgcolor: '#eff6ff', textAlign: 'center', border: '1px solid #dbeafe' }}>
-                  <Typography variant="h6" fontWeight="bold" color="#1d4ed8">{stats.prestamosPagados}</Typography>
-                  <Typography variant="caption" fontWeight="600" color="#1e40af">Pagados</Typography>
+                <Box sx={{ p: 2, borderRadius: 2, bgcolor: '#dbeafe', textAlign: 'center', border: '1px solid #93c5fd' }}>
+                  <Typography variant="h5" fontWeight="bold" color="#1e40af">{stats.prestamosPagados}</Typography>
+                  <Typography variant="caption" fontWeight="bold" color="#1e3a8a">Pagados</Typography>
                 </Box>
               </Grid>
               <Grid item xs={6}>
-                <Box sx={{ p: 2, borderRadius: 2, bgcolor: '#fef2f2', textAlign: 'center', border: '1px solid #fee2e2' }}>
-                  <Typography variant="h6" fontWeight="bold" color="#b91c1c">{stats.prestamosMorosos}</Typography>
-                  <Typography variant="caption" fontWeight="600" color="#991b1b">Morosos</Typography>
+                <Box sx={{ p: 2, borderRadius: 2, bgcolor: '#fee2e2', textAlign: 'center', border: '1px solid #fca5a5' }}>
+                  <Typography variant="h5" fontWeight="bold" color="#b91c1c">{stats.prestamosMorosos}</Typography>
+                  <Typography variant="caption" fontWeight="bold" color="#991b1b">Morosos</Typography>
                 </Box>
               </Grid>
             </Grid>
@@ -307,54 +271,50 @@ const DashboardPage: React.FC = () => {
       </Grid>
 
       {/* Transacciones recientes */}
-      <Card sx={{ borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.03)', border: '1px solid #f1f5f9', overflow: 'hidden' }}>
+      <Card sx={{ borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid #f1f5f9', overflow: 'hidden' }}>
         <Box sx={{ p: 3, bgcolor: '#fff', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', gap: 1 }}>
-          <ReceiptLong color="primary" />
-          <Typography variant="subtitle1" fontWeight="bold" color="#1e293b">
+          <CalendarToday sx={{ color: '#6366f1' }} />
+          <Typography variant="h6" fontWeight="bold" color="#1e293b">
             Últimos Pagos Registrados (Recaudación)
           </Typography>
         </Box>
-        <TableContainer>
-          <Table>
+        <TableContainer sx={{ overflowX: 'auto' }}>
+          <Table sx={{ minWidth: 650 }}>
             <TableHead sx={{ bgcolor: '#f8fafc' }}>
               <TableRow>
                 <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Pago ID</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Cliente</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Préstamo</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', color: '#475569', display: { xs: 'none', sm: 'table-cell' } }}>Cliente</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', color: '#475569', display: { xs: 'none', md: 'table-cell' } }}>Préstamo</TableCell>
                 <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Monto Cobrado</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Fecha de Pago</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Registrado por (Cobrador)</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', color: '#475569', display: { xs: 'none', sm: 'table-cell' } }}>Fecha de Pago</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', color: '#475569', display: { xs: 'none', md: 'table-cell' } }}>Registrado por</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {payments.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} align="center" sx={{ py: 4, color: 'text.secondary' }}>
+                  <TableCell colSpan={6} align="center" sx={{ py: 6, color: 'text.secondary' }}>
                     No se han registrado pagos en el sistema aún.
                   </TableCell>
                 </TableRow>
               ) : (
                 payments.slice(0, 5).map((pay) => (
-                  <TableRow key={pay.id} sx={{ '&:hover': { bgcolor: '#f8fafc' } }}>
+                  <TableRow key={pay.id} sx={{ '&:hover': { bgcolor: '#f8fafc' }, borderBottom: '1px solid #f1f5f9' }}>
                     <TableCell sx={{ fontWeight: 600, color: '#6366f1' }}>#{pay.id}</TableCell>
-                    <TableCell sx={{ fontWeight: 500 }}>
+                    <TableCell sx={{ fontWeight: 500, display: { xs: 'none', sm: 'table-cell' } }}>
                       {pay.cliente_nombre && pay.cliente_apellido 
                         ? `${pay.cliente_nombre} ${pay.cliente_apellido}` 
                         : 'Cliente Desconocido'}
                     </TableCell>
-                    <TableCell sx={{ color: '#475569' }}>Préstamo #{pay.prestamo_id}</TableCell>
+                    <TableCell sx={{ color: '#64748b', display: { xs: 'none', md: 'table-cell' } }}>Préstamo #{pay.prestamo_id}</TableCell>
                     <TableCell sx={{ fontWeight: 'bold', color: '#10b981' }}>
                       +${Number(pay.monto).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </TableCell>
-                    <TableCell>{new Date(pay.fecha_pago).toLocaleDateString('es-AR')}</TableCell>
-                    <TableCell>
-                      <Chip 
-                        label={pay.cobrador_usuario || 'Admin'} 
-                        size="small" 
-                        color="secondary"
-                        variant="outlined" 
-                        sx={{ fontWeight: 'bold' }} 
-                      />
+                    <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>{new Date(pay.fecha_pago).toLocaleDateString('es-AR')}</TableCell>
+                    <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>
+                      <Box sx={{ px: 2, py: 0.5, bgcolor: '#f1f5f9', borderRadius: 1, display: 'inline-block', fontSize: '0.75rem', fontWeight: 'bold', color: '#475569', border: '1px solid #e2e8f0' }}>
+                        {pay.cobrador_usuario || 'Admin'}
+                      </Box>
                     </TableCell>
                   </TableRow>
                 ))
