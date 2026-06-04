@@ -8,11 +8,12 @@ import {
 import { 
   Menu as MenuIcon, Dashboard as DashboardIcon, 
   People as PeopleIcon, AccountBalance as AccountBalanceIcon,
-  Logout as LogoutIcon
+  Logout as LogoutIcon, Person as PersonIcon
 } from '@mui/icons-material';
 import ClientsPage from './admin/ClientsPage';
 import LoansPage from './admin/LoansPage';
 import DashboardPage from './admin/DashboardPage';
+import UsersPage from './admin/UsersPage';
 import NotificationBell from '../components/NotificationBell';
 
 const AdminPanel: React.FC = () => {
@@ -57,6 +58,7 @@ const AdminPanel: React.FC = () => {
     { text: 'Dashboard', path: 'dashboard', icon: <DashboardIcon /> },
     { text: 'Clientes', path: 'clients', icon: <PeopleIcon /> },
     { text: 'Préstamos', path: 'loans', icon: <AccountBalanceIcon /> },
+    { text: 'Usuarios', path: 'users', icon: <PersonIcon /> },
   ];
 
   const drawerContent = (
@@ -199,7 +201,8 @@ const AdminPanel: React.FC = () => {
             <Typography variant="h6" component="div" sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' }, fontWeight: 'bold', color: '#1e293b' }}>
               {location.pathname.includes('dashboard') ? 'Panel de Resumen' : 
                location.pathname.includes('clients') ? 'Gestión de Clientes' : 
-               location.pathname.includes('loans') ? 'Control de Préstamos' : 'Panel de Administración'}
+               location.pathname.includes('loans') ? 'Control de Préstamos' : 
+               location.pathname.includes('users') ? 'Gestión de Usuarios' : 'Panel de Administración'}
             </Typography>
 
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, ml: 'auto' }}>
@@ -221,6 +224,7 @@ const AdminPanel: React.FC = () => {
             <Route path="clients" element={<ClientsPage />} />
             <Route path="loans" element={<LoansPage />} />
             <Route path="dashboard" element={<DashboardPage />} />
+            <Route path="users" element={<UsersPage />} />
             <Route path="" element={<Navigate to="dashboard" replace />} />
           </Routes>
         </Box>

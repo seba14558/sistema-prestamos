@@ -47,3 +47,45 @@ exports.verRecaudacion = async (req, res) => {
     res.status(500).json({ message: 'Error al consultar recaudación', error: err });
   }
 };
+
+exports.editarPago = async (req, res) => {
+  const { id } = req.params;
+  const { fecha_pago, monto } = req.body;
+  
+  // Solo admin puede editar pagos
+  if (req.user.rol !== 'admin') {
+    return res.status(403).json({ message: 'Solo el administrador puede editar pagos' });
+  }
+  
+  try {
+    const result = await pool.query(
+      'UPDATE pagos SET fecha_pago = $1, monto = $2 WHERE id = $3 RETURNING *',
+      [fecha_pago, monto, id]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Pago no encontrado' });
+    }
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ message: 'Error al editar pago', error: err });
+  }
+};
+
+exports.eliminarPago = async (req, res) => {
+  const { id } = req.params;
+  
+  // Solo admin puede eliminar pagos
+  if (req.user.rol !== 'admin') {
+    return res.status(403).json({ message: 'Solo el administrador puede eliminar pagos' });
+  }
+  
+  try {
+    const result = await pool.query('DELETE FROM pagos WHERE id = $1 RETURNING *', [id]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Pago no encontrado' });
+    }
+    res.json({ message: 'Pago eliminado exitosamente' });
+  } catch (err) {
+    res.status(500).json({ message: 'Error al eliminar pago', error: err });
+  }
+};

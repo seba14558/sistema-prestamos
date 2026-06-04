@@ -5,8 +5,8 @@ import {
   Dialog, DialogTitle, DialogContent, DialogActions, Grid, 
   InputAdornment, Alert, CircularProgress, Card
 } from '@mui/material';
-import { Search, Edit, Person, LocationOn } from '@mui/icons-material';
-import api from '../../services/api';
+import { Search, Edit, Person, LocationOn, Delete } from '@mui/icons-material';
+import api, { editarCliente, eliminarCliente } from '../../services/api';
 
 interface Client {
   id: number;
@@ -21,6 +21,7 @@ const ClientsPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
+  const [isAdmin, setIsAdmin] = useState(false);
 
   // Estados del modal
   const [open, setOpen] = useState(false);
@@ -52,6 +53,17 @@ const ClientsPage: React.FC = () => {
 
   useEffect(() => {
     fetchClients();
+    
+    // Detectar si el usuario es admin
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        setIsAdmin(user.rol === 'admin');
+      } catch (e) {
+        console.error('Error al parsear usuario:', e);
+      }
+    }
   }, []);
 
   // Filtrar clientes en tiempo real
@@ -106,7 +118,7 @@ const ClientsPage: React.FC = () => {
     try {
       if (editMode && selectedClientId !== null) {
         // Editar cliente existente
-        await api.put(`/clientes/${selectedClientId}`, {
+        await editarCliente(selectedClientId, {
           nombre: nombre.trim(),
           apellido: apellido.trim(),
           direccion: direccion.trim()
@@ -128,6 +140,20 @@ const ClientsPage: React.FC = () => {
       setFormError(err.response?.data?.message || 'Error al guardar el cliente.');
     } finally {
       setFormSubmitting(false);
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    if (!window.confirm('¿Estás seguro de que quieres eliminar este cliente?')) {
+      return;
+    }
+
+    try {
+      await eliminarCliente(id);
+      await fetchClients();
+    } catch (err: any) {
+      console.error(err);
+      setError(err.response?.data?.message || 'Error al eliminar el cliente.');
     }
   };
 
@@ -249,6 +275,19 @@ const ClientsPage: React.FC = () => {
                         >
                           <Edit sx={{ fontSize: 20 }} />
                         </IconButton>
+                        {isAdmin && (
+                          <IconButton
+                            color="error"
+                            onClick={() => handleDelete(client.id)}
+                            sx={{ 
+                            ml: 1,
+                            bgcolor: 'rgba(239, 68, 68, 0.08)',
+                            '&:hover': { bgcolor: 'rgba(239, 68, 68, 0.15)' }
+                            }}
+                          >
+                            <Delete sx={{ fontSize: 20 }} />
+                          </IconButton>
+                        )}
                       </TableCell>
                     </TableRow>
                   ))

@@ -43,4 +43,18 @@ export const getUnreadCount = () => api.get('/notificaciones/unread-count');
 export const markAsRead = (id: number) => api.put(`/notificaciones/${id}/read`);
 export const markAllAsRead = () => api.put('/notificaciones/mark-all-read');
 
+// Pagos
+export const editarPago = (id: number, data: any) => api.put(`/pagos/${id}`, data);
+export const eliminarPago = (id: number) => api.delete(`/pagos/${id}`);
+
+// Usuarios
+export const getUsuarios = () => api.get('/usuarios');
+export const crearUsuario = (data: any) => api.post('/usuarios', data);
+export const editarUsuario = (id: number, data: any) => api.put(`/usuarios/${id}`, data);
+export const eliminarUsuario = (id: number) => api.delete(`/usuarios/${id}`);
+
+// Clientes
+export const editarCliente = (id: number, data: any) => api.put(`/clientes/${id}`, data);
+export const eliminarCliente = (id: number) => api.delete(`/clientes/${id}`);
+
 export default api;

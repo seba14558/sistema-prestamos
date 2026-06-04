@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { 
   Box, Button, TextField, Typography, Table, TableBody, 
   TableCell, TableContainer, TableHead, TableRow, 
-  InputAdornment, Alert, CircularProgress, Card, Grid, MenuItem
+  InputAdornment, Alert, CircularProgress, Card, Grid, MenuItem,
+  Dialog, DialogTitle, DialogContent, DialogActions, IconButton
 } from '@mui/material';
-import { Search, Payment, AttachMoney, CalendarToday } from '@mui/icons-material';
-import api from '../../services/api';
+import { Search, Payment, AttachMoney, CalendarToday, Edit, Delete } from '@mui/icons-material';
+import api, { editarPago, eliminarPago } from '../../services/api';
 
 interface Loan {
   id: number;
@@ -30,6 +31,7 @@ const CollectionPage: React.FC = () => {
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [isAdmin, setIsAdmin] = useState(false);
   
   // Estado del formulario
   const [prestamoId, setPrestamoId] = useState<number | ''>('');
@@ -39,6 +41,12 @@ const CollectionPage: React.FC = () => {
   const [formError, setFormError] = useState('');
   const [formSuccess, setFormSuccess] = useState('');
   const [formSubmitting, setFormSubmitting] = useState(false);
+
+  // Estado para edición de pago
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editingPayment, setEditingPayment] = useState<Payment | null>(null);
+  const [editMonto, setEditMonto] = useState('');
+  const [editFechaPago, setEditFechaPago] = useState('');
 
   const fetchData = async () => {
     setLoading(true);
@@ -63,6 +71,17 @@ const CollectionPage: React.FC = () => {
 
   useEffect(() => {
     fetchData();
+    
+    // Detectar si el usuario es admin
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        setIsAdmin(user.rol === 'admin');
+      } catch (e) {
+        console.error('Error al parsear usuario:', e);
+      }
+    }
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -101,6 +120,52 @@ const CollectionPage: React.FC = () => {
       setFormError(err.response?.data?.message || 'Error al registrar el cobro.');
     } finally {
       setFormSubmitting(false);
+    }
+  };
+
+  const handleEditPayment = (payment: Payment) => {
+    setEditingPayment(payment);
+    setEditMonto(String(payment.monto));
+    setEditFechaPago(payment.fecha_pago);
+    setEditDialogOpen(true);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingPayment) return;
+
+    const numMonto = parseFloat(editMonto);
+    if (isNaN(numMonto) || numMonto <= 0) {
+      setFormError('El monto debe ser un valor positivo.');
+      return;
+    }
+
+    try {
+      await editarPago(editingPayment.id, {
+        fecha_pago: editFechaPago,
+        monto: numMonto
+      });
+      setEditDialogOpen(false);
+      setEditingPayment(null);
+      setFormSuccess('Pago editado exitosamente');
+      await fetchData();
+    } catch (err: any) {
+      console.error(err);
+      setFormError(err.response?.data?.message || 'Error al editar el pago.');
+    }
+  };
+
+  const handleDeletePayment = async (id: number) => {
+    if (!window.confirm('¿Estás seguro de que quieres eliminar este pago?')) {
+      return;
+    }
+
+    try {
+      await eliminarPago(id);
+      setFormSuccess('Pago eliminado exitosamente');
+      await fetchData();
+    } catch (err: any) {
+      console.error(err);
+      setFormError(err.response?.data?.message || 'Error al eliminar el pago.');
     }
   };
 
@@ -258,12 +323,15 @@ const CollectionPage: React.FC = () => {
                       <TableCell sx={{ fontWeight: 'bold', color: '#475569', display: { xs: 'none', sm: 'table-cell' } }}>ID Préstamo</TableCell>
                       <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Monto Cobrado</TableCell>
                       <TableCell sx={{ fontWeight: 'bold', color: '#475569', display: { xs: 'none', sm: 'table-cell' } }}>Fecha de Cobro</TableCell>
+                      {isAdmin && (
+                        <TableCell sx={{ fontWeight: 'bold', color: '#475569' }} align="center">Acciones</TableCell>
+                      )}
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {payments.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={5} align="center" sx={{ py: 6, color: 'text.secondary' }}>
+                        <TableCell colSpan={isAdmin ? 6 : 5} align="center" sx={{ py: 6, color: 'text.secondary' }}>
                           Aún no has registrado ningún cobro hoy.
                         </TableCell>
                       </TableRow>
@@ -281,6 +349,16 @@ const CollectionPage: React.FC = () => {
                             +${Number(p.monto).toLocaleString('es-AR', { minimumFractionDigits: 2 })}
                           </TableCell>
                           <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>{new Date(p.fecha_pago).toLocaleDateString('es-AR')}</TableCell>
+                          {isAdmin && (
+                            <TableCell align="center">
+                              <IconButton onClick={() => handleEditPayment(p)} size="small" sx={{ color: '#6366f1' }}>
+                                <Edit fontSize="small" />
+                              </IconButton>
+                              <IconButton onClick={() => handleDeletePayment(p.id)} size="small" sx={{ color: '#ef4444' }}>
+                                <Delete fontSize="small" />
+                              </IconButton>
+                            </TableCell>
+                          )}
                         </TableRow>
                       ))
                     )}
@@ -291,6 +369,45 @@ const CollectionPage: React.FC = () => {
           </Grid>
         </Grid>
       )}
+
+      {/* Dialogo para editar pago */}
+      <Dialog open={editDialogOpen} onClose={() => setEditDialogOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Editar Pago #{editingPayment?.id}</DialogTitle>
+        <DialogContent>
+          <Box sx={{ mt: 2 }}>
+            <TextField
+              fullWidth
+              label="Monto"
+              type="number"
+              value={editMonto}
+              onChange={(e) => setEditMonto(e.target.value)}
+              margin="normal"
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <AttachMoney />
+                  </InputAdornment>
+                ),
+              }}
+            />
+            <TextField
+              fullWidth
+              label="Fecha de Pago"
+              type="date"
+              value={editFechaPago}
+              onChange={(e) => setEditFechaPago(e.target.value)}
+              margin="normal"
+              InputLabelProps={{ shrink: true }}
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setEditDialogOpen(false)}>Cancelar</Button>
+          <Button onClick={handleSaveEdit} variant="contained" color="primary">
+            Guardar
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
