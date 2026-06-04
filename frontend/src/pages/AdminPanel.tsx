@@ -8,13 +8,16 @@ import {
 import { 
   Menu as MenuIcon, Dashboard as DashboardIcon, 
   People as PeopleIcon, AccountBalance as AccountBalanceIcon,
-  Logout as LogoutIcon, Person as PersonIcon, Payment as PaymentIcon
+  Logout as LogoutIcon, Person as PersonIcon, Payment as PaymentIcon,
+  Warning as WarningIcon, CalendarToday as CalendarTodayIcon
 } from '@mui/icons-material';
 import ClientsPage from './admin/ClientsPage';
 import LoansPage from './admin/LoansPage';
 import DashboardPage from './admin/DashboardPage';
 import UsersPage from './admin/UsersPage';
 import PaymentsPage from './admin/PaymentsPage';
+import DebtorsPage from './collector/DebtorsPage';
+import DueLoansPage from './collector/DueLoansPage';
 import NotificationBell from '../components/NotificationBell';
 
 const AdminPanel: React.FC = () => {
@@ -60,6 +63,8 @@ const AdminPanel: React.FC = () => {
     { text: 'Clientes', path: 'clients', icon: <PeopleIcon /> },
     { text: 'Préstamos', path: 'loans', icon: <AccountBalanceIcon /> },
     { text: 'Cobros', path: 'payments', icon: <PaymentIcon /> },
+    { text: 'Deudores Morosos', path: 'debtors', icon: <WarningIcon /> },
+    { text: 'Próximos Vencimientos', path: 'due', icon: <CalendarTodayIcon /> },
     { text: 'Usuarios', path: 'users', icon: <PersonIcon /> },
   ];
 
@@ -205,6 +210,8 @@ const AdminPanel: React.FC = () => {
                location.pathname.includes('clients') ? 'Gestión de Clientes' : 
                location.pathname.includes('loans') ? 'Control de Préstamos' : 
                location.pathname.includes('payments') ? 'Gestión de Cobros' :
+               location.pathname.includes('debtors') ? 'Deudores Morosos' :
+               location.pathname.includes('due') ? 'Próximos Vencimientos' :
                location.pathname.includes('users') ? 'Gestión de Usuarios' : 'Panel de Administración'}
             </Typography>
 
@@ -228,6 +235,8 @@ const AdminPanel: React.FC = () => {
             <Route path="loans" element={<LoansPage />} />
             <Route path="dashboard" element={<DashboardPage />} />
             <Route path="payments" element={<PaymentsPage />} />
+            <Route path="debtors" element={<DebtorsPage />} />
+            <Route path="due" element={<DueLoansPage />} />
             <Route path="users" element={<UsersPage />} />
             <Route path="" element={<Navigate to="dashboard" replace />} />
           </Routes>
