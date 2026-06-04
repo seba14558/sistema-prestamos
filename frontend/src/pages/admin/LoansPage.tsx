@@ -284,9 +284,9 @@ const LoansPage: React.FC = () => {
                   <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Préstamo ID</TableCell>
                   <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Cliente</TableCell>
                   <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Plan</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#475569', display: { xs: 'none', sm: 'table-cell' } }}>Monto Otorgado</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#475569', display: { xs: 'none', md: 'table-cell' } }}>Fecha de Otorgamiento</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#475569', display: { xs: 'none', md: 'table-cell' } }}>Vencimiento</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Monto Otorgado</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Fecha de Otorgamiento</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Vencimiento</TableCell>
                   <TableCell align="center" sx={{ fontWeight: 'bold', color: '#475569' }}>Estado</TableCell>
                   <TableCell align="center" sx={{ fontWeight: 'bold', color: '#475569' }}>Acciones</TableCell>
                 </TableRow>
@@ -316,11 +316,11 @@ const LoansPage: React.FC = () => {
                       <TableCell>
                         <Chip label={loan.plan} size="small" variant="outlined" color="primary" />
                       </TableCell>
-                      <TableCell sx={{ fontWeight: 'bold', color: '#0f172a', display: { xs: 'none', sm: 'table-cell' } }}>
+                      <TableCell sx={{ fontWeight: 'bold', color: '#0f172a' }}>
                         ${Number(loan.monto).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </TableCell>
-                      <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>{new Date(loan.fecha_inicio).toLocaleDateString('es-AR')}</TableCell>
-                      <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>{new Date(loan.fecha_vencimiento).toLocaleDateString('es-AR')}</TableCell>
+                      <TableCell>{new Date(loan.fecha_inicio).toLocaleDateString('es-AR')}</TableCell>
+                      <TableCell>{new Date(loan.fecha_vencimiento).toLocaleDateString('es-AR')}</TableCell>
                       <TableCell align="center">{getStatusChip(loan.estado)}</TableCell>
                       <TableCell align="center">
                         <IconButton

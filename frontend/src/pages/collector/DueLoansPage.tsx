@@ -91,10 +91,10 @@ const DueLoansPage: React.FC = () => {
             <TableRow>
               <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>ID Préstamo</TableCell>
               <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Cliente</TableCell>
-              <TableCell sx={{ fontWeight: 'bold', color: '#475569', display: { xs: 'none', md: 'table-cell' } }}>Dirección de Cobro</TableCell>
-              <TableCell sx={{ fontWeight: 'bold', color: '#475569', display: { xs: 'none', sm: 'table-cell' } }}>Monto Pendiente</TableCell>
-              <TableCell sx={{ fontWeight: 'bold', color: '#475569', display: { xs: 'none', sm: 'table-cell' } }}>Fecha de Vencimiento</TableCell>
-              <TableCell sx={{ fontWeight: 'bold', color: '#475569', display: { xs: 'none', md: 'table-cell' } }}>Plazo / Alerta</TableCell>
+              <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Dirección de Cobro</TableCell>
+              <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Monto Pendiente</TableCell>
+              <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Fecha de Vencimiento</TableCell>
+              <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Plazo / Alerta</TableCell>
               <TableCell align="center" sx={{ fontWeight: 'bold', color: '#475569' }}>Acción</TableCell>
             </TableRow>
           </TableHead>
@@ -113,19 +113,19 @@ const DueLoansPage: React.FC = () => {
                     ? `${loan.cliente_nombre} ${loan.cliente_apellido}` 
                     : `Cliente #${loan.cliente_id}`}
                 </TableCell>
-                <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>
+                <TableCell>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <Home sx={{ color: 'text.secondary', fontSize: 18 }} />
                     <Typography variant="body2" color="#64748b">{loan.cliente_direccion || 'No especificada'}</Typography>
                   </Box>
                 </TableCell>
-                <TableCell sx={{ fontWeight: 'bold', color: '#0f172a', display: { xs: 'none', sm: 'table-cell' } }}>
+                <TableCell sx={{ fontWeight: 'bold', color: '#0f172a' }}>
                   ${Number(loan.monto).toLocaleString('es-AR', { minimumFractionDigits: 2 })}
                 </TableCell>
-                <TableCell sx={{ fontWeight: 500, color: '#64748b', display: { xs: 'none', sm: 'table-cell' } }}>
+                <TableCell sx={{ fontWeight: 500, color: '#64748b' }}>
                   {new Date(loan.fecha_vencimiento).toLocaleDateString('es-AR')}
                 </TableCell>
-                <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>
+                <TableCell>
                   <Chip 
                     label={getDaysRemainingOrOverdue(loan.fecha_vencimiento, isOverdue)} 
                     color={isOverdue ? 'error' : 'warning'} 

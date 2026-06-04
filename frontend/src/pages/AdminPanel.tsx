@@ -19,6 +19,8 @@ import PaymentsPage from './admin/PaymentsPage';
 import DebtorsPage from './collector/DebtorsPage';
 import DueLoansPage from './collector/DueLoansPage';
 import NotificationBell from '../components/NotificationBell';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
 
 const AdminPanel: React.FC = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -164,37 +166,43 @@ const AdminPanel: React.FC = () => {
   );
 
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: '#f8fafc' }}>
-      {/* Mobile Sidebar */}
-      <Box component="nav" sx={{ width: { md: 256 }, flexShrink: { md: 0 } }}>
-        <Drawer
-          variant="temporary"
-          open={mobileOpen}
-          onClose={handleDrawerToggle}
-          ModalProps={{ keepMounted: true }}
-          sx={{
-            display: { xs: 'block', md: 'none' },
-            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: 256 }
-          }}
-        >
-          {drawerContent}
-        </Drawer>
-        <Drawer
-          variant="permanent"
-          sx={{
-            display: { xs: 'none', md: 'block' },
-            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: 256, border: 'none' }
-          }}
-          open
-        >
-          {drawerContent}
-        </Drawer>
-      </Box>
+    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', bgcolor: '#f8fafc' }}>
+      <Header />
+      <Box sx={{ display: 'flex', flex: 1 }}>
+        {/* Mobile Sidebar */}
+        <Box component="nav" sx={{ width: { md: 256 }, flexShrink: { md: 0 } }}>
+          <Drawer
+            variant="temporary"
+            open={mobileOpen}
+            onClose={handleDrawerToggle}
+            ModalProps={{ keepMounted: true }}
+            sx={{
+              display: { xs: 'block', md: 'none' },
+              '& .MuiDrawer-paper': { 
+                boxSizing: 'border-box', 
+                width: 256,
+                zIndex: (theme) => theme.zIndex.drawer + 2
+              }
+            }}
+          >
+            {drawerContent}
+          </Drawer>
+          <Drawer
+            variant="permanent"
+            sx={{
+              display: { xs: 'none', md: 'block' },
+              '& .MuiDrawer-paper': { boxSizing: 'border-box', width: 256, border: 'none' }
+            }}
+            open
+          >
+            {drawerContent}
+          </Drawer>
+        </Box>
 
-      {/* Main Content */}
-      <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+        {/* Main Content */}
+        <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
         {/* AppBar */}
-        <AppBar position="sticky" sx={{ bgcolor: 'white', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+        <AppBar position="sticky" sx={{ bgcolor: 'transparent', boxShadow: 'none', zIndex: (theme) => theme.zIndex.drawer + 3 }}>
           <Toolbar>
             <IconButton
               color="inherit"
@@ -242,6 +250,8 @@ const AdminPanel: React.FC = () => {
           </Routes>
         </Box>
       </Box>
+      </Box>
+      <Footer />
     </Box>
   );
 };

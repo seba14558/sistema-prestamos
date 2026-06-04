@@ -133,9 +133,9 @@ const PaymentsPage: React.FC = () => {
                   <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Cobro ID</TableCell>
                   <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Cliente</TableCell>
                   <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Cobrador</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#475569', display: { xs: 'none', sm: 'table-cell' } }}>ID Préstamo</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>ID Préstamo</TableCell>
                   <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Monto Cobrado</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#475569', display: { xs: 'none', sm: 'table-cell' } }}>Fecha de Cobro</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Fecha de Cobro</TableCell>
                   <TableCell sx={{ fontWeight: 'bold', color: '#475569' }} align="center">Acciones</TableCell>
                 </TableRow>
               </TableHead>
@@ -160,11 +160,11 @@ const PaymentsPage: React.FC = () => {
                           ? `${p.cobrador_nombre} ${p.cobrador_apellido}` 
                           : 'Cobrador'}
                       </TableCell>
-                      <TableCell sx={{ color: '#64748b', display: { xs: 'none', sm: 'table-cell' } }}>#{p.prestamo_id}</TableCell>
+                      <TableCell sx={{ color: '#64748b' }}>#{p.prestamo_id}</TableCell>
                       <TableCell sx={{ fontWeight: 'bold', color: '#10b981' }}>
                         +${Number(p.monto).toLocaleString('es-AR', { minimumFractionDigits: 2 })}
                       </TableCell>
-                      <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>{new Date(p.fecha_pago).toLocaleDateString('es-AR')}</TableCell>
+                      <TableCell>{new Date(p.fecha_pago).toLocaleDateString('es-AR')}</TableCell>
                       <TableCell align="center">
                         <IconButton onClick={() => handleEditPayment(p)} size="small" sx={{ color: '#6366f1' }}>
                           <Edit fontSize="small" />

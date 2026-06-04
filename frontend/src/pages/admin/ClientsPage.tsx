@@ -239,7 +239,7 @@ const ClientsPage: React.FC = () => {
                 <TableRow>
                   <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>ID</TableCell>
                   <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Nombre Completo</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#475569', display: { xs: 'none', sm: 'table-cell' } }}>Dirección de Residencia</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Dirección de Residencia</TableCell>
                   <TableCell align="center" sx={{ fontWeight: 'bold', color: '#475569' }}>Acciones</TableCell>
                 </TableRow>
               </TableHead>
@@ -263,7 +263,7 @@ const ClientsPage: React.FC = () => {
                       <TableCell sx={{ fontWeight: 500, color: '#1e293b' }}>
                         {client.nombre} {client.apellido}
                       </TableCell>
-                      <TableCell sx={{ color: '#64748b', display: { xs: 'none', sm: 'table-cell' } }}>{client.direccion}</TableCell>
+                      <TableCell sx={{ color: '#64748b' }}>{client.direccion}</TableCell>
                       <TableCell align="center">
                         <IconButton
                           color="primary"

@@ -146,11 +146,11 @@ const DebtorsPage: React.FC = () => {
                   <TableRow>
                     <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>ID Préstamo</TableCell>
                     <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Cliente</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold', color: '#475569', display: { xs: 'none', md: 'table-cell' } }}>Dirección de Cobro</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold', color: '#475569', display: { xs: 'none', sm: 'table-cell' } }}>Plan</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold', color: '#475569', display: { xs: 'none', sm: 'table-cell' } }}>Monto Prestado</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold', color: '#475569', display: { xs: 'none', md: 'table-cell' } }}>Vencimiento</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold', color: '#475569', display: { xs: 'none', lg: 'table-cell' } }}>Atraso (Días)</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Dirección de Cobro</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Plan</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Monto Prestado</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Vencimiento</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Atraso (Días)</TableCell>
                     <TableCell align="center" sx={{ fontWeight: 'bold', color: '#475569' }}>Cobrar</TableCell>
                   </TableRow>
                 </TableHead>
@@ -170,22 +170,22 @@ const DebtorsPage: React.FC = () => {
                             ? `${loan.cliente_nombre} ${loan.cliente_apellido}` 
                             : `Cliente #${loan.cliente_id}`}
                         </TableCell>
-                        <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>
+                        <TableCell>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                             <Home sx={{ color: 'text.secondary', fontSize: 18 }} />
                             <Typography variant="body2" color="#64748b">{loan.cliente_direccion || 'No especificada'}</Typography>
                           </Box>
                         </TableCell>
-                        <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>
+                        <TableCell>
                           <Chip label={loan.plan} size="small" color="error" variant="outlined" />
                         </TableCell>
-                        <TableCell sx={{ fontWeight: 'bold', color: '#0f172a', display: { xs: 'none', sm: 'table-cell' } }}>
+                        <TableCell sx={{ fontWeight: 'bold', color: '#0f172a' }}>
                           ${Number(loan.monto).toLocaleString('es-AR', { minimumFractionDigits: 2 })}
                         </TableCell>
-                        <TableCell sx={{ color: '#ef4444', fontWeight: 500, display: { xs: 'none', md: 'table-cell' } }}>
+                        <TableCell sx={{ color: '#ef4444', fontWeight: 500 }}>
                           {new Date(loan.fecha_vencimiento).toLocaleDateString('es-AR')}
                         </TableCell>
-                        <TableCell sx={{ fontWeight: 'bold', color: '#991b1c', display: { xs: 'none', lg: 'table-cell' } }}>
+                        <TableCell sx={{ fontWeight: 'bold', color: '#991b1b' }}>
                           <Chip label={`${getDaysOverdue(loan.fecha_vencimiento)} días`} size="small" color="error" />
                         </TableCell>
                         <TableCell align="center">
