@@ -8,12 +8,13 @@ import {
 import { 
   Menu as MenuIcon, Dashboard as DashboardIcon, 
   People as PeopleIcon, AccountBalance as AccountBalanceIcon,
-  Logout as LogoutIcon, Person as PersonIcon
+  Logout as LogoutIcon, Person as PersonIcon, Payment as PaymentIcon
 } from '@mui/icons-material';
 import ClientsPage from './admin/ClientsPage';
 import LoansPage from './admin/LoansPage';
 import DashboardPage from './admin/DashboardPage';
 import UsersPage from './admin/UsersPage';
+import PaymentsPage from './admin/PaymentsPage';
 import NotificationBell from '../components/NotificationBell';
 
 const AdminPanel: React.FC = () => {
@@ -58,6 +59,7 @@ const AdminPanel: React.FC = () => {
     { text: 'Dashboard', path: 'dashboard', icon: <DashboardIcon /> },
     { text: 'Clientes', path: 'clients', icon: <PeopleIcon /> },
     { text: 'Préstamos', path: 'loans', icon: <AccountBalanceIcon /> },
+    { text: 'Cobros', path: 'payments', icon: <PaymentIcon /> },
     { text: 'Usuarios', path: 'users', icon: <PersonIcon /> },
   ];
 
@@ -202,6 +204,7 @@ const AdminPanel: React.FC = () => {
               {location.pathname.includes('dashboard') ? 'Panel de Resumen' : 
                location.pathname.includes('clients') ? 'Gestión de Clientes' : 
                location.pathname.includes('loans') ? 'Control de Préstamos' : 
+               location.pathname.includes('payments') ? 'Gestión de Cobros' :
                location.pathname.includes('users') ? 'Gestión de Usuarios' : 'Panel de Administración'}
             </Typography>
 
@@ -224,6 +227,7 @@ const AdminPanel: React.FC = () => {
             <Route path="clients" element={<ClientsPage />} />
             <Route path="loans" element={<LoansPage />} />
             <Route path="dashboard" element={<DashboardPage />} />
+            <Route path="payments" element={<PaymentsPage />} />
             <Route path="users" element={<UsersPage />} />
             <Route path="" element={<Navigate to="dashboard" replace />} />
           </Routes>
