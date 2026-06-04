@@ -37,6 +37,12 @@ app.use('/api/prestamos', prestamosRoutes);
 
 const pagosRoutes = require('./routes/pagos');
 app.use('/api/pagos', pagosRoutes);
+
+const notificacionesRoutes = require('./routes/notificaciones');
+app.use('/api/notificaciones', notificacionesRoutes);
+
+// Iniciar cron job para verificar préstamos por vencer
+require('./cron/checkDueLoans');
 // Aquí se agregarán las rutas de usuarios, clientes, préstamos, pagos, etc.
 
 app.listen(PORT, () => {

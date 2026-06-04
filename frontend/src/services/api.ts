@@ -37,4 +37,10 @@ api.interceptors.response.use(
   }
 );
 
+// Notificaciones
+export const getNotificaciones = () => api.get('/notificaciones');
+export const getUnreadCount = () => api.get('/notificaciones/unread-count');
+export const markAsRead = (id: number) => api.put(`/notificaciones/${id}/read`);
+export const markAllAsRead = () => api.put('/notificaciones/mark-all-read');
+
 export default api;

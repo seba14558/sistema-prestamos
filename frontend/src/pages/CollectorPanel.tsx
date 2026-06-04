@@ -13,6 +13,7 @@ import {
 import CollectionPage from './collector/CollectionPage';
 import DebtorsPage from './collector/DebtorsPage';
 import DueLoansPage from './collector/DueLoansPage';
+import NotificationBell from '../components/NotificationBell';
 
 const CollectorPanel: React.FC = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -201,6 +202,7 @@ const CollectorPanel: React.FC = () => {
             </Typography>
 
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, ml: 'auto' }}>
+              <NotificationBell />
               <Box sx={{ display: { xs: 'none', sm: 'block' }, textAlign: 'right' }}>
                 <Typography variant="body2" fontWeight="bold" color="#1e293b">{collectorName}</Typography>
                 <Typography variant="caption" color="#64748b">Cobrador Autorizado</Typography>

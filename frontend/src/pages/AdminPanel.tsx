@@ -13,6 +13,7 @@ import {
 import ClientsPage from './admin/ClientsPage';
 import LoansPage from './admin/LoansPage';
 import DashboardPage from './admin/DashboardPage';
+import NotificationBell from '../components/NotificationBell';
 
 const AdminPanel: React.FC = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -202,6 +203,7 @@ const AdminPanel: React.FC = () => {
             </Typography>
 
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, ml: 'auto' }}>
+              <NotificationBell />
               <Box sx={{ display: { xs: 'none', sm: 'block' }, textAlign: 'right' }}>
                 <Typography variant="body2" fontWeight="bold" color="#1e293b">{adminName}</Typography>
                 <Typography variant="caption" color="#64748b">Administrador</Typography>
