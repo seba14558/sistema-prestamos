@@ -106,7 +106,7 @@ const NotificationBell: React.FC = () => {
     <>
       <IconButton
         onClick={handleOpen}
-        sx={{ color: 'inherit' }}
+        sx={{ color: 'blue' }}
       >
         <Badge badgeContent={unreadCount} color="error" max={99}>
           {unreadCount > 0 ? <Notifications /> : <NotificationsNone />}

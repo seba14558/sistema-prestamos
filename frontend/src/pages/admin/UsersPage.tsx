@@ -128,8 +128,8 @@ const UsersPage: React.FC = () => {
   return (
     <Box sx={{ width: '100%' }}>
       {/* Encabezado */}
-      <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Box>
+      <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexDirection: { xs: 'column', sm: 'row' }, gap: { xs: 2, sm: 0 } }}>
+        <Box sx={{ textAlign: { xs: 'center', sm: 'left' } }}>
           <Typography variant="h4" fontWeight="bold" color="#1e293b" sx={{ mb: 0.5 }}>
             Gestión de Usuarios
           </Typography>
@@ -143,7 +143,13 @@ const UsersPage: React.FC = () => {
           onClick={() => handleOpenDialog()}
           sx={{
             bgcolor: '#6366f1',
-            '&:hover': { bgcolor: '#4f46e5' }
+            '&:hover': { bgcolor: '#4f46e5' },
+            px: { xs: 1, sm: 3 },
+            py: { xs: 1, sm: 1.5 },
+            fontSize: { xs: '0.875rem', sm: '1rem' },
+            fontWeight: 'bold',
+            minWidth: { xs: 'auto', sm: 'auto' },
+            borderRadius: 2
           }}
         >
           Nuevo Usuario
