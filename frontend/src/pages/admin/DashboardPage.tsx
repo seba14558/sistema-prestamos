@@ -283,11 +283,11 @@ const DashboardPage: React.FC = () => {
             <TableHead sx={{ bgcolor: '#f8fafc' }}>
               <TableRow>
                 <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Pago ID</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', color: '#475569', display: { xs: 'none', sm: 'table-cell' } }}>Cliente</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', color: '#475569', display: { xs: 'none', md: 'table-cell' } }}>Préstamo</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', color: '#475569', display: { sm: 'table-cell' } }}>Cliente</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', color: '#475569', display: { md: 'table-cell' } }}>Préstamo</TableCell>
                 <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Monto Cobrado</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', color: '#475569', display: { xs: 'none', sm: 'table-cell' } }}>Fecha de Pago</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', color: '#475569', display: { xs: 'none', md: 'table-cell' } }}>Registrado por</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', color: '#475569', display: { sm: 'table-cell' } }}>Fecha de Pago</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', color: '#475569', display: { md: 'table-cell' } }}>Registrado por</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -301,17 +301,17 @@ const DashboardPage: React.FC = () => {
                 payments.slice(0, 5).map((pay) => (
                   <TableRow key={pay.id} sx={{ '&:hover': { bgcolor: '#f8fafc' }, borderBottom: '1px solid #f1f5f9' }}>
                     <TableCell sx={{ fontWeight: 600, color: '#6366f1' }}>#{pay.id}</TableCell>
-                    <TableCell sx={{ fontWeight: 500, display: { xs: 'none', sm: 'table-cell' } }}>
+                    <TableCell sx={{ fontWeight: 500, display: {sm: 'table-cell' } }}>
                       {pay.cliente_nombre && pay.cliente_apellido 
                         ? `${pay.cliente_nombre} ${pay.cliente_apellido}` 
                         : 'Cliente Desconocido'}
                     </TableCell>
-                    <TableCell sx={{ color: '#64748b', display: { xs: 'none', md: 'table-cell' } }}>Préstamo #{pay.prestamo_id}</TableCell>
+                    <TableCell sx={{ color: '#64748b', display: { md: 'table-cell' } }}>Préstamo #{pay.prestamo_id}</TableCell>
                     <TableCell sx={{ fontWeight: 'bold', color: '#10b981' }}>
                       +${Number(pay.monto).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </TableCell>
-                    <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>{new Date(pay.fecha_pago).toLocaleDateString('es-AR')}</TableCell>
-                    <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>
+                    <TableCell sx={{ display: { sm: 'table-cell' } }}>{new Date(pay.fecha_pago).toLocaleDateString('es-AR')}</TableCell>
+                    <TableCell sx={{ display: { md: 'table-cell' } }}>
                       <Box sx={{ px: 2, py: 0.5, bgcolor: '#f1f5f9', borderRadius: 1, display: 'inline-block', fontSize: '0.75rem', fontWeight: 'bold', color: '#475569', border: '1px solid #e2e8f0' }}>
                         {pay.cobrador_usuario || 'Admin'}
                       </Box>
