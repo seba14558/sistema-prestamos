@@ -62,7 +62,7 @@ const CollectorPanel: React.FC = () => {
   ];
 
   const drawerContent = (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#062f4f', color: 'white' }}>
+    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#062f4f', color: 'white', pt: 4 }}>
       {/* Brand Header */}
       <Box sx={{ p: 3, display: 'flex', alignItems: 'center', gap: 2, bgcolor: 'linear-gradient(90deg, #051e3e 0%, #062f4f 100%)' }}>
         <Avatar sx={{ bgcolor: '#00b159', width: 40, height: 40, fontWeight: 'bold' }}>C</Avatar>
@@ -157,7 +157,7 @@ const CollectorPanel: React.FC = () => {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', bgcolor: '#f4f6f9' }}>
-      <Header />
+      <Header onMenuClick={handleDrawerToggle} showMenuButton={isMobile} />
       <Box sx={{ display: 'flex', flex: 1 }}>
         {/* Mobile Sidebar */}
         <Box component="nav" sx={{ width: { md: 256 }, flexShrink: { md: 0 } }}>
@@ -171,7 +171,7 @@ const CollectorPanel: React.FC = () => {
               '& .MuiDrawer-paper': { 
                 boxSizing: 'border-box', 
                 width: 256,
-                zIndex: (theme) => theme.zIndex.drawer + 2
+                zIndex: 9999
               }
             }}
           >
@@ -194,15 +194,6 @@ const CollectorPanel: React.FC = () => {
         {/* AppBar */}
         <AppBar position="sticky" sx={{ bgcolor: 'transparent', boxShadow: 'none', zIndex: (theme) => theme.zIndex.drawer + 3 }}>
           <Toolbar>
-            <IconButton
-              color="inherit"
-              edge="start"
-              onClick={handleDrawerToggle}
-              sx={{ mr: 2, display: { md: 'none' }, color: '#475569' }}
-            >
-              <MenuIcon />
-            </IconButton>
-            
             <Typography variant="h6" component="div" sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' }, fontWeight: 'bold', color: '#1e293b' }}>
               {location.pathname.includes('collection') ? 'Registro de Recaudación' : 
                location.pathname.includes('debtors') ? 'Lista de Deudores Morosos' : 

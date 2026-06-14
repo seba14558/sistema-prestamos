@@ -5,7 +5,7 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-const allowedOrigins = ['http://localhost:3000', 'http://localhost:3004'];
+const allowedOrigins = ['http://localhost:3000', 'http://localhost:3004', 'http://192.168.1.35:3000'];
 app.use(cors({
   origin: function (origin, callback) {
     // permitir peticiones sin origen (como apps móviles o curl)

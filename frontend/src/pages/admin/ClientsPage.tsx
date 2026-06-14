@@ -7,6 +7,8 @@ import {
 } from '@mui/material';
 import { Search, Edit, Person, LocationOn, Delete } from '@mui/icons-material';
 import api, { editarCliente, eliminarCliente } from '../../services/api';
+import Toast from '../../components/Toast';
+import ConfirmDialog from '../../components/ConfirmDialog';
 
 interface Client {
   id: number;
@@ -34,6 +36,28 @@ const ClientsPage: React.FC = () => {
   const [direccion, setDireccion] = useState('');
   const [formError, setFormError] = useState('');
   const [formSubmitting, setFormSubmitting] = useState(false);
+
+  // Toast
+  const [toast, setToast] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' | 'warning' | 'info' });
+
+  const showToast = (message: string, severity: 'success' | 'error' | 'warning' | 'info' = 'success') => {
+    setToast({ open: true, message, severity });
+  };
+
+  const handleCloseToast = () => {
+    setToast({ ...toast, open: false });
+  };
+
+  // Confirm Dialog
+  const [confirmDialog, setConfirmDialog] = useState({ open: false, title: '', message: '', onConfirm: () => {} });
+
+  const showConfirmDialog = (title: string, message: string, onConfirm: () => void) => {
+    setConfirmDialog({ open: true, title, message, onConfirm });
+  };
+
+  const handleCloseConfirmDialog = () => {
+    setConfirmDialog({ ...confirmDialog, open: false });
+  };
 
   // Cargar clientes
   const fetchClients = async () => {
@@ -123,6 +147,7 @@ const ClientsPage: React.FC = () => {
           apellido: apellido.trim(),
           direccion: direccion.trim()
         });
+        showToast('Cliente actualizado exitosamente', 'success');
       } else {
         // Crear nuevo cliente
         await api.post('/clientes', {
@@ -130,6 +155,7 @@ const ClientsPage: React.FC = () => {
           apellido: apellido.trim(),
           direccion: direccion.trim()
         });
+        showToast('Cliente creado exitosamente', 'success');
       }
       
       // Recargar tabla y cerrar modal
@@ -138,23 +164,28 @@ const ClientsPage: React.FC = () => {
     } catch (err: any) {
       console.error(err);
       setFormError(err.response?.data?.message || 'Error al guardar el cliente.');
+      showToast('Error al guardar el cliente', 'error');
     } finally {
       setFormSubmitting(false);
     }
   };
 
   const handleDelete = async (id: number) => {
-    if (!window.confirm('¿Estás seguro de que quieres eliminar este cliente?')) {
-      return;
-    }
-
-    try {
-      await eliminarCliente(id);
-      await fetchClients();
-    } catch (err: any) {
-      console.error(err);
-      setError(err.response?.data?.message || 'Error al eliminar el cliente.');
-    }
+    showConfirmDialog(
+      'Eliminar Cliente',
+      '¿Estás seguro de que quieres eliminar este cliente? Esta acción no se puede deshacer.',
+      async () => {
+        try {
+          await eliminarCliente(id);
+          await fetchClients();
+          showToast('Cliente eliminado exitosamente', 'success');
+        } catch (err: any) {
+          console.error(err);
+          setError(err.response?.data?.message || 'Error al eliminar el cliente.');
+          showToast('Error al eliminar el cliente', 'error');
+        }
+      }
+    );
   };
 
   return (
@@ -162,10 +193,10 @@ const ClientsPage: React.FC = () => {
       {/* Encabezado */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4, flexWrap: 'wrap', gap: 2 }}>
         <Box>
-          <Typography variant="h4" fontWeight="bold" color="#1e293b">
+          <Typography variant="h4" fontWeight="bold" color="#1e293b" sx={{ letterSpacing: '0.5px' }}>
             Gestión de Clientes
           </Typography>
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="body2" color="text.secondary" sx={{ letterSpacing: '0.3px' }}>
             Administra, edita y registra nuevos clientes en el sistema
           </Typography>
         </Box>
@@ -181,9 +212,12 @@ const ClientsPage: React.FC = () => {
             background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
             boxShadow: '0 4px 12px rgba(99, 102, 241, 0.25)',
             textTransform: 'none',
+            letterSpacing: '0.3px',
             '&:hover': {
               background: 'linear-gradient(135deg, #4f46e5 0%, #4338ca 100%)',
               boxShadow: '0 6px 16px rgba(99, 102, 241, 0.35)',
+              transform: 'translateY(-2px)',
+              transition: 'all 0.3s ease'
             }
           }}
         >
@@ -199,8 +233,18 @@ const ClientsPage: React.FC = () => {
       )}
 
       {/* Contenedor de Búsqueda y Tabla */}
-      <Card sx={{ borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.05)', overflow: 'hidden', border: '1px solid #f1f5f9' }}>
-        <Box sx={{ p: 3, bgcolor: '#fff', borderBottom: '1px solid #f1f5f9' }}>
+      <Card sx={{ 
+        borderRadius: 3, 
+        boxShadow: '0 4px 20px rgba(0,0,0,0.08)', 
+        overflow: 'hidden', 
+        border: '1px solid rgba(99, 102, 241, 0.1)',
+        background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)'
+      }}>
+        <Box sx={{ 
+          p: 3, 
+          background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)', 
+          borderBottom: '1px solid rgba(99, 102, 241, 0.2)' 
+        }}>
           <TextField
             placeholder="Buscar por nombre, apellido, dirección o ID..."
             fullWidth
@@ -209,20 +253,30 @@ const ClientsPage: React.FC = () => {
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <Search sx={{ color: 'text.secondary' }} />
+                  <Search sx={{ color: 'rgba(255, 255, 255, 0.7)' }} />
                 </InputAdornment>
               ),
             }}
             sx={{
               '& .MuiOutlinedInput-root': {
                 borderRadius: 2.5,
-                bgcolor: '#f8fafc',
+                bgcolor: 'rgba(255, 255, 255, 0.15)',
+                backdropFilter: 'blur(10px)',
                 '& fieldset': {
-                  borderColor: '#e2e8f0',
+                  borderColor: 'rgba(255, 255, 255, 0.3)',
                 },
                 '&:hover fieldset': {
-                  borderColor: '#cbd5e1',
+                  borderColor: 'rgba(255, 255, 255, 0.5)',
                 },
+                '&.Mui-focused fieldset': {
+                  borderColor: 'rgba(255, 255, 255, 0.7)',
+                },
+                '& .MuiInputBase-input': {
+                  color: 'white',
+                },
+                '& .MuiInputLabel-root': {
+                  color: 'rgba(255, 255, 255, 0.7)',
+                }
               }
             }}
           />
@@ -235,12 +289,12 @@ const ClientsPage: React.FC = () => {
         ) : (
           <TableContainer sx={{ overflowX: 'auto' }}>
             <Table sx={{ minWidth: 650 }}>
-              <TableHead sx={{ bgcolor: '#f8fafc' }}>
+              <TableHead sx={{ bgcolor: 'rgba(99, 102, 241, 0.05)' }}>
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>ID</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Nombre Completo</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Dirección de Residencia</TableCell>
-                  <TableCell align="center" sx={{ fontWeight: 'bold', color: '#475569' }}>Acciones</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }}>ID</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }}>Nombre Completo</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }}>Dirección de Residencia</TableCell>
+                  <TableCell align="center" sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }}>Acciones</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -255,22 +309,29 @@ const ClientsPage: React.FC = () => {
                     <TableRow 
                       key={client.id}
                       sx={{ 
-                        '&:hover': { bgcolor: '#f8fafc' }, 
-                        transition: 'background-color 0.2s'
+                        '&:hover': { 
+                          bgcolor: 'rgba(99, 102, 241, 0.05)',
+                          transition: 'background-color 0.2s'
+                        }, 
+                        borderBottom: '1px solid rgba(99, 102, 241, 0.1)'
                       }}
                     >
-                      <TableCell sx={{ fontWeight: 600, color: '#6366f1' }}>#{client.id}</TableCell>
-                      <TableCell sx={{ fontWeight: 500, color: '#1e293b' }}>
+                      <TableCell sx={{ fontWeight: 600, color: '#6366f1', letterSpacing: '0.3px' }}>#{client.id}</TableCell>
+                      <TableCell sx={{ fontWeight: 500, color: '#1e293b', letterSpacing: '0.3px' }}>
                         {client.nombre} {client.apellido}
                       </TableCell>
-                      <TableCell sx={{ color: '#64748b' }}>{client.direccion}</TableCell>
+                      <TableCell sx={{ color: '#64748b', letterSpacing: '0.3px' }}>{client.direccion}</TableCell>
                       <TableCell align="center">
                         <IconButton
                           color="primary"
                           onClick={() => handleOpenDialog(client)}
                           sx={{ 
-                            bgcolor: 'rgba(99, 102, 241, 0.08)',
-                            '&:hover': { bgcolor: 'rgba(99, 102, 241, 0.15)' }
+                            bgcolor: 'rgba(99, 102, 241, 0.1)',
+                            '&:hover': { 
+                              bgcolor: 'rgba(99, 102, 241, 0.2)',
+                              transform: 'scale(1.1)',
+                              transition: 'all 0.2s'
+                            }
                           }}
                         >
                           <Edit sx={{ fontSize: 20 }} />
@@ -281,8 +342,12 @@ const ClientsPage: React.FC = () => {
                             onClick={() => handleDelete(client.id)}
                             sx={{ 
                             ml: 1,
-                            bgcolor: 'rgba(239, 68, 68, 0.08)',
-                            '&:hover': { bgcolor: 'rgba(239, 68, 68, 0.15)' }
+                            bgcolor: 'rgba(239, 68, 68, 0.1)',
+                            '&:hover': { 
+                              bgcolor: 'rgba(239, 68, 68, 0.2)',
+                              transform: 'scale(1.1)',
+                              transition: 'all 0.2s'
+                            }
                             }}
                           >
                             <Delete sx={{ fontSize: 20 }} />
@@ -404,6 +469,22 @@ const ClientsPage: React.FC = () => {
           </DialogActions>
         </Box>
       </Dialog>
+      
+      <Toast
+        open={toast.open}
+        message={toast.message}
+        severity={toast.severity}
+        onClose={handleCloseToast}
+      />
+      
+      <ConfirmDialog
+        open={confirmDialog.open}
+        title={confirmDialog.title}
+        message={confirmDialog.message}
+        onConfirm={confirmDialog.onConfirm}
+        onCancel={handleCloseConfirmDialog}
+        severity="warning"
+      />
     </Box>
   );
 };

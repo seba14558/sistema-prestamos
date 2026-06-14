@@ -5,7 +5,7 @@ import {
   CircularProgress, Card, InputAdornment, IconButton
 } from '@mui/material';
 import { 
-  Person, Lock, Visibility, VisibilityOff, AccountBalance
+  Person, Lock, Visibility, VisibilityOff, MonetizationOn
 } from '@mui/icons-material';
 import api from '../services/api';
 
@@ -128,7 +128,7 @@ const LoginPage: React.FC = () => {
   mb: 3,
   boxShadow: '0 10px 25px -5px rgba(99, 102, 241, 0.4)'
 }}>
-  <AccountBalance sx={{ fontSize: 32, color: 'white' }} />
+  <MonetizationOn sx={{ fontSize: 32, color: 'white' }} />
 </Box>
 
           <Typography variant="h4" fontWeight="bold" align="center" sx={{ 

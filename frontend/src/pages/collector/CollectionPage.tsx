@@ -7,6 +7,8 @@ import {
 } from '@mui/material';
 import { Search, Payment, AttachMoney, CalendarToday, Edit, Delete } from '@mui/icons-material';
 import api, { editarPago, eliminarPago } from '../../services/api';
+import Toast from '../../components/Toast';
+import ConfirmDialog from '../../components/ConfirmDialog';
 
 interface Loan {
   id: number;
@@ -47,6 +49,28 @@ const CollectionPage: React.FC = () => {
   const [editingPayment, setEditingPayment] = useState<Payment | null>(null);
   const [editMonto, setEditMonto] = useState('');
   const [editFechaPago, setEditFechaPago] = useState('');
+
+  // Toast
+  const [toast, setToast] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' | 'warning' | 'info' });
+
+  const showToast = (message: string, severity: 'success' | 'error' | 'warning' | 'info' = 'success') => {
+    setToast({ open: true, message, severity });
+  };
+
+  const handleCloseToast = () => {
+    setToast({ ...toast, open: false });
+  };
+
+  // Confirm Dialog
+  const [confirmDialog, setConfirmDialog] = useState({ open: false, title: '', message: '', onConfirm: () => {} });
+
+  const showConfirmDialog = (title: string, message: string, onConfirm: () => void) => {
+    setConfirmDialog({ open: true, title, message, onConfirm });
+  };
+
+  const handleCloseConfirmDialog = () => {
+    setConfirmDialog({ ...confirmDialog, open: false });
+  };
 
   const fetchData = async () => {
     setLoading(true);
@@ -112,12 +136,14 @@ const CollectionPage: React.FC = () => {
       setPrestamoId('');
       setMonto('');
       setFechaPago(new Date().toISOString().slice(0, 10));
+      showToast('Cobro registrado exitosamente', 'success');
       
       // Recargar listados
       await fetchData();
     } catch (err: any) {
       console.error(err);
       setFormError(err.response?.data?.message || 'Error al registrar el cobro.');
+      showToast('Error al registrar el cobro', 'error');
     } finally {
       setFormSubmitting(false);
     }
@@ -147,36 +173,42 @@ const CollectionPage: React.FC = () => {
       setEditDialogOpen(false);
       setEditingPayment(null);
       setFormSuccess('Pago editado exitosamente');
+      showToast('Pago editado exitosamente', 'success');
       await fetchData();
     } catch (err: any) {
       console.error(err);
       setFormError(err.response?.data?.message || 'Error al editar el pago.');
+      showToast('Error al editar el pago', 'error');
     }
   };
 
   const handleDeletePayment = async (id: number) => {
-    if (!window.confirm('¿Estás seguro de que quieres eliminar este pago?')) {
-      return;
-    }
-
-    try {
-      await eliminarPago(id);
-      setFormSuccess('Pago eliminado exitosamente');
-      await fetchData();
-    } catch (err: any) {
-      console.error(err);
-      setFormError(err.response?.data?.message || 'Error al eliminar el pago.');
-    }
+    showConfirmDialog(
+      'Eliminar Pago',
+      '¿Estás seguro de que quieres eliminar este pago? Esta acción no se puede deshacer.',
+      async () => {
+        try {
+          await eliminarPago(id);
+          setFormSuccess('Pago eliminado exitosamente');
+          await fetchData();
+          showToast('Pago eliminado exitosamente', 'success');
+        } catch (err: any) {
+          console.error(err);
+          setFormError(err.response?.data?.message || 'Error al eliminar el pago.');
+          showToast('Error al eliminar el pago', 'error');
+        }
+      }
+    );
   };
 
   return (
     <Box sx={{ width: '100%' }}>
       {/* Encabezado */}
       <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" fontWeight="bold" color="#1e293b" sx={{ mb: 0.5 }}>
+        <Typography variant="h4" fontWeight="bold" color="#1e293b" sx={{ mb: 0.5, letterSpacing: '0.5px' }}>
           Registro de Cobros y Recaudación
         </Typography>
-        <Typography variant="body2" color="text.secondary">
+        <Typography variant="body2" color="text.secondary" sx={{ letterSpacing: '0.3px' }}>
           Registra nuevos cobros en la calle y consulta tu historial de recaudación personal
         </Typography>
       </Box>
@@ -195,11 +227,25 @@ const CollectionPage: React.FC = () => {
         <Grid container spacing={3}>
           {/* Formulario de registro de pago */}
           <Grid item xs={12} lg={4}>
-            <Card sx={{ borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0', borderTop: '5px solid #10b981' }}>
+            <Card sx={{ 
+              borderRadius: 3, 
+              boxShadow: '0 4px 20px rgba(0,0,0,0.08)', 
+              border: '1px solid rgba(16, 185, 129, 0.1)', 
+              borderTop: '5px solid #10b981',
+              background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)'
+            }}>
               <Box sx={{ p: 4 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 4 }}>
-                  <Payment sx={{ color: '#10b981', fontSize: 28 }} />
-                  <Typography variant="h6" fontWeight="bold" color="#1e293b">
+                  <Box sx={{ 
+                    p: 1.5, 
+                    borderRadius: 2, 
+                    background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                    color: 'white',
+                    boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)'
+                  }}>
+                    <Payment sx={{ fontSize: 24 }} />
+                  </Box>
+                  <Typography variant="h6" fontWeight="bold" color="#1e293b" sx={{ letterSpacing: '0.3px' }}>
                     Registrar Cobro Nuevo
                   </Typography>
                 </Box>
@@ -271,7 +317,7 @@ const CollectionPage: React.FC = () => {
                         InputProps={{
                           startAdornment: (
                             <InputAdornment position="start">
-                              <CalendarToday sx={{ color: 'text.secondary' }} />
+                              <CalendarToday sx={{ color: '#10b981' }} />
                             </InputAdornment>
                           ),
                         }}
@@ -288,9 +334,15 @@ const CollectionPage: React.FC = () => {
                         sx={{
                           py: 1.5,
                           fontWeight: 'bold',
-                          bgcolor: '#10b981',
-                          '&:hover': { bgcolor: '#059669', boxShadow: '0 6px 16px rgba(16, 185, 129, 0.35)' },
-                          boxShadow: '0 4px 12px rgba(16, 185, 129, 0.25)'
+                          background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                          '&:hover': { 
+                            background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
+                            transform: 'translateY(-2px)',
+                            boxShadow: '0 6px 16px rgba(16, 185, 129, 0.35)',
+                            transition: 'all 0.3s ease'
+                          },
+                          boxShadow: '0 4px 12px rgba(16, 185, 129, 0.25)',
+                          letterSpacing: '0.3px'
                         }}
                       >
                         {formSubmitting ? 'Registrando...' : 'Registrar Cobro'}
@@ -304,27 +356,37 @@ const CollectionPage: React.FC = () => {
 
           {/* Historial de cobros personales */}
           <Grid item xs={12} lg={8}>
-            <Card sx={{ borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
-              <Box sx={{ p: 3, bgcolor: '#fff', borderBottom: '1px solid #e2e8f0' }}>
-                <Typography variant="h6" fontWeight="bold" color="#1e293b">
+            <Card sx={{ 
+              borderRadius: 3, 
+              boxShadow: '0 4px 20px rgba(0,0,0,0.08)', 
+              border: '1px solid rgba(16, 185, 129, 0.1)', 
+              overflow: 'hidden',
+              background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)'
+            }}>
+              <Box sx={{ 
+                p: 3, 
+                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', 
+                borderBottom: '1px solid rgba(16, 185, 129, 0.2)' 
+              }}>
+                <Typography variant="h6" fontWeight="bold" color="white" sx={{ letterSpacing: '0.3px' }}>
                   Mi Recaudación Personal Reciente
                 </Typography>
-                <Typography variant="caption" color="#64748b">
+                <Typography variant="caption" color="rgba(255, 255, 255, 0.8)" sx={{ letterSpacing: '0.3px' }}>
                   Historial de cobros que has registrado tú en el sistema
                 </Typography>
               </Box>
 
               <TableContainer sx={{ overflowX: 'auto' }}>
                 <Table sx={{ minWidth: 650 }}>
-                  <TableHead sx={{ bgcolor: '#f8fafc' }}>
+                  <TableHead sx={{ bgcolor: 'rgba(16, 185, 129, 0.05)' }}>
                     <TableRow>
-                      <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Cobro ID</TableCell>
-                      <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Cliente</TableCell>
-                      <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>ID Préstamo</TableCell>
-                      <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Monto Cobrado</TableCell>
-                      <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Fecha de Cobro</TableCell>
+                      <TableCell sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }}>Cobro ID</TableCell>
+                      <TableCell sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }}>Cliente</TableCell>
+                      <TableCell sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }}>ID Préstamo</TableCell>
+                      <TableCell sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }}>Monto Cobrado</TableCell>
+                      <TableCell sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }}>Fecha de Cobro</TableCell>
                       {isAdmin && (
-                        <TableCell sx={{ fontWeight: 'bold', color: '#475569' }} align="center">Acciones</TableCell>
+                        <TableCell sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }} align="center">Acciones</TableCell>
                       )}
                     </TableRow>
                   </TableHead>
@@ -337,24 +399,54 @@ const CollectionPage: React.FC = () => {
                       </TableRow>
                     ) : (
                       payments.map((p) => (
-                        <TableRow key={p.id} sx={{ '&:hover': { bgcolor: '#f8fafc' }, borderBottom: '1px solid #f1f5f9' }}>
-                          <TableCell sx={{ fontWeight: 600, color: '#10b981' }}>#{p.id}</TableCell>
-                          <TableCell sx={{ fontWeight: 500, color: '#1e293b' }}>
+                        <TableRow key={p.id} sx={{ 
+                          '&:hover': { 
+                            bgcolor: 'rgba(16, 185, 129, 0.05)',
+                            transition: 'background-color 0.2s'
+                          }, 
+                          borderBottom: '1px solid rgba(16, 185, 129, 0.1)' 
+                        }}>
+                          <TableCell sx={{ fontWeight: 600, color: '#10b981', letterSpacing: '0.3px' }}>#{p.id}</TableCell>
+                          <TableCell sx={{ fontWeight: 500, color: '#1e293b', letterSpacing: '0.3px' }}>
                             {p.cliente_nombre && p.cliente_apellido 
                               ? `${p.cliente_nombre} ${p.cliente_apellido}` 
                               : 'Cliente'}
                           </TableCell>
-                          <TableCell sx={{ color: '#64748b' }}>#{p.prestamo_id}</TableCell>
-                          <TableCell sx={{ fontWeight: 'bold', color: '#10b981' }}>
+                          <TableCell sx={{ color: '#64748b', letterSpacing: '0.3px' }}>#{p.prestamo_id}</TableCell>
+                          <TableCell sx={{ fontWeight: 'bold', color: '#10b981', letterSpacing: '0.3px' }}>
                             +${Number(p.monto).toLocaleString('es-AR', { minimumFractionDigits: 2 })}
                           </TableCell>
-                          <TableCell>{new Date(p.fecha_pago).toLocaleDateString('es-AR')}</TableCell>
+                          <TableCell sx={{ letterSpacing: '0.3px' }}>{new Date(p.fecha_pago).toLocaleDateString('es-AR')}</TableCell>
                           {isAdmin && (
                             <TableCell align="center">
-                              <IconButton onClick={() => handleEditPayment(p)} size="small" sx={{ color: '#6366f1' }}>
+                              <IconButton 
+                                onClick={() => handleEditPayment(p)} 
+                                size="small" 
+                                sx={{ 
+                                  color: '#6366f1',
+                                  bgcolor: 'rgba(99, 102, 241, 0.1)',
+                                  '&:hover': { 
+                                    bgcolor: 'rgba(99, 102, 241, 0.2)',
+                                    transform: 'scale(1.1)',
+                                    transition: 'all 0.2s'
+                                  }
+                                }}
+                              >
                                 <Edit fontSize="small" />
                               </IconButton>
-                              <IconButton onClick={() => handleDeletePayment(p.id)} size="small" sx={{ color: '#ef4444' }}>
+                              <IconButton 
+                                onClick={() => handleDeletePayment(p.id)} 
+                                size="small" 
+                                sx={{ 
+                                  color: '#ef4444',
+                                  bgcolor: 'rgba(239, 68, 68, 0.1)',
+                                  '&:hover': { 
+                                    bgcolor: 'rgba(239, 68, 68, 0.2)',
+                                    transform: 'scale(1.1)',
+                                    transition: 'all 0.2s'
+                                  }
+                                }}
+                              >
                                 <Delete fontSize="small" />
                               </IconButton>
                             </TableCell>
@@ -408,6 +500,22 @@ const CollectionPage: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
+      
+      <Toast
+        open={toast.open}
+        message={toast.message}
+        severity={toast.severity}
+        onClose={handleCloseToast}
+      />
+      
+      <ConfirmDialog
+        open={confirmDialog.open}
+        title={confirmDialog.title}
+        message={confirmDialog.message}
+        onConfirm={confirmDialog.onConfirm}
+        onCancel={handleCloseConfirmDialog}
+        severity="warning"
+      />
     </Box>
   );
 };

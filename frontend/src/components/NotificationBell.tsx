@@ -106,9 +106,27 @@ const NotificationBell: React.FC = () => {
     <>
       <IconButton
         onClick={handleOpen}
-        sx={{ color: 'blue' }}
+        sx={{ 
+          color: 'rgba(99, 102, 241, 0.9)',
+          transition: 'all 0.3s ease',
+          '&:hover': {
+            color: '#6366f1',
+            transform: 'scale(1.1)',
+            background: 'rgba(99, 102, 241, 0.1)',
+            borderRadius: '50%'
+          }
+        }}
       >
-        <Badge badgeContent={unreadCount} color="error" max={99}>
+        <Badge 
+          badgeContent={unreadCount} 
+          color="error" 
+          max={99}
+          sx={{
+            '& .MuiBadge-badge': {
+              boxShadow: '0 2px 8px rgba(239, 68, 68, 0.4)'
+            }
+          }}
+        >
           {unreadCount > 0 ? <Notifications /> : <NotificationsNone />}
         </Badge>
       </IconButton>
@@ -122,12 +140,22 @@ const NotificationBell: React.FC = () => {
             width: 380,
             maxHeight: 500,
             mt: 2,
-            boxShadow: '0 4px 20px rgba(0,0,0,0.15)'
+            boxShadow: '0 8px 30px rgba(0,0,0,0.15)',
+            borderRadius: 3,
+            border: '1px solid rgba(99, 102, 241, 0.1)',
+            background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)'
           }
         }}
       >
-        <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Typography variant="h6" fontWeight="bold">
+        <Box sx={{ 
+          p: 2, 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
+          borderBottom: '1px solid rgba(99, 102, 241, 0.2)'
+        }}>
+          <Typography variant="h6" fontWeight="bold" color="white" sx={{ letterSpacing: '0.3px' }}>
             Notificaciones
           </Typography>
           {unreadCount > 0 && (
@@ -136,16 +164,24 @@ const NotificationBell: React.FC = () => {
               color="primary" 
               size="small"
               onClick={handleMarkAllAsRead}
-              sx={{ cursor: 'pointer' }}
+              sx={{ 
+                cursor: 'pointer',
+                background: 'rgba(255, 255, 255, 0.2)',
+                color: 'white',
+                fontWeight: 'bold',
+                '&:hover': {
+                  background: 'rgba(255, 255, 255, 0.3)'
+                }
+              }}
             />
           )}
         </Box>
 
-        <Divider />
+        <Divider sx={{ borderColor: 'rgba(99, 102, 241, 0.1)' }} />
 
         {loading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
-            <CircularProgress />
+            <CircularProgress color="primary" />
           </Box>
         ) : notifications.length === 0 ? (
           <Box sx={{ p: 4, textAlign: 'center', color: 'text.secondary' }}>
@@ -160,27 +196,37 @@ const NotificationBell: React.FC = () => {
                 sx={{
                   p: 2,
                   bgcolor: notification.leida ? 'transparent' : 'rgba(99, 102, 241, 0.05)',
-                  borderBottom: '1px solid #f0f0f0',
-                  '&:last-child': { borderBottom: 'none' }
+                  borderBottom: '1px solid rgba(99, 102, 241, 0.1)',
+                  '&:last-child': { borderBottom: 'none' },
+                  '&:hover': {
+                    bgcolor: 'rgba(99, 102, 241, 0.08)',
+                    transition: 'background-color 0.2s'
+                  }
                 }}
               >
                 <Box sx={{ width: '100%' }}>
                   <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
-                    <Typography sx={{ fontSize: 20 }}>
+                    <Box sx={{ 
+                      fontSize: 20,
+                      p: 0.5,
+                      borderRadius: 1,
+                      background: notification.leida ? 'rgba(99, 102, 241, 0.1)' : 'rgba(99, 102, 241, 0.2)'
+                    }}>
                       {getNotificationIcon(notification.tipo)}
-                    </Typography>
+                    </Box>
                     <Box sx={{ flex: 1 }}>
                       <Typography 
                         variant="body2" 
                         fontWeight={notification.leida ? 'normal' : 'bold'}
-                        sx={{ mb: 0.5 }}
+                        sx={{ mb: 0.5, letterSpacing: '0.3px' }}
+                        color={notification.leida ? '#1e293b' : '#6366f1'}
                       >
                         {notification.titulo}
                       </Typography>
                       <Typography 
                         variant="caption" 
                         color="text.secondary"
-                        sx={{ display: 'block', mb: 1 }}
+                        sx={{ display: 'block', mb: 1, letterSpacing: '0.3px' }}
                       >
                         {new Date(notification.fecha_creacion).toLocaleString('es-AR', {
                           day: '2-digit',
@@ -190,7 +236,7 @@ const NotificationBell: React.FC = () => {
                           minute: '2-digit'
                         })}
                       </Typography>
-                      <Typography variant="body2" color="text.secondary">
+                      <Typography variant="body2" color="text.secondary" sx={{ letterSpacing: '0.3px' }}>
                         {notification.mensaje}
                       </Typography>
                     </Box>

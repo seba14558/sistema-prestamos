@@ -7,6 +7,7 @@ import {
 } from '@mui/material';
 import { Search, Add, Edit, AccountBalance, CalendarToday, AttachMoney } from '@mui/icons-material';
 import api from '../../services/api';
+import Toast from '../../components/Toast';
 
 interface Client {
   id: number;
@@ -49,6 +50,17 @@ const LoansPage: React.FC = () => {
   
   const [formError, setFormError] = useState('');
   const [formSubmitting, setFormSubmitting] = useState(false);
+
+  // Toast
+  const [toast, setToast] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' | 'warning' | 'info' });
+
+  const showToast = (message: string, severity: 'success' | 'error' | 'warning' | 'info' = 'success') => {
+    setToast({ open: true, message, severity });
+  };
+
+  const handleCloseToast = () => {
+    setToast({ ...toast, open: false });
+  };
 
   // Calcular la fecha de vencimiento automáticamente
   useEffect(() => {
@@ -164,6 +176,7 @@ const LoansPage: React.FC = () => {
           fecha_vencimiento: fechaVencimiento,
           estado
         });
+        showToast('Préstamo actualizado exitosamente', 'success');
       } else {
         // Crear nuevo préstamo
         await api.post('/prestamos', {
@@ -174,6 +187,7 @@ const LoansPage: React.FC = () => {
           fecha_vencimiento: fechaVencimiento,
           estado: 'activo'
         });
+        showToast('Préstamo creado exitosamente', 'success');
       }
       
       await fetchData();
@@ -181,6 +195,7 @@ const LoansPage: React.FC = () => {
     } catch (err: any) {
       console.error(err);
       setFormError(err.response?.data?.message || 'Error al guardar el préstamo.');
+      showToast('Error al guardar el préstamo', 'error');
     } finally {
       setFormSubmitting(false);
     }
@@ -206,10 +221,10 @@ const LoansPage: React.FC = () => {
       {/* Encabezado */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4, flexWrap: 'wrap', gap: 2 }}>
         <Box>
-          <Typography variant="h4" fontWeight="bold" color="#1e293b">
+          <Typography variant="h4" fontWeight="bold" color="#1e293b" sx={{ letterSpacing: '0.5px' }}>
             Control de Préstamos
           </Typography>
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="body2" color="text.secondary" sx={{ letterSpacing: '0.3px' }}>
             Administra los planes de financiación, registra préstamos y controla vencimientos
           </Typography>
         </Box>
@@ -225,9 +240,12 @@ const LoansPage: React.FC = () => {
             background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
             boxShadow: '0 4px 12px rgba(99, 102, 241, 0.25)',
             textTransform: 'none',
+            letterSpacing: '0.3px',
             '&:hover': {
               background: 'linear-gradient(135deg, #4f46e5 0%, #4338ca 100%)',
               boxShadow: '0 6px 16px rgba(99, 102, 241, 0.35)',
+              transform: 'translateY(-2px)',
+              transition: 'all 0.3s ease'
             }
           }}
         >
@@ -243,8 +261,18 @@ const LoansPage: React.FC = () => {
       )}
 
       {/* Tabla y búsqueda */}
-      <Card sx={{ borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.05)', overflow: 'hidden', border: '1px solid #f1f5f9' }}>
-        <Box sx={{ p: 3, bgcolor: '#fff', borderBottom: '1px solid #f1f5f9' }}>
+      <Card sx={{ 
+        borderRadius: 3, 
+        boxShadow: '0 4px 20px rgba(0,0,0,0.08)', 
+        overflow: 'hidden', 
+        border: '1px solid rgba(99, 102, 241, 0.1)',
+        background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)'
+      }}>
+        <Box sx={{ 
+          p: 3, 
+          background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)', 
+          borderBottom: '1px solid rgba(99, 102, 241, 0.2)' 
+        }}>
           <TextField
             placeholder="Buscar por cliente, plan, estado o ID..."
             fullWidth
@@ -253,20 +281,30 @@ const LoansPage: React.FC = () => {
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <Search sx={{ color: 'text.secondary' }} />
+                  <Search sx={{ color: 'rgba(255, 255, 255, 0.7)' }} />
                 </InputAdornment>
               ),
             }}
             sx={{
               '& .MuiOutlinedInput-root': {
                 borderRadius: 2.5,
-                bgcolor: '#f8fafc',
+                bgcolor: 'rgba(255, 255, 255, 0.15)',
+                backdropFilter: 'blur(10px)',
                 '& fieldset': {
-                  borderColor: '#e2e8f0',
+                  borderColor: 'rgba(255, 255, 255, 0.3)',
                 },
                 '&:hover fieldset': {
-                  borderColor: '#cbd5e1',
+                  borderColor: 'rgba(255, 255, 255, 0.5)',
                 },
+                '&.Mui-focused fieldset': {
+                  borderColor: 'rgba(255, 255, 255, 0.7)',
+                },
+                '& .MuiInputBase-input': {
+                  color: 'white',
+                },
+                '& .MuiInputLabel-root': {
+                  color: 'rgba(255, 255, 255, 0.7)',
+                }
               }
             }}
           />
@@ -279,16 +317,16 @@ const LoansPage: React.FC = () => {
         ) : (
           <TableContainer sx={{ overflowX: 'auto' }}>
             <Table sx={{ minWidth: 650 }}>
-              <TableHead sx={{ bgcolor: '#f8fafc' }}>
+              <TableHead sx={{ bgcolor: 'rgba(99, 102, 241, 0.05)' }}>
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Préstamo ID</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Cliente</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Plan</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Monto Otorgado</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Fecha de Otorgamiento</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Vencimiento</TableCell>
-                  <TableCell align="center" sx={{ fontWeight: 'bold', color: '#475569' }}>Estado</TableCell>
-                  <TableCell align="center" sx={{ fontWeight: 'bold', color: '#475569' }}>Acciones</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }}>Préstamo ID</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }}>Cliente</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }}>Plan</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }}>Monto Otorgado</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }}>Fecha de Otorgamiento</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }}>Vencimiento</TableCell>
+                  <TableCell align="center" sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }}>Estado</TableCell>
+                  <TableCell align="center" sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }}>Acciones</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -303,32 +341,39 @@ const LoansPage: React.FC = () => {
                     <TableRow 
                       key={loan.id}
                       sx={{ 
-                        '&:hover': { bgcolor: '#f8fafc' }, 
-                        transition: 'background-color 0.2s'
+                        '&:hover': { 
+                          bgcolor: 'rgba(99, 102, 241, 0.05)',
+                          transition: 'background-color 0.2s'
+                        }, 
+                        borderBottom: '1px solid rgba(99, 102, 241, 0.1)'
                       }}
                     >
-                      <TableCell sx={{ fontWeight: 600, color: '#6366f1' }}>#{loan.id}</TableCell>
-                      <TableCell sx={{ fontWeight: 500, color: '#1e293b' }}>
+                      <TableCell sx={{ fontWeight: 600, color: '#6366f1', letterSpacing: '0.3px' }}>#{loan.id}</TableCell>
+                      <TableCell sx={{ fontWeight: 500, color: '#1e293b', letterSpacing: '0.3px' }}>
                         {loan.cliente_nombre && loan.cliente_apellido 
                           ? `${loan.cliente_nombre} ${loan.cliente_apellido}` 
                           : `Cliente ID: ${loan.cliente_id}`}
                       </TableCell>
                       <TableCell>
-                        <Chip label={loan.plan} size="small" variant="outlined" color="primary" />
+                        <Chip label={loan.plan} size="small" variant="outlined" color="primary" sx={{ fontWeight: 'bold' }} />
                       </TableCell>
-                      <TableCell sx={{ fontWeight: 'bold', color: '#0f172a' }}>
+                      <TableCell sx={{ fontWeight: 'bold', color: '#0f172a', letterSpacing: '0.3px' }}>
                         ${Number(loan.monto).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </TableCell>
-                      <TableCell>{new Date(loan.fecha_inicio).toLocaleDateString('es-AR')}</TableCell>
-                      <TableCell>{new Date(loan.fecha_vencimiento).toLocaleDateString('es-AR')}</TableCell>
+                      <TableCell sx={{ letterSpacing: '0.3px' }}>{new Date(loan.fecha_inicio).toLocaleDateString('es-AR')}</TableCell>
+                      <TableCell sx={{ letterSpacing: '0.3px' }}>{new Date(loan.fecha_vencimiento).toLocaleDateString('es-AR')}</TableCell>
                       <TableCell align="center">{getStatusChip(loan.estado)}</TableCell>
                       <TableCell align="center">
                         <IconButton
                           color="primary"
                           onClick={() => handleOpenDialog(loan)}
                           sx={{ 
-                            bgcolor: 'rgba(99, 102, 241, 0.08)',
-                            '&:hover': { bgcolor: 'rgba(99, 102, 241, 0.15)' }
+                            bgcolor: 'rgba(99, 102, 241, 0.1)',
+                            '&:hover': { 
+                              bgcolor: 'rgba(99, 102, 241, 0.2)',
+                              transform: 'scale(1.1)',
+                              transition: 'all 0.2s'
+                            }
                           }}
                         >
                           <Edit sx={{ fontSize: 20 }} />
@@ -517,6 +562,13 @@ const LoansPage: React.FC = () => {
           </DialogActions>
         </Box>
       </Dialog>
+      
+      <Toast
+        open={toast.open}
+        message={toast.message}
+        severity={toast.severity}
+        onClose={handleCloseToast}
+      />
     </Box>
   );
 };

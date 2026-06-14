@@ -7,6 +7,8 @@ import {
 } from '@mui/material';
 import { Add, Edit, Delete, Person } from '@mui/icons-material';
 import { getUsuarios, crearUsuario, editarUsuario, eliminarUsuario } from '../../services/api';
+import Toast from '../../components/Toast';
+import ConfirmDialog from '../../components/ConfirmDialog';
 
 interface User {
   id: number;
@@ -30,6 +32,28 @@ const UsersPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const [rol, setRol] = useState('cobrador');
   const [formError, setFormError] = useState('');
+
+  // Toast
+  const [toast, setToast] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' | 'warning' | 'info' });
+
+  const showToast = (message: string, severity: 'success' | 'error' | 'warning' | 'info' = 'success') => {
+    setToast({ open: true, message, severity });
+  };
+
+  const handleCloseToast = () => {
+    setToast({ ...toast, open: false });
+  };
+
+  // Confirm Dialog
+  const [confirmDialog, setConfirmDialog] = useState({ open: false, title: '', message: '', onConfirm: () => {} });
+
+  const showConfirmDialog = (title: string, message: string, onConfirm: () => void) => {
+    setConfirmDialog({ open: true, title, message, onConfirm });
+  };
+
+  const handleCloseConfirmDialog = () => {
+    setConfirmDialog({ ...confirmDialog, open: false });
+  };
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -98,8 +122,10 @@ const UsersPage: React.FC = () => {
 
       if (editingUser) {
         await editarUsuario(editingUser.id, userData);
+        showToast('Usuario actualizado exitosamente', 'success');
       } else {
         await crearUsuario(userData);
+        showToast('Usuario creado exitosamente', 'success');
       }
 
       setDialogOpen(false);
@@ -108,21 +134,26 @@ const UsersPage: React.FC = () => {
     } catch (err: any) {
       console.error(err);
       setFormError(err.response?.data?.message || 'Error al guardar usuario');
+      showToast('Error al guardar usuario', 'error');
     }
   };
 
   const handleDelete = async (id: number) => {
-    if (!window.confirm('¿Estás seguro de que quieres eliminar este usuario?')) {
-      return;
-    }
-
-    try {
-      await eliminarUsuario(id);
-      fetchUsers();
-    } catch (err: any) {
-      console.error(err);
-      setError(err.response?.data?.message || 'Error al eliminar usuario');
-    }
+    showConfirmDialog(
+      'Eliminar Usuario',
+      '¿Estás seguro de que quieres eliminar este usuario? Esta acción no se puede deshacer.',
+      async () => {
+        try {
+          await eliminarUsuario(id);
+          fetchUsers();
+          showToast('Usuario eliminado exitosamente', 'success');
+        } catch (err: any) {
+          console.error(err);
+          setError(err.response?.data?.message || 'Error al eliminar usuario');
+          showToast('Error al eliminar usuario', 'error');
+        }
+      }
+    );
   };
 
   return (
@@ -130,10 +161,10 @@ const UsersPage: React.FC = () => {
       {/* Encabezado */}
       <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexDirection: { xs: 'column', sm: 'row' }, gap: { xs: 2, sm: 0 } }}>
         <Box sx={{ textAlign: { xs: 'center', sm: 'left' } }}>
-          <Typography variant="h4" fontWeight="bold" color="#1e293b" sx={{ mb: 0.5 }}>
+          <Typography variant="h4" fontWeight="bold" color="#1e293b" sx={{ mb: 0.5, letterSpacing: '0.5px' }}>
             Gestión de Usuarios
           </Typography>
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="body2" color="text.secondary" sx={{ letterSpacing: '0.3px' }}>
             Administra los usuarios del sistema (administradores y cobradores)
           </Typography>
         </Box>
@@ -142,14 +173,21 @@ const UsersPage: React.FC = () => {
           startIcon={<Add />}
           onClick={() => handleOpenDialog()}
           sx={{
-            bgcolor: '#6366f1',
-            '&:hover': { bgcolor: '#4f46e5' },
-            px: { xs: 1, sm: 3 },
+            background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
+            '&:hover': { 
+              background: 'linear-gradient(135deg, #4f46e5 0%, #4338ca 100%)',
+              transform: 'translateY(-2px)',
+              boxShadow: '0 6px 16px rgba(99, 102, 241, 0.35)',
+              transition: 'all 0.3s ease'
+            },
+            px: { xs: 2, sm: 3 },
             py: { xs: 1, sm: 1.5 },
             fontSize: { xs: '0.875rem', sm: '1rem' },
             fontWeight: 'bold',
             minWidth: { xs: 'auto', sm: 'auto' },
-            borderRadius: 2
+            borderRadius: 2,
+            boxShadow: '0 4px 12px rgba(99, 102, 241, 0.25)',
+            letterSpacing: '0.3px'
           }}
         >
           Nuevo Usuario
@@ -167,17 +205,23 @@ const UsersPage: React.FC = () => {
           <CircularProgress color="primary" />
         </Box>
       ) : (
-        <Card sx={{ borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+        <Card sx={{ 
+          borderRadius: 3, 
+          boxShadow: '0 4px 20px rgba(0,0,0,0.08)', 
+          border: '1px solid rgba(99, 102, 241, 0.1)', 
+          overflow: 'hidden',
+          background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)'
+        }}>
           <TableContainer sx={{ overflowX: 'auto' }}>
             <Table sx={{ minWidth: 650 }}>
-              <TableHead sx={{ bgcolor: '#f8fafc' }}>
+              <TableHead sx={{ bgcolor: 'rgba(99, 102, 241, 0.05)' }}>
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>ID</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Nombre</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Apellido</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Usuario</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Rol</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#475569' }} align="center">Acciones</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }}>ID</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }}>Nombre</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }}>Apellido</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }}>Usuario</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }}>Rol</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }} align="center">Acciones</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -189,11 +233,17 @@ const UsersPage: React.FC = () => {
                   </TableRow>
                 ) : (
                   users.map((user) => (
-                    <TableRow key={user.id} sx={{ '&:hover': { bgcolor: '#f8fafc' }, borderBottom: '1px solid #f1f5f9' }}>
-                      <TableCell sx={{ fontWeight: 600, color: '#6366f1' }}>#{user.id}</TableCell>
-                      <TableCell sx={{ fontWeight: 500, color: '#1e293b' }}>{user.nombre}</TableCell>
-                      <TableCell sx={{ color: '#64748b' }}>{user.apellido}</TableCell>
-                      <TableCell sx={{ color: '#64748b' }}>{user.usuario}</TableCell>
+                    <TableRow key={user.id} sx={{ 
+                      '&:hover': { 
+                        bgcolor: 'rgba(99, 102, 241, 0.05)',
+                        transition: 'background-color 0.2s'
+                      }, 
+                      borderBottom: '1px solid rgba(99, 102, 241, 0.1)' 
+                    }}>
+                      <TableCell sx={{ fontWeight: 600, color: '#6366f1', letterSpacing: '0.3px' }}>#{user.id}</TableCell>
+                      <TableCell sx={{ fontWeight: 500, color: '#1e293b', letterSpacing: '0.3px' }}>{user.nombre}</TableCell>
+                      <TableCell sx={{ color: '#64748b', letterSpacing: '0.3px' }}>{user.apellido}</TableCell>
+                      <TableCell sx={{ color: '#64748b', letterSpacing: '0.3px' }}>{user.usuario}</TableCell>
                       <TableCell>
                         <Box
                           sx={{
@@ -203,18 +253,46 @@ const UsersPage: React.FC = () => {
                             borderRadius: 1,
                             fontSize: '0.75rem',
                             fontWeight: 'bold',
-                            bgcolor: user.rol === 'admin' ? 'rgba(99, 102, 241, 0.1)' : 'rgba(16, 185, 129, 0.1)',
-                            color: user.rol === 'admin' ? '#6366f1' : '#10b981'
+                            background: user.rol === 'admin' 
+                              ? 'linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(99, 102, 241, 0.1) 100%)' 
+                              : 'linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0.1) 100%)',
+                            color: user.rol === 'admin' ? '#6366f1' : '#10b981',
+                            border: user.rol === 'admin' ? '1px solid rgba(99, 102, 241, 0.3)' : '1px solid rgba(16, 185, 129, 0.3)',
+                            letterSpacing: '0.3px'
                           }}
                         >
                           {user.rol === 'admin' ? 'Administrador' : 'Cobrador'}
                         </Box>
                       </TableCell>
                       <TableCell align="center">
-                        <IconButton onClick={() => handleOpenDialog(user)} size="small" sx={{ color: '#6366f1' }}>
+                        <IconButton 
+                          onClick={() => handleOpenDialog(user)} 
+                          size="small" 
+                          sx={{ 
+                            color: '#6366f1',
+                            bgcolor: 'rgba(99, 102, 241, 0.1)',
+                            '&:hover': { 
+                              bgcolor: 'rgba(99, 102, 241, 0.2)',
+                              transform: 'scale(1.1)',
+                              transition: 'all 0.2s'
+                            }
+                          }}
+                        >
                           <Edit fontSize="small" />
                         </IconButton>
-                        <IconButton onClick={() => handleDelete(user.id)} size="small" sx={{ color: '#ef4444' }}>
+                        <IconButton 
+                          onClick={() => handleDelete(user.id)} 
+                          size="small" 
+                          sx={{ 
+                            color: '#ef4444',
+                            bgcolor: 'rgba(239, 68, 68, 0.1)',
+                            '&:hover': { 
+                              bgcolor: 'rgba(239, 68, 68, 0.2)',
+                              transform: 'scale(1.1)',
+                              transition: 'all 0.2s'
+                            }
+                          }}
+                        >
                           <Delete fontSize="small" />
                         </IconButton>
                       </TableCell>
@@ -296,6 +374,22 @@ const UsersPage: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
+      
+      <Toast
+        open={toast.open}
+        message={toast.message}
+        severity={toast.severity}
+        onClose={handleCloseToast}
+      />
+      
+      <ConfirmDialog
+        open={confirmDialog.open}
+        title={confirmDialog.title}
+        message={confirmDialog.message}
+        onConfirm={confirmDialog.onConfirm}
+        onCancel={handleCloseConfirmDialog}
+        severity="warning"
+      />
     </Box>
   );
 };

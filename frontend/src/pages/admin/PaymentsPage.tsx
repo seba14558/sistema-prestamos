@@ -7,6 +7,8 @@ import {
 } from '@mui/material';
 import { Edit, Delete, Payment, AttachMoney, CalendarToday } from '@mui/icons-material';
 import api, { editarPago, eliminarPago } from '../../services/api';
+import Toast from '../../components/Toast';
+import ConfirmDialog from '../../components/ConfirmDialog';
 
 interface Payment {
   id: number;
@@ -29,6 +31,28 @@ const PaymentsPage: React.FC = () => {
   const [editingPayment, setEditingPayment] = useState<Payment | null>(null);
   const [editMonto, setEditMonto] = useState('');
   const [editFechaPago, setEditFechaPago] = useState('');
+
+  // Toast
+  const [toast, setToast] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' | 'warning' | 'info' });
+
+  const showToast = (message: string, severity: 'success' | 'error' | 'warning' | 'info' = 'success') => {
+    setToast({ open: true, message, severity });
+  };
+
+  const handleCloseToast = () => {
+    setToast({ ...toast, open: false });
+  };
+
+  // Confirm Dialog
+  const [confirmDialog, setConfirmDialog] = useState({ open: false, title: '', message: '', onConfirm: () => {} });
+
+  const showConfirmDialog = (title: string, message: string, onConfirm: () => void) => {
+    setConfirmDialog({ open: true, title, message, onConfirm });
+  };
+
+  const handleCloseConfirmDialog = () => {
+    setConfirmDialog({ ...confirmDialog, open: false });
+  };
 
   const fetchPayments = async () => {
     setLoading(true);
@@ -73,34 +97,40 @@ const PaymentsPage: React.FC = () => {
       setEditingPayment(null);
       setError('');
       await fetchPayments();
+      showToast('Pago actualizado exitosamente', 'success');
     } catch (err: any) {
       console.error(err);
       setError(err.response?.data?.message || 'Error al editar el pago.');
+      showToast('Error al editar el pago', 'error');
     }
   };
 
   const handleDeletePayment = async (id: number) => {
-    if (!window.confirm('¿Estás seguro de que quieres eliminar este pago?')) {
-      return;
-    }
-
-    try {
-      await eliminarPago(id);
-      await fetchPayments();
-    } catch (err: any) {
-      console.error(err);
-      setError(err.response?.data?.message || 'Error al eliminar el pago.');
-    }
+    showConfirmDialog(
+      'Eliminar Pago',
+      '¿Estás seguro de que quieres eliminar este pago? Esta acción no se puede deshacer.',
+      async () => {
+        try {
+          await eliminarPago(id);
+          await fetchPayments();
+          showToast('Pago eliminado exitosamente', 'success');
+        } catch (err: any) {
+          console.error(err);
+          setError(err.response?.data?.message || 'Error al eliminar el pago.');
+          showToast('Error al eliminar el pago', 'error');
+        }
+      }
+    );
   };
 
   return (
     <Box sx={{ width: '100%' }}>
       {/* Encabezado */}
       <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" fontWeight="bold" color="#1e293b" sx={{ mb: 0.5 }}>
+        <Typography variant="h4" fontWeight="bold" color="#1e293b" sx={{ mb: 0.5, letterSpacing: '0.5px' }}>
           Gestión de Cobros
         </Typography>
-        <Typography variant="body2" color="text.secondary">
+        <Typography variant="body2" color="text.secondary" sx={{ letterSpacing: '0.3px' }}>
           Visualiza, edita y elimina los cobros registrados por los cobradores
         </Typography>
       </Box>
@@ -116,27 +146,37 @@ const PaymentsPage: React.FC = () => {
           <CircularProgress color="primary" />
         </Box>
       ) : (
-        <Card sx={{ borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
-          <Box sx={{ p: 3, bgcolor: '#fff', borderBottom: '1px solid #e2e8f0' }}>
-            <Typography variant="h6" fontWeight="bold" color="#1e293b">
+        <Card sx={{ 
+          borderRadius: 3, 
+          boxShadow: '0 4px 20px rgba(0,0,0,0.08)', 
+          border: '1px solid rgba(99, 102, 241, 0.1)', 
+          overflow: 'hidden',
+          background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)'
+        }}>
+          <Box sx={{ 
+            p: 3, 
+            background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)', 
+            borderBottom: '1px solid rgba(99, 102, 241, 0.2)' 
+          }}>
+            <Typography variant="h6" fontWeight="bold" color="white" sx={{ letterSpacing: '0.3px' }}>
               Todos los Cobros Registrados
             </Typography>
-            <Typography variant="caption" color="#64748b">
+            <Typography variant="caption" color="rgba(255, 255, 255, 0.8)" sx={{ letterSpacing: '0.3px' }}>
               Historial de cobros registrados por todos los cobradores
             </Typography>
           </Box>
 
           <TableContainer sx={{ overflowX: 'auto' }}>
             <Table sx={{ minWidth: 650 }}>
-              <TableHead sx={{ bgcolor: '#f8fafc' }}>
+              <TableHead sx={{ bgcolor: 'rgba(99, 102, 241, 0.05)' }}>
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Cobro ID</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Cliente</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Cobrador</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>ID Préstamo</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Monto Cobrado</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#475569' }}>Fecha de Cobro</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#475569' }} align="center">Acciones</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }}>Cobro ID</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }}>Cliente</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }}>Cobrador</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }}>ID Préstamo</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }}>Monto Cobrado</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }}>Fecha de Cobro</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }} align="center">Acciones</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -148,28 +188,58 @@ const PaymentsPage: React.FC = () => {
                   </TableRow>
                 ) : (
                   payments.map((p) => (
-                    <TableRow key={p.id} sx={{ '&:hover': { bgcolor: '#f8fafc' }, borderBottom: '1px solid #f1f5f9' }}>
-                      <TableCell sx={{ fontWeight: 600, color: '#10b981' }}>#{p.id}</TableCell>
-                      <TableCell sx={{ fontWeight: 500, color: '#1e293b' }}>
+                    <TableRow key={p.id} sx={{ 
+                      '&:hover': { 
+                        bgcolor: 'rgba(99, 102, 241, 0.05)',
+                        transition: 'background-color 0.2s'
+                      }, 
+                      borderBottom: '1px solid rgba(99, 102, 241, 0.1)' 
+                    }}>
+                      <TableCell sx={{ fontWeight: 600, color: '#10b981', letterSpacing: '0.3px' }}>#{p.id}</TableCell>
+                      <TableCell sx={{ fontWeight: 500, color: '#1e293b', letterSpacing: '0.3px' }}>
                         {p.cliente_nombre && p.cliente_apellido 
                           ? `${p.cliente_nombre} ${p.cliente_apellido}` 
                           : 'Cliente'}
                       </TableCell>
-                      <TableCell sx={{ color: '#64748b' }}>
+                      <TableCell sx={{ color: '#64748b', letterSpacing: '0.3px' }}>
                         {p.cobrador_nombre && p.cobrador_apellido 
                           ? `${p.cobrador_nombre} ${p.cobrador_apellido}` 
                           : 'Cobrador'}
                       </TableCell>
-                      <TableCell sx={{ color: '#64748b' }}>#{p.prestamo_id}</TableCell>
-                      <TableCell sx={{ fontWeight: 'bold', color: '#10b981' }}>
+                      <TableCell sx={{ color: '#64748b', letterSpacing: '0.3px' }}>#{p.prestamo_id}</TableCell>
+                      <TableCell sx={{ fontWeight: 'bold', color: '#10b981', letterSpacing: '0.3px' }}>
                         +${Number(p.monto).toLocaleString('es-AR', { minimumFractionDigits: 2 })}
                       </TableCell>
-                      <TableCell>{new Date(p.fecha_pago).toLocaleDateString('es-AR')}</TableCell>
+                      <TableCell sx={{ letterSpacing: '0.3px' }}>{new Date(p.fecha_pago).toLocaleDateString('es-AR')}</TableCell>
                       <TableCell align="center">
-                        <IconButton onClick={() => handleEditPayment(p)} size="small" sx={{ color: '#6366f1' }}>
+                        <IconButton 
+                          onClick={() => handleEditPayment(p)} 
+                          size="small" 
+                          sx={{ 
+                            color: '#6366f1',
+                            bgcolor: 'rgba(99, 102, 241, 0.1)',
+                            '&:hover': { 
+                              bgcolor: 'rgba(99, 102, 241, 0.2)',
+                              transform: 'scale(1.1)',
+                              transition: 'all 0.2s'
+                            }
+                          }}
+                        >
                           <Edit fontSize="small" />
                         </IconButton>
-                        <IconButton onClick={() => handleDeletePayment(p.id)} size="small" sx={{ color: '#ef4444' }}>
+                        <IconButton 
+                          onClick={() => handleDeletePayment(p.id)} 
+                          size="small" 
+                          sx={{ 
+                            color: '#ef4444',
+                            bgcolor: 'rgba(239, 68, 68, 0.1)',
+                            '&:hover': { 
+                              bgcolor: 'rgba(239, 68, 68, 0.2)',
+                              transform: 'scale(1.1)',
+                              transition: 'all 0.2s'
+                            }
+                          }}
+                        >
                           <Delete fontSize="small" />
                         </IconButton>
                       </TableCell>
@@ -227,6 +297,22 @@ const PaymentsPage: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
+      
+      <Toast
+        open={toast.open}
+        message={toast.message}
+        severity={toast.severity}
+        onClose={handleCloseToast}
+      />
+      
+      <ConfirmDialog
+        open={confirmDialog.open}
+        title={confirmDialog.title}
+        message={confirmDialog.message}
+        onConfirm={confirmDialog.onConfirm}
+        onCancel={handleCloseConfirmDialog}
+        severity="warning"
+      />
     </Box>
   );
 };
