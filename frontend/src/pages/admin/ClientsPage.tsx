@@ -9,6 +9,7 @@ import { Search, Edit, Person, LocationOn, Delete } from '@mui/icons-material';
 import api, { editarCliente, eliminarCliente } from '../../services/api';
 import Toast from '../../components/Toast';
 import ConfirmDialog from '../../components/ConfirmDialog';
+import TableSkeleton from '../../components/TableSkeleton';
 
 interface Client {
   id: number;
@@ -193,7 +194,7 @@ const ClientsPage: React.FC = () => {
       {/* Encabezado */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4, flexWrap: 'wrap', gap: 2 }}>
         <Box>
-          <Typography variant="h4" fontWeight="bold" color="#1e293b" sx={{ letterSpacing: '0.5px' }}>
+          <Typography variant="h4" fontWeight="bold" color="#1e293b" sx={{ letterSpacing: '0.5px', lineHeight: { xs: 1.4, sm: 1.2 }, fontSize: { xs: '1.5rem', sm: '2.125rem' } }}>
             Gestión de Clientes
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ letterSpacing: '0.3px' }}>
@@ -213,6 +214,8 @@ const ClientsPage: React.FC = () => {
             boxShadow: '0 4px 12px rgba(99, 102, 241, 0.25)',
             textTransform: 'none',
             letterSpacing: '0.3px',
+            width: { xs: '100%', sm: 'auto' },
+            minHeight: { xs: 48, sm: 'auto' },
             '&:hover': {
               background: 'linear-gradient(135deg, #4f46e5 0%, #4338ca 100%)',
               boxShadow: '0 6px 16px rgba(99, 102, 241, 0.35)',
@@ -283,9 +286,7 @@ const ClientsPage: React.FC = () => {
         </Box>
 
         {loading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: 8 }}>
-            <CircularProgress color="primary" />
-          </Box>
+          <TableSkeleton rows={8} columns={4} />
         ) : (
           <TableContainer sx={{ overflowX: 'auto' }}>
             <Table sx={{ minWidth: 650 }}>

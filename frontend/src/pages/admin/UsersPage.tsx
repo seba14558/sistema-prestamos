@@ -9,6 +9,7 @@ import { Add, Edit, Delete, Person } from '@mui/icons-material';
 import { getUsuarios, crearUsuario, editarUsuario, eliminarUsuario } from '../../services/api';
 import Toast from '../../components/Toast';
 import ConfirmDialog from '../../components/ConfirmDialog';
+import TableSkeleton from '../../components/TableSkeleton';
 
 interface User {
   id: number;
@@ -161,7 +162,7 @@ const UsersPage: React.FC = () => {
       {/* Encabezado */}
       <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexDirection: { xs: 'column', sm: 'row' }, gap: { xs: 2, sm: 0 } }}>
         <Box sx={{ textAlign: { xs: 'center', sm: 'left' } }}>
-          <Typography variant="h4" fontWeight="bold" color="#1e293b" sx={{ mb: 0.5, letterSpacing: '0.5px' }}>
+          <Typography variant="h4" fontWeight="bold" color="#1e293b" sx={{ mb: 0.5, letterSpacing: '0.5px', lineHeight: { xs: 1.4, sm: 1.2 }, fontSize: { xs: '1.5rem', sm: '2.125rem' } }}>
             Gestión de Usuarios
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ letterSpacing: '0.3px' }}>
@@ -184,7 +185,8 @@ const UsersPage: React.FC = () => {
             py: { xs: 1, sm: 1.5 },
             fontSize: { xs: '0.875rem', sm: '1rem' },
             fontWeight: 'bold',
-            minWidth: { xs: 'auto', sm: 'auto' },
+            width: { xs: '100%', sm: 'auto' },
+            minHeight: { xs: 48, sm: 'auto' },
             borderRadius: 2,
             boxShadow: '0 4px 12px rgba(99, 102, 241, 0.25)',
             letterSpacing: '0.3px'
@@ -201,9 +203,7 @@ const UsersPage: React.FC = () => {
       )}
 
       {loading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: 8 }}>
-          <CircularProgress color="primary" />
-        </Box>
+        <TableSkeleton rows={8} columns={6} />
       ) : (
         <Card sx={{ 
           borderRadius: 3, 

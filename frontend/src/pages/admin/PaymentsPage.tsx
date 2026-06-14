@@ -9,6 +9,7 @@ import { Edit, Delete, Payment, AttachMoney, CalendarToday } from '@mui/icons-ma
 import api, { editarPago, eliminarPago } from '../../services/api';
 import Toast from '../../components/Toast';
 import ConfirmDialog from '../../components/ConfirmDialog';
+import TableSkeleton from '../../components/TableSkeleton';
 
 interface Payment {
   id: number;
@@ -127,7 +128,7 @@ const PaymentsPage: React.FC = () => {
     <Box sx={{ width: '100%' }}>
       {/* Encabezado */}
       <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" fontWeight="bold" color="#1e293b" sx={{ mb: 0.5, letterSpacing: '0.5px' }}>
+        <Typography variant="h4" fontWeight="bold" color="#1e293b" sx={{ mb: 0.5, letterSpacing: '0.5px', lineHeight: { xs: 1.4, sm: 1.2 }, fontSize: { xs: '1.5rem', sm: '2.125rem' } }}>
           Gestión de Cobros
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ letterSpacing: '0.3px' }}>
@@ -142,9 +143,7 @@ const PaymentsPage: React.FC = () => {
       )}
 
       {loading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: 8 }}>
-          <CircularProgress color="primary" />
-        </Box>
+        <TableSkeleton rows={8} columns={7} />
       ) : (
         <Card sx={{ 
           borderRadius: 3, 

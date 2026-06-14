@@ -204,7 +204,7 @@ const AdminPanel: React.FC = () => {
         {/* AppBar */}
         <AppBar position="sticky" sx={{ bgcolor: 'transparent', boxShadow: 'none', zIndex: (theme) => theme.zIndex.drawer + 3 }}>
           <Toolbar>
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' }, fontWeight: 'bold', color: '#1e293b' }}>
+           {/*  <Typography variant="h6" component="div" sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' }, fontWeight: 'bold', color: '#1e293b' }}>
               {location.pathname.includes('dashboard') ? 'Panel de Resumen' : 
                location.pathname.includes('clients') ? 'Gestión de Clientes' : 
                location.pathname.includes('loans') ? 'Control de Préstamos' : 
@@ -212,7 +212,7 @@ const AdminPanel: React.FC = () => {
                location.pathname.includes('debtors') ? 'Deudores Morosos' :
                location.pathname.includes('due') ? 'Próximos Vencimientos' :
                location.pathname.includes('users') ? 'Gestión de Usuarios' : 'Panel de Administración'}
-            </Typography>
+            </Typography> */}
 
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, ml: 'auto' }}>
               <NotificationBell />

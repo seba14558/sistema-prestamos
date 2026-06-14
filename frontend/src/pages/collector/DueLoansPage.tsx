@@ -7,6 +7,7 @@ import {
 import { AccessTime, Warning, Home, Payments } from '@mui/icons-material';
 import api from '../../services/api';
 import { useNavigate } from 'react-router-dom';
+import TableSkeleton from '../../components/TableSkeleton';
 
 interface Loan {
   id: number;
@@ -180,7 +181,7 @@ const DueLoansPage: React.FC = () => {
     <Box sx={{ width: '100%' }}>
       {/* Encabezado */}
       <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" fontWeight="bold" color="#1e293b" sx={{ mb: 0.5, letterSpacing: '0.5px' }}>
+        <Typography variant="h4" fontWeight="bold" color="#1e293b" sx={{ mb: 0.5, letterSpacing: '0.5px', lineHeight: { xs: 1.4, sm: 1.2 }, fontSize: { xs: '1.5rem', sm: '2.125rem' } }}>
           Vencimientos de Préstamos
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ letterSpacing: '0.3px' }}>
@@ -195,9 +196,7 @@ const DueLoansPage: React.FC = () => {
       )}
 
       {loading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: 8 }}>
-          <CircularProgress color="primary" />
-        </Box>
+        <TableSkeleton rows={8} columns={6} />
       ) : (
         <Card sx={{ 
           borderRadius: 3, 

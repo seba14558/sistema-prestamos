@@ -9,6 +9,7 @@ import { Search, Payment, AttachMoney, CalendarToday, Edit, Delete } from '@mui/
 import api, { editarPago, eliminarPago } from '../../services/api';
 import Toast from '../../components/Toast';
 import ConfirmDialog from '../../components/ConfirmDialog';
+import TableSkeleton from '../../components/TableSkeleton';
 
 interface Loan {
   id: number;
@@ -17,6 +18,8 @@ interface Loan {
   cliente_apellido?: string;
   monto: string | number;
   estado: string;
+  plan?: string;
+  fecha_vencimiento?: string;
 }
 
 interface Payment {
@@ -37,6 +40,7 @@ const CollectionPage: React.FC = () => {
   
   // Estado del formulario
   const [prestamoId, setPrestamoId] = useState<number | ''>('');
+  const [selectedLoan, setSelectedLoan] = useState<Loan | null>(null);
   const [monto, setMonto] = useState('');
   const [fechaPago, setFechaPago] = useState(new Date().toISOString().slice(0, 10));
   
@@ -205,7 +209,7 @@ const CollectionPage: React.FC = () => {
     <Box sx={{ width: '100%' }}>
       {/* Encabezado */}
       <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" fontWeight="bold" color="#1e293b" sx={{ mb: 0.5, letterSpacing: '0.5px' }}>
+        <Typography variant="h4" fontWeight="bold" color="#1e293b" sx={{ mb: 0.5, letterSpacing: '0.5px', lineHeight: { xs: 1.4, sm: 1.2 }, fontSize: { xs: '1.5rem', sm: '2.125rem' } }}>
           Registro de Cobros y Recaudación
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ letterSpacing: '0.3px' }}>
@@ -220,9 +224,7 @@ const CollectionPage: React.FC = () => {
       )}
 
       {loading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: 8 }}>
-          <CircularProgress color="success" />
-        </Box>
+        <TableSkeleton rows={8} columns={isAdmin ? 6 : 5} />
       ) : (
         <Grid container spacing={3}>
           {/* Formulario de registro de pago */}
@@ -234,7 +236,7 @@ const CollectionPage: React.FC = () => {
               borderTop: '5px solid #10b981',
               background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)'
             }}>
-              <Box sx={{ p: 4 }}>
+              <Box sx={{ p: { xs: 3, sm: 4 } }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 4 }}>
                   <Box sx={{ 
                     p: 1.5, 
@@ -263,26 +265,85 @@ const CollectionPage: React.FC = () => {
                 )}
 
                 <Box component="form" onSubmit={handleSubmit}>
-                  <Grid container spacing={2.5}>
+                  <Grid container spacing={{ xs: 3, sm: 2.5 }}>
                     <Grid item xs={12}>
                       <TextField
                         select
-                        label="Seleccionar Préstamo / Cliente"
+                        label="Seleccionar Cliente"
                         fullWidth
                         required
                         value={prestamoId}
-                        onChange={(e) => setPrestamoId(Number(e.target.value))}
+                        onChange={(e) => {
+                          const value = Number(e.target.value);
+                          setPrestamoId(value);
+                          setSelectedLoan(loans.find(l => l.id === value) || null);
+                        }}
                         disabled={formSubmitting}
-                        sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+                        sx={{ 
+                          '& .MuiOutlinedInput-root': { 
+                            borderRadius: 2,
+                            minHeight: { xs: 48, sm: 'auto' }
+                          } 
+                        }}
                       >
-                        <MenuItem value="">Seleccionar préstamo...</MenuItem>
+                        <MenuItem value="">Seleccionar cliente...</MenuItem>
                         {loans.map((l) => (
                           <MenuItem key={l.id} value={l.id}>
-                            Préstamo #{l.id} - {l.cliente_nombre} {l.cliente_apellido} (Monto: ${Number(l.monto)})
+                            {l.cliente_nombre} {l.cliente_apellido} (Préstamo #{l.id})
                           </MenuItem>
                         ))}
                       </TextField>
                     </Grid>
+
+                    {selectedLoan && (
+                      <Grid item xs={12}>
+                        <Box sx={{ 
+                          p: 2.5, 
+                          borderRadius: 2, 
+                          background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(99, 102, 241, 0.02) 100%)',
+                          border: '1px solid rgba(99, 102, 241, 0.2)',
+                          mb: 1
+                        }}>
+                          <Typography variant="subtitle2" fontWeight="bold" color="#6366f1" sx={{ mb: 1.5, letterSpacing: '0.3px' }}>
+                            Información del Préstamo
+                          </Typography>
+                          <Grid container spacing={2}>
+                            <Grid item xs={6} sm={3}>
+                              <Typography variant="caption" color="#64748b" sx={{ display: 'block', mb: 0.5 }}>
+                                Monto Total
+                              </Typography>
+                              <Typography variant="body2" fontWeight="600" color="#1e293b">
+                                ${Number(selectedLoan.monto).toLocaleString('es-AR', { minimumFractionDigits: 2 })}
+                              </Typography>
+                            </Grid>
+                            <Grid item xs={6} sm={3}>
+                              <Typography variant="caption" color="#64748b" sx={{ display: 'block', mb: 0.5 }}>
+                                Estado
+                              </Typography>
+                              <Typography variant="body2" fontWeight="600" color="#1e293b">
+                                {selectedLoan.estado}
+                              </Typography>
+                            </Grid>
+                            <Grid item xs={6} sm={3}>
+                              <Typography variant="caption" color="#64748b" sx={{ display: 'block', mb: 0.5 }}>
+                                Plan
+                              </Typography>
+                              <Typography variant="body2" fontWeight="600" color="#1e293b">
+                                {selectedLoan.plan}
+                              </Typography>
+                            </Grid>
+                            <Grid item xs={6} sm={3}>
+                              <Typography variant="caption" color="#64748b" sx={{ display: 'block', mb: 0.5 }}>
+                                Vencimiento
+                              </Typography>
+                              <Typography variant="body2" fontWeight="600" color="#1e293b">
+                                {selectedLoan.fecha_vencimiento ? new Date(selectedLoan.fecha_vencimiento).toLocaleDateString('es-AR') : 'N/A'}
+                              </Typography>
+                            </Grid>
+                          </Grid>
+                        </Box>
+                      </Grid>
+                    )}
 
                     <Grid item xs={12}>
                       <TextField
@@ -293,6 +354,7 @@ const CollectionPage: React.FC = () => {
                         value={monto}
                         onChange={(e) => setMonto(e.target.value)}
                         disabled={formSubmitting}
+                        helperText="Ingresa el monto que estás cobrando hoy"
                         InputProps={{
                           startAdornment: (
                             <InputAdornment position="start">
@@ -300,7 +362,12 @@ const CollectionPage: React.FC = () => {
                             </InputAdornment>
                           ),
                         }}
-                        sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+                        sx={{ 
+                          '& .MuiOutlinedInput-root': { 
+                            borderRadius: 2,
+                            minHeight: { xs: 48, sm: 'auto' }
+                          } 
+                        }}
                       />
                     </Grid>
 
@@ -321,7 +388,12 @@ const CollectionPage: React.FC = () => {
                             </InputAdornment>
                           ),
                         }}
-                        sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+                        sx={{ 
+                          '& .MuiOutlinedInput-root': { 
+                            borderRadius: 2,
+                            minHeight: { xs: 48, sm: 'auto' }
+                          } 
+                        }}
                       />
                     </Grid>
 

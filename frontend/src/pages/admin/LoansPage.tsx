@@ -8,6 +8,7 @@ import {
 import { Search, Add, Edit, AccountBalance, CalendarToday, AttachMoney } from '@mui/icons-material';
 import api from '../../services/api';
 import Toast from '../../components/Toast';
+import TableSkeleton from '../../components/TableSkeleton';
 
 interface Client {
   id: number;
@@ -42,8 +43,9 @@ const LoansPage: React.FC = () => {
 
   // Formulario de Préstamo
   const [clienteId, setClienteId] = useState<number | ''>('');
-  const [plan, setPlan] = useState('Diario');
+  const [plan, setPlan] = useState('30 dias');
   const [monto, setMonto] = useState('');
+  const [montoTotal, setMontoTotal] = useState('');
   const [fechaInicio, setFechaInicio] = useState(new Date().toISOString().slice(0, 10));
   const [fechaVencimiento, setFechaVencimiento] = useState('');
   const [estado, setEstado] = useState('activo');
@@ -62,23 +64,36 @@ const LoansPage: React.FC = () => {
     setToast({ ...toast, open: false });
   };
 
-  // Calcular la fecha de vencimiento automáticamente
+  // Calcular la fecha de vencimiento y el monto total con intereses automáticamente
   useEffect(() => {
-    if (!fechaInicio) return;
+    if (!fechaInicio || !monto) return;
     
     const date = new Date(fechaInicio + 'T12:00:00'); // Evitar problemas de huso horario
     if (isNaN(date.getTime())) return;
 
-    if (plan === 'Diario') {
-      date.setDate(date.getDate() + 30); // 30 días
-    } else if (plan === 'Semanal') {
-      date.setDate(date.getDate() + 60); // 60 días
-    } else if (plan === 'Mensual') {
-      date.setMonth(date.getMonth() + 6); // 6 meses
+    let dias = 0;
+    let multiplicador = 1;
+
+    if (plan === '30 dias') {
+      dias = 30;
+      multiplicador = 1.30; // 30% de interés
+    } else if (plan === '40 dias') {
+      dias = 40;
+      multiplicador = 1.35; // 35% de interés
+    } else if (plan === '50 dias') {
+      dias = 50;
+      multiplicador = 1.40; // 40% de interés
     }
 
+    date.setDate(date.getDate() + dias);
     setFechaVencimiento(date.toISOString().slice(0, 10));
-  }, [plan, fechaInicio]);
+    
+    // Calcular monto total con intereses
+    const montoNumerico = parseFloat(monto);
+    if (!isNaN(montoNumerico)) {
+      setMontoTotal((montoNumerico * multiplicador).toString());
+    }
+  }, [plan, fechaInicio, monto]);
 
   // Cargar préstamos y clientes
   const fetchData = async () => {
@@ -137,8 +152,9 @@ const LoansPage: React.FC = () => {
       setEditMode(false);
       setSelectedLoanId(null);
       setClienteId('');
-      setPlan('Diario');
+      setPlan('30 dias');
       setMonto('');
+      setMontoTotal('');
       setFechaInicio(new Date().toISOString().slice(0, 10));
       setEstado('activo');
     }
@@ -221,7 +237,7 @@ const LoansPage: React.FC = () => {
       {/* Encabezado */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4, flexWrap: 'wrap', gap: 2 }}>
         <Box>
-          <Typography variant="h4" fontWeight="bold" color="#1e293b" sx={{ letterSpacing: '0.5px' }}>
+          <Typography variant="h4" fontWeight="bold" color="#1e293b" sx={{ letterSpacing: '0.5px', lineHeight: { xs: 1.4, sm: 1.2 }, fontSize: { xs: '1.5rem', sm: '2.125rem' } }}>
             Control de Préstamos
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ letterSpacing: '0.3px' }}>
@@ -241,6 +257,8 @@ const LoansPage: React.FC = () => {
             boxShadow: '0 4px 12px rgba(99, 102, 241, 0.25)',
             textTransform: 'none',
             letterSpacing: '0.3px',
+            width: { xs: '100%', sm: 'auto' },
+            minHeight: { xs: 48, sm: 'auto' },
             '&:hover': {
               background: 'linear-gradient(135deg, #4f46e5 0%, #4338ca 100%)',
               boxShadow: '0 6px 16px rgba(99, 102, 241, 0.35)',
@@ -311,9 +329,7 @@ const LoansPage: React.FC = () => {
         </Box>
 
         {loading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: 8 }}>
-            <CircularProgress color="primary" />
-          </Box>
+          <TableSkeleton rows={8} columns={8} />
         ) : (
           <TableContainer sx={{ overflowX: 'auto' }}>
             <Table sx={{ minWidth: 650 }}>
@@ -447,9 +463,9 @@ const LoansPage: React.FC = () => {
                   disabled={formSubmitting}
                   sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
                 >
-                  <MenuItem value="Diario">Diario (+30 días)</MenuItem>
-                  <MenuItem value="Semanal">Semanal (+60 días)</MenuItem>
-                  <MenuItem value="Mensual">Mensual (+6 meses)</MenuItem>
+                  <MenuItem value="30 dias">30 días (30% interés)</MenuItem>
+                  <MenuItem value="40 dias">40 días (35% interés)</MenuItem>
+                  <MenuItem value="50 dias">50 días (40% interés)</MenuItem>
                 </TextField>
               </Grid>
 
@@ -511,6 +527,30 @@ const LoansPage: React.FC = () => {
                     ),
                   }}
                   sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2, bgcolor: '#f8fafc' } }}
+                />
+              </Grid>
+
+              <Grid item xs={12}>
+                <TextField
+                  label="Monto Total con Intereses"
+                  fullWidth
+                  type="number"
+                  value={montoTotal}
+                  disabled
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <AttachMoney sx={{ color: 'text.secondary', mr: 0.5 }} />
+                      </InputAdornment>
+                    ),
+                  }}
+                  sx={{ 
+                    '& .MuiOutlinedInput-root': { 
+                      borderRadius: 2,
+                      bgcolor: 'rgba(99, 102, 241, 0.05)'
+                    } 
+                  }}
+                  helperText="Calculado automáticamente según el plan seleccionado"
                 />
               </Grid>
 

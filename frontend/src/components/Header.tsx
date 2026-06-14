@@ -66,7 +66,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick, showMenuButton = false }) 
                 sx={{ 
                   color: '#94a3b8',
                   fontSize: { xs: '0.65rem', sm: '0.75rem' },
-                  /* display: { xs: 'none', sm: 'block' }, */
+                  display: { xs: 'none', sm: 'block' },
                   letterSpacing: '0.3px',
                   fontWeight: 500
                 }}
@@ -82,6 +82,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick, showMenuButton = false }) 
               sx={{ 
                 color: 'rgba(255, 255, 255, 0.8)',
                 transition: 'all 0.3s ease',
+                p: { xs: 1.5, sm: 1 },
                 '&:hover': {
                   color: 'white',
                   transform: 'scale(1.1)',
@@ -90,7 +91,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick, showMenuButton = false }) 
                 }
               }}
             >
-              <MenuIcon />
+              <MenuIcon sx={{ fontSize: { xs: 28, sm: 24 } }} />
             </IconButton>
           )}
         </Box>

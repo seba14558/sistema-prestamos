@@ -7,6 +7,7 @@ import {
 } from '@mui/material';
 import { Warning, Home, Payment } from '@mui/icons-material';
 import api from '../../services/api';
+import TableSkeleton from '../../components/TableSkeleton';
 
 interface Loan {
   id: number;
@@ -82,7 +83,7 @@ const DebtorsPage: React.FC = () => {
     <Box sx={{ width: '100%' }}>
       {/* Encabezado */}
       <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" fontWeight="bold" color="#1e293b" sx={{ mb: 0.5, letterSpacing: '0.5px' }}>
+        <Typography variant="h4" fontWeight="bold" color="#1e293b" sx={{ mb: 0.5, letterSpacing: '0.5px', lineHeight: { xs: 1.4, sm: 1.2 }, fontSize: { xs: '1.5rem', sm: '2.125rem' } }}>
           Control de Clientes Morosos
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ letterSpacing: '0.3px' }}>
@@ -97,9 +98,7 @@ const DebtorsPage: React.FC = () => {
       )}
 
       {loading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: 8 }}>
-          <CircularProgress color="error" />
-        </Box>
+        <TableSkeleton rows={8} columns={6} />
       ) : (
         <>
           {/* Tarjeta Resumen de Alerta */}
