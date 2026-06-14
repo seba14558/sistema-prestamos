@@ -30,7 +30,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick, showMenuButton = false }) 
       }}
     >
       <Container maxWidth="xl">
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'relative', zIndex: 1 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: showMenuButton ? 'space-between' : 'center', position: 'relative', zIndex: 1 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1.5, sm: 2 } }}>
             <Box 
               sx={{ 
