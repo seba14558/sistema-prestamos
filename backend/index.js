@@ -5,18 +5,15 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-const allowedOrigins = ['http://localhost:3000', 'http://localhost:3004', 'http://192.168.1.35:3000'];
+const allowedOrigins = ['http://localhost:3000', 'http://localhost:3004', 'http://192.168.1.35:3000', 'http://localhost:3002', 'http://192.168.1.35:3002'];
 app.use(cors({
   origin: function (origin, callback) {
-    // permitir peticiones sin origen (como apps móviles o curl)
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) === -1) {
-      const msg = 'El origen CORS no es permitido para esta petición.';
-      return callback(new Error(msg), false);
-    }
+    // Permitir todos los orígenes
     return callback(null, true);
   },
-  credentials: true
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: false // Deshabilitar credenciales para permitir origin: '*'
 }));
 app.use(express.json());
 
@@ -48,6 +45,7 @@ app.use('/api/usuarios', usuariosRoutes);
 require('./cron/checkDueLoans');
 // Aquí se agregarán las rutas de usuarios, clientes, préstamos, pagos, etc.
 
-app.listen(PORT, () => {
-  console.log(`Servidor backend escuchando en http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Servidor backend escuchando en http://0.0.0.0:${PORT}`);
+  console.log(`Accesible desde la red local en http://192.168.1.35:${PORT}`);
 });
