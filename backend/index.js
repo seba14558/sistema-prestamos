@@ -6,15 +6,7 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 const allowedOrigins = ['http://localhost:3000', 'http://localhost:3004', 'http://192.168.1.35:3000', 'http://localhost:3002', 'http://192.168.1.35:3002'];
-app.use(cors({
-  origin: function (origin, callback) {
-    // Permitir todos los orígenes
-    return callback(null, true);
-  },
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: false // Deshabilitar credenciales para permitir origin: '*'
-}));
+app.use(cors());
 app.use(express.json());
 
 // Rutas de ejemplo
