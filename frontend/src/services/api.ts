@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || 'https://yin-dipper-semester.ngrok-free.dev/api',
+  baseURL: process.env.REACT_APP_API_URL || 'https://plenty-maps-poke.loca.lt/api',
   headers: {
     'Content-Type': 'application/json',
   },
