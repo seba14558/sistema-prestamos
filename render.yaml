@@ -2,9 +2,8 @@ services:
   # PostgreSQL Database
   - type: pserv
     name: sistema-prestamos-db
-    database:
-      name: prestamos
-      user: postgres
+    databaseName: prestamos
+    user: postgres
     plan: free
     region: oregon
 
