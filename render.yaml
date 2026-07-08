@@ -16,31 +16,11 @@ services:
     envVars:
       - key: PORT
         value: 3000
-      - key: PGHOST
+      - key: DATABASE_URL
         fromService:
           type: pserv
           name: sistema-prestamos-db
-          property: host
-      - key: PGPORT
-        fromService:
-          type: pserv
-          name: sistema-prestamos-db
-          property: port
-      - key: PGDATABASE
-        fromService:
-          type: pserv
-          name: sistema-prestamos-db
-          property: database
-      - key: PGUSER
-        fromService:
-          type: pserv
-          name: sistema-prestamos-db
-          property: user
-      - key: PGPASSWORD
-        fromService:
-          type: pserv
-          name: sistema-prestamos-db
-          property: password
+          property: connectionString
       - key: JWT_SECRET
         generateValue: true
 
