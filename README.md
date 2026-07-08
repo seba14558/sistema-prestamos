@@ -138,6 +138,57 @@ docker-compose down -v
 - Los datos de PostgreSQL se persisten en un volumen de Docker
 - Las variables de entorno están configuradas en docker-compose.yml
 
+## Despliegue en Producción (Render)
+
+### Requisitos previos
+- Cuenta en [render.com](https://render.com)
+- Repositorio en GitHub con el código del proyecto
+
+### Pasos para desplegar
+
+1. **Subir el código a GitHub:**
+   ```bash
+   git add .
+   git commit -m "Agregar configuración para Render"
+   git push origin main
+   ```
+
+2. **Crear cuenta en Render:**
+   - Ve a [render.com](https://render.com)
+   - Regístrate con tu cuenta de GitHub
+
+3. **Crear nuevo servicio:**
+   - En Render, haz clic en "New +"
+   - Selecciona "Blueprint" (o usa el archivo `render.yaml`)
+   - Conecta tu repositorio de GitHub
+   - Render detectará automáticamente el archivo `render.yaml`
+
+4. **Configuración automática:**
+   El archivo `render.yaml` configura automáticamente:
+   - Base de datos PostgreSQL
+   - Backend API
+   - Frontend (React con nginx)
+   - Variables de entorno y conexiones entre servicios
+
+5. **Despliegue:**
+   - Render construirá y desplegará los servicios
+   - Obtendrás URLs como:
+     - Frontend: `https://sistema-prestamos-frontend.onrender.com`
+     - Backend: `https://sistema-prestamos-backend.onrender.com`
+
+6. **Crear usuarios iniciales:**
+   Después del despliegue, ejecuta el script para crear usuarios:
+   ```bash
+   # Desde el shell del backend en Render
+   node crear_usuarios.js
+   ```
+
+### Credenciales de acceso (testing)
+- **Administrador:** usuario `admin`, contraseña `1234`
+- **Cobrador:** usuario `cobrador`, contraseña `cobrador123`
+
+**Nota:** Para producción, cambia estas contraseñas por defecto.
+
 ## Autor
 
 Sebastián Noguera

@@ -1,0 +1,59 @@
+services:
+  # PostgreSQL Database
+  - type: pserv
+    name: sistema-prestamos-db
+    databaseName: prestamos
+    user: postgres
+    plan: free
+    region: oregon
+
+  # Backend API
+  - type: web
+    name: sistema-prestamos-backend
+    env: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    envVars:
+      - key: PORT
+        value: 3000
+      - key: PGHOST
+        fromService:
+          type: pserv
+          name: sistema-prestamos-db
+          property: host
+      - key: PGPORT
+        fromService:
+          type: pserv
+          name: sistema-prestamos-db
+          property: port
+      - key: PGDATABASE
+        value: prestamos
+      - key: PGUSER
+        fromService:
+          type: pserv
+          name: sistema-prestamos-db
+          property: user
+      - key: PGPASSWORD
+        fromService:
+          type: pserv
+          name: sistema-prestamos-db
+          property: password
+      - key: JWT_SECRET
+        generateValue: true
+
+  # Frontend
+  - type: web
+    name: sistema-prestamos-frontend
+    env: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./frontend/Dockerfile.production
+    dockerContext: ./frontend
+    envVars:
+      - key: REACT_APP_API_URL
+        fromService:
+          type: web
+          name: sistema-prestamos-backend
+          property: url
