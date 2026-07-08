@@ -2,8 +2,6 @@ services:
   # PostgreSQL Database
   - type: pserv
     name: sistema-prestamos-db
-    databaseName: prestamos
-    user: postgres
     plan: free
     region: oregon
 
@@ -29,7 +27,10 @@ services:
           name: sistema-prestamos-db
           property: port
       - key: PGDATABASE
-        value: prestamos
+        fromService:
+          type: pserv
+          name: sistema-prestamos-db
+          property: database
       - key: PGUSER
         fromService:
           type: pserv
