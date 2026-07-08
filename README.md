@@ -91,6 +91,8 @@ npm run dev
 
 ## Ejecución del proyecto
 
+### Opción 1: Sin Docker
+
 1. Iniciar el backend:
 
 ```bash
@@ -106,6 +108,35 @@ npm run dev
 ```
 
 El backend usa el archivo `backend/.env` para leer la configuración de PostgreSQL y el secreto JWT.
+
+### Opción 2: Con Docker
+
+Requisitos previos: Docker y Docker Compose instalados.
+
+1. Levantar todos los servicios (PostgreSQL, backend y frontend):
+
+```bash
+docker-compose up --build
+```
+
+2. Para detener los servicios:
+
+```bash
+docker-compose down
+```
+
+3. Para detener los servicios y eliminar los volúmenes de datos:
+
+```bash
+docker-compose down -v
+```
+
+**Notas:**
+- El frontend estará disponible en http://localhost:3001
+- El backend estará disponible en http://localhost:3000
+- PostgreSQL estará disponible en localhost:5432
+- Los datos de PostgreSQL se persisten en un volumen de Docker
+- Las variables de entorno están configuradas en docker-compose.yml
 
 ## Autor
 

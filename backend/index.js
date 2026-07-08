@@ -3,7 +3,7 @@ const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3000;
 
 const allowedOrigins = ['http://localhost:3000', 'http://localhost:3004', 'http://192.168.1.35:3000', 'http://localhost:3002', 'http://192.168.1.35:3002', 'https://sistema-prestamos-nueva-opcion-ormd5co60-sistema-jobs.vercel.app', 'https://sistema-prestamos-iota.vercel.app'];
 app.use(cors({
