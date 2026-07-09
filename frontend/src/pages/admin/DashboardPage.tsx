@@ -462,7 +462,7 @@ const DashboardPage: React.FC = () => {
                         ? `${pay.cliente_nombre} ${pay.cliente_apellido}` 
                         : 'Cliente Desconocido'}
                     </TableCell>
-                    <TableCell sx={{ color: '#64748b', display: { md: 'table-cell' } }}>Préstamo #{pay.prestamo_id}</TableCell>
+                    <TableCell sx={{ color: '#64748b', display: { md: 'table-cell' } }}>Préstamo N°{pay.prestamo_id}</TableCell>
                     <TableCell sx={{ fontWeight: 'bold', color: '#10b981', letterSpacing: '0.3px' }}>
                       +${Number(pay.monto).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </TableCell>
