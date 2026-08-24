@@ -21,7 +21,7 @@ exports.verRecaudacion = async (req, res) => {
       result = await pool.query(
         `SELECT p.*, 
                 c.nombre AS cliente_nombre, c.apellido AS cliente_apellido,
-                u.usuario AS cobrador_usuario
+                CONCAT(u.nombre, ' ', u.apellido) AS cobrador_usuario
          FROM pagos p
          LEFT JOIN prestamos pr ON p.prestamo_id = pr.id
          LEFT JOIN clientes c ON pr.cliente_id = c.id
@@ -32,7 +32,7 @@ exports.verRecaudacion = async (req, res) => {
       result = await pool.query(
         `SELECT p.*, 
                 c.nombre AS cliente_nombre, c.apellido AS cliente_apellido,
-                u.usuario AS cobrador_usuario
+                CONCAT(u.nombre, ' ', u.apellido) AS cobrador_usuario
          FROM pagos p
          LEFT JOIN prestamos pr ON p.prestamo_id = pr.id
          LEFT JOIN clientes c ON pr.cliente_id = c.id

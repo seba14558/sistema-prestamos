@@ -58,16 +58,27 @@ const DueLoansPage: React.FC = () => {
   };
 
   const getDaysRemainingOrOverdue = (dueDateStr: string, isOverdue: boolean) => {
-    const due = new Date(dueDateStr + 'T12:00:00');
+    // Verificar si la fecha es válida
+    if (!dueDateStr) return 'Fecha no disponible';
+    
+    const due = new Date(dueDateStr);
     const today = new Date();
+    
+    // Verificar si la fecha es válida
+    if (isNaN(due.getTime())) return 'Fecha inválida';
+    
     today.setHours(0,0,0,0);
     due.setHours(0,0,0,0);
     
-    const diffTime = Math.abs(due.getTime() - today.getTime());
+    const diffTime = due.getTime() - today.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     
+    // Verificar si el cálculo produjo NaN
+    if (isNaN(diffDays)) return 'Error en cálculo';
+    
     if (isOverdue) {
-      return `${diffDays} días de retraso`;
+      const overdueDays = Math.abs(diffDays);
+      return `${overdueDays} días de retraso`;
     } else {
       if (today.getTime() === due.getTime()) return 'Vence hoy';
       return `Vence en ${diffDays} días`;
