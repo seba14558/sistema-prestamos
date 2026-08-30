@@ -5,8 +5,30 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-const allowedOrigins = ['http://localhost:3000', 'http://localhost:3004', 'http://192.168.1.35:3000', 'http://localhost:3002', 'http://192.168.1.35:3002', 'https://sistema-prestamos-nueva-opcion-ormd5co60-sistema-jobs.vercel.app'];
-app.use(cors());
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:3004',
+  'http://192.168.1.35:3000',
+  'http://localhost:3002',
+  'http://192.168.1.35:3002',
+  'https://sistema-prestamos-nueva-opcion-ormd5co60-sistema-jobs.vercel.app',
+  // URLs de producción (se agregarán después del despliegue)
+  'https://sistema-prestamos-production-3b24.up.railway.app',
+  'https://sistema-prestamos-iota.vercel.app',
+];
+app.use(cors({
+  origin: function(origin, callback) {
+    // Permitir solicitudes sin origin (como mobile apps o Postman)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === 'production') {
+      callback(null, true);
+    } else {
+      callback(new Error('No permitido por CORS'));
+    }
+  },
+  credentials: true
+}));
 app.use(express.json());
 
 // Rutas de ejemplo
