@@ -8,6 +8,33 @@ exports.registrarPago = async (req, res) => {
       'INSERT INTO pagos (prestamo_id, fecha_pago, monto, cobrador_id) VALUES ($1, $2, $3, $4) RETURNING *',
       [prestamo_id, fecha_pago, monto, cobrador_id]
     );
+    
+    // Verificar si el préstamo ha sido pagado completamente
+    const prestamoResult = await pool.query(
+      'SELECT monto, monto_total FROM prestamos WHERE id = $1',
+      [prestamo_id]
+    );
+    
+    if (prestamoResult.rows.length > 0) {
+      const montoTotal = parseFloat(prestamoResult.rows[0].monto_total || prestamoResult.rows[0].monto);
+      
+      // Calcular total pagado
+      const pagosResult = await pool.query(
+        'SELECT COALESCE(SUM(monto), 0) as total_pagado FROM pagos WHERE prestamo_id = $1',
+        [prestamo_id]
+      );
+      
+      const totalPagado = parseFloat(pagosResult.rows[0].total_pagado);
+      
+      // Si el total pagado es mayor o igual al monto total del préstamo (con intereses), actualizar estado a 'pagado'
+      if (totalPagado >= montoTotal) {
+        await pool.query(
+          'UPDATE prestamos SET estado = $1 WHERE id = $2',
+          ['pagado', prestamo_id]
+        );
+      }
+    }
+    
     res.status(201).json(result.rows[0]);
   } catch (err) {
     res.status(500).json({ message: 'Error al registrar pago', error: err });

@@ -1,11 +1,11 @@
 const pool = require('../config/db');
 
 exports.crearPrestamo = async (req, res) => {
-  const { cliente_id, plan, monto, fecha_inicio, fecha_vencimiento, estado } = req.body;
+  const { cliente_id, plan, monto, monto_total, fecha_inicio, fecha_vencimiento, estado } = req.body;
   try {
     const result = await pool.query(
-      'INSERT INTO prestamos (cliente_id, plan, monto, fecha_inicio, fecha_vencimiento, estado) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
-      [cliente_id, plan, monto, fecha_inicio, fecha_vencimiento, estado || 'activo']
+      'INSERT INTO prestamos (cliente_id, plan, monto, monto_total, fecha_inicio, fecha_vencimiento, estado) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
+      [cliente_id, plan, monto, monto_total || monto, fecha_inicio, fecha_vencimiento, estado || 'activo']
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {
@@ -31,11 +31,11 @@ exports.editarPrestamo = async (req, res) => {
   // Solo admin puede editar
   if (req.user.rol !== 'admin') return res.status(403).json({ message: 'Solo el administrador puede editar préstamos' });
   const { id } = req.params;
-  const { plan, monto, fecha_inicio, fecha_vencimiento, estado } = req.body;
+  const { plan, monto, monto_total, fecha_inicio, fecha_vencimiento, estado } = req.body;
   try {
     const result = await pool.query(
-      'UPDATE prestamos SET plan=$1, monto=$2, fecha_inicio=$3, fecha_vencimiento=$4, estado=$5 WHERE id=$6 RETURNING *',
-      [plan, monto, fecha_inicio, fecha_vencimiento, estado, id]
+      'UPDATE prestamos SET plan=$1, monto=$2, monto_total=$3, fecha_inicio=$4, fecha_vencimiento=$5, estado=$6 WHERE id=$7 RETURNING *',
+      [plan, monto, monto_total || monto, fecha_inicio, fecha_vencimiento, estado, id]
     );
     if (result.rows.length === 0) return res.status(404).json({ message: 'Préstamo no encontrado' });
     res.json(result.rows[0]);
