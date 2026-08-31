@@ -1,8 +1,13 @@
--- Script para crear las tablas iniciales para la app de préstamos
--- (Para Railway - la base de datos ya está creada)
+-- Script para crear la base de datos y tablas iniciales para la app de préstamos
+
+-- Crear base de datos
+CREATE DATABASE prestamos_db;
+
+-- Conectarse a la base de datos
+\c prestamos_db;
 
 -- Tabla de usuarios
-CREATE TABLE IF NOT EXISTS usuarios (
+CREATE TABLE usuarios (
     id SERIAL PRIMARY KEY,
     nombre VARCHAR(50) NOT NULL,
     apellido VARCHAR(50) NOT NULL,
@@ -12,7 +17,7 @@ CREATE TABLE IF NOT EXISTS usuarios (
 );
 
 -- Tabla de clientes
-CREATE TABLE IF NOT EXISTS clientes (
+CREATE TABLE clientes (
     id SERIAL PRIMARY KEY,
     nombre VARCHAR(50) NOT NULL,
     apellido VARCHAR(50) NOT NULL,
@@ -20,7 +25,7 @@ CREATE TABLE IF NOT EXISTS clientes (
 );
 
 -- Tabla de prestamos
-CREATE TABLE IF NOT EXISTS prestamos (
+CREATE TABLE prestamos (
     id SERIAL PRIMARY KEY,
     cliente_id INTEGER REFERENCES clientes(id),
     plan VARCHAR(50) NOT NULL,
@@ -31,19 +36,10 @@ CREATE TABLE IF NOT EXISTS prestamos (
 );
 
 -- Tabla de pagos
-CREATE TABLE IF NOT EXISTS pagos (
+CREATE TABLE pagos (
     id SERIAL PRIMARY KEY,
     prestamo_id INTEGER REFERENCES prestamos(id),
     fecha_pago DATE NOT NULL,
     monto NUMERIC(12,2) NOT NULL,
     cobrador_id INTEGER REFERENCES usuarios(id)
-);
-
--- Tabla de notificaciones
-CREATE TABLE IF NOT EXISTS notificaciones (
-    id SERIAL PRIMARY KEY,
-    usuario_id INTEGER REFERENCES usuarios(id),
-    mensaje TEXT NOT NULL,
-    leida BOOLEAN DEFAULT FALSE,
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
