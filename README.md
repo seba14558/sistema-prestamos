@@ -195,7 +195,7 @@ cd sistema-prestamos
 docker-compose up --build
 
 # Los servicios estarán disponibles en:
-# Frontend: http://localhost:3000
+# Frontend: http://localhost:3002
 # Backend API: http://localhost:3001/api
 # Base de datos: localhost:5432
 ```
@@ -236,7 +236,7 @@ npm install
 npm run dev
 ```
 
-El frontend se ejecutará en `http://localhost:3000` por defecto.
+El frontend se ejecutará en `http://localhost:3002` por defecto.
 
 ## Ejecución del proyecto
 
@@ -275,7 +275,7 @@ npm run dev
 ## URLs de Testing
 
 ### Entorno de Desarrollo Local
-- **Frontend:** `http://localhost:3000`
+- **Frontend:** `http://localhost:3002`
 - **Backend API:** `http://localhost:3001/api`
 - **Base de Datos:** `localhost:5432`
 
