@@ -148,10 +148,33 @@ const UsersPage: React.FC = () => {
           await eliminarUsuario(id);
           fetchUsers();
           showToast('Usuario eliminado exitosamente', 'success');
+          handleCloseConfirmDialog();
         } catch (err: any) {
           console.error(err);
-          setError(err.response?.data?.message || 'Error al eliminar usuario');
-          showToast('Error al eliminar usuario', 'error');
+          const status = err.response?.status;
+          const message = err.response?.data?.message || 'Error al eliminar usuario';
+          
+          if (status === 400) {
+            if (message.includes('préstamos activos')) {
+              showToast('No se puede eliminar: el usuario tiene clientes con préstamos activos. Reasigna los clientes primero.', 'warning');
+            } else if (message.includes('pagos registrados')) {
+              showToast('No se puede eliminar: el usuario tiene pagos registrados en el sistema.', 'warning');
+            } else if (message.includes('clientes asignados')) {
+              showToast('No se puede eliminar: el usuario tiene clientes asignados. Reasigna los clientes primero.', 'warning');
+            } else if (message.includes('propio usuario')) {
+              showToast('No puedes eliminar tu propio usuario.', 'error');
+            } else {
+              showToast(message, 'error');
+            }
+          } else if (status === 403) {
+            showToast('No tienes permisos para eliminar usuarios. Solo el administrador puede realizar esta acción.', 'error');
+          } else if (status === 404) {
+            showToast('Usuario no encontrado. Puede que ya haya sido eliminado.', 'warning');
+          } else {
+            setError(message);
+            showToast('Error al eliminar usuario', 'error');
+          }
+          handleCloseConfirmDialog();
         }
       }
     );
