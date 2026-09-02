@@ -4,13 +4,15 @@ import {
   TableCell, TableContainer, TableHead, TableRow, 
   Alert, Card, Dialog, DialogTitle, 
   DialogContent, DialogActions, TextField, IconButton,
-  Grid, MenuItem, InputAdornment, Divider, useMediaQuery, useTheme
+  Grid, MenuItem, InputAdornment, Divider,
+  TablePagination
 } from '@mui/material';
 import { Edit, Delete, Payment, AttachMoney, CalendarToday } from '@mui/icons-material';
 import api, { editarPago, eliminarPago } from '../../services/api';
 import Toast from '../../components/Toast';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import TableSkeleton from '../../components/TableSkeleton';
+import { formatDateDisplay } from '../../utils/date';
 
 interface Loan {
   id: number;
@@ -33,6 +35,12 @@ interface Payment {
   cobrador_usuario?: string;
 }
 
+const getLocalDateString = () => {
+  const now = new Date();
+  const localDate = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
+  return localDate.toISOString().slice(0, 10);
+};
+
 const PaymentsPage: React.FC = () => {
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loans, setLoans] = useState<Loan[]>([]);
@@ -42,11 +50,13 @@ const PaymentsPage: React.FC = () => {
   const [dateFilter, setDateFilter] = useState('');
   const [cobradorFilter, setCobradorFilter] = useState('all');
   const [loanFilter, setLoanFilter] = useState('all');
+  const [paymentsPage, setPaymentsPage] = useState(0);
+  const [paymentsRowsPerPage, setPaymentsRowsPerPage] = useState(5);
 
   const [prestamoId, setPrestamoId] = useState<number | ''>('');
   const [selectedLoan, setSelectedLoan] = useState<Loan | null>(null);
   const [monto, setMonto] = useState('');
-  const [fechaPago, setFechaPago] = useState(new Date().toISOString().slice(0, 10));
+  const [fechaPago, setFechaPago] = useState(getLocalDateString());
   const [formError, setFormError] = useState('');
   const [formSuccess, setFormSuccess] = useState('');
   const [formSubmitting, setFormSubmitting] = useState(false);
@@ -55,8 +65,6 @@ const PaymentsPage: React.FC = () => {
   const [editingPayment, setEditingPayment] = useState<Payment | null>(null);
   const [editMonto, setEditMonto] = useState('');
   const [editFechaPago, setEditFechaPago] = useState('');
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const [toast, setToast] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' | 'warning' | 'info' });
 
@@ -90,6 +98,7 @@ const PaymentsPage: React.FC = () => {
       const activeLoans = loansRes.data.filter((loan: Loan) => loan.estado !== 'pagado');
       setLoans(activeLoans);
       setPayments(paymentsRes.data);
+      setPaymentsPage(0);
     } catch (err: any) {
       console.error(err);
       setError('Error al obtener pagos');
@@ -101,6 +110,10 @@ const PaymentsPage: React.FC = () => {
   useEffect(() => {
     fetchPayments();
   }, []);
+
+  useEffect(() => {
+    setPaymentsPage(0);
+  }, [searchTerm, dateFilter, cobradorFilter, loanFilter]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -130,7 +143,7 @@ const PaymentsPage: React.FC = () => {
       setPrestamoId('');
       setSelectedLoan(null);
       setMonto('');
-      setFechaPago(new Date().toISOString().slice(0, 10));
+      setFechaPago(getLocalDateString());
       showToast('Cobro registrado exitosamente', 'success');
       await fetchPayments();
     } catch (err: any) {
@@ -220,6 +233,19 @@ const PaymentsPage: React.FC = () => {
 
   const filteredTotal = filteredPayments.reduce((sum, payment) => sum + Number(payment.monto || 0), 0);
   const filteredCount = filteredPayments.length;
+  const paginatedPayments = filteredPayments.slice(
+    paymentsPage * paymentsRowsPerPage,
+    paymentsPage * paymentsRowsPerPage + paymentsRowsPerPage
+  );
+
+  const handlePaymentsPageChange = (_event: unknown, newPage: number) => {
+    setPaymentsPage(newPage);
+  };
+
+  const handlePaymentsRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setPaymentsRowsPerPage(parseInt(event.target.value, 10));
+    setPaymentsPage(0);
+  };
 
   return (
     <Box sx={{ width: '100%' }}>
@@ -610,79 +636,6 @@ const PaymentsPage: React.FC = () => {
                 </Typography>
               </Box>
 
-                {isMobile ? (
-                  <Box sx={{ p: 2.5 }}>
-                    {filteredPayments.length === 0 ? (
-                      <Box sx={{ py: 6, textAlign: 'center', color: 'text.secondary' }}>
-                        No hay cobros que coincidan con los filtros actuales.
-                      </Box>
-                    ) : (
-                      filteredPayments.map((payment) => {
-                        return (
-                          <Card key={payment.id} sx={{
-                            mb: 2,
-                            p: 2,
-                            borderRadius: 2.5,
-                            border: '1px solid rgba(99, 102, 241, 0.18)',
-                            borderTop: '4px solid #6366f1',
-                            boxShadow: '0 8px 22px rgba(15, 23, 42, 0.06)',
-                            background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)'
-                          }}>
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 2, mb: 1.5 }}>
-                              <Box>
-                                <Typography variant="subtitle2" fontWeight={800} color="#1e293b">N º {payment.id}</Typography>
-                                <Typography variant="body2" color="text.secondary">
-                                  {payment.cliente_nombre && payment.cliente_apellido ? `${payment.cliente_nombre} ${payment.cliente_apellido}` : 'Cliente'}
-                                </Typography>
-                              </Box>
-                            </Box>
-                            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 1.5, mb: 2 }}>
-                              <Box>
-                                <Typography variant="caption" color="text.secondary">Préstamo</Typography>
-                                <Typography variant="body2" fontWeight={700}>N º {payment.prestamo_id}</Typography>
-                              </Box>
-                              <Box>
-                                <Typography variant="caption" color="text.secondary">Monto</Typography>
-                                <Typography variant="body2" fontWeight={800} color="#059669">
-                                  +${Number(payment.monto).toLocaleString('es-AR', { minimumFractionDigits: 2 })}
-                                </Typography>
-                              </Box>
-                              <Box>
-                                <Typography variant="caption" color="text.secondary">Fecha</Typography>
-                                <Typography variant="body2" fontWeight={600}>{new Date(payment.fecha_pago).toLocaleDateString('es-AR')}</Typography>
-                              </Box>
-                              <Box>
-                                <Typography variant="caption" color="text.secondary">Cobrador</Typography>
-                                <Typography variant="body2" fontWeight={600}>{payment.cobrador_usuario || 'Cobrador'}</Typography>
-                              </Box>
-                            </Box>
-                            <Box sx={{ display: 'flex', gap: 1 }}>
-                              <Button
-                                fullWidth
-                                size="small"
-                                variant="outlined"
-                                onClick={() => handleEditPayment(payment)}
-                                sx={{ borderRadius: 2, fontWeight: 700 }}
-                              >
-                                Editar
-                              </Button>
-                              <Button
-                                fullWidth
-                                size="small"
-                                variant="outlined"
-                                color="error"
-                                onClick={() => handleDeletePayment(payment.id)}
-                                sx={{ borderRadius: 2, fontWeight: 700 }}
-                              >
-                                Eliminar
-                              </Button>
-                            </Box>
-                          </Card>
-                        );
-                      })
-                    )}
-                  </Box>
-                ) : (
                 <TableContainer sx={{ overflowX: 'auto' }}>
                   <Table sx={{ minWidth: 650 }}>
                     <TableHead sx={{ bgcolor: 'rgba(99, 102, 241, 0.05)' }}>
@@ -697,14 +650,14 @@ const PaymentsPage: React.FC = () => {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {filteredPayments.length === 0 ? (
+                    {paginatedPayments.length === 0 ? (
                       <TableRow>
                           <TableCell colSpan={7} align="center" sx={{ py: 6, color: 'text.secondary' }}>
                           No hay cobros que coincidan con los filtros actuales.
                         </TableCell>
                       </TableRow>
                     ) : (
-                      filteredPayments.map((p) => (
+                      paginatedPayments.map((p) => (
                         <TableRow key={p.id} sx={{
                           '&:hover': {
                             bgcolor: 'rgba(99, 102, 241, 0.05)',
@@ -725,7 +678,7 @@ const PaymentsPage: React.FC = () => {
                           <TableCell sx={{ fontWeight: 'bold', color: '#10b981', letterSpacing: '0.3px' }}>
                             +${Number(p.monto).toLocaleString('es-AR', { minimumFractionDigits: 2 })}
                           </TableCell>
-                          <TableCell sx={{ letterSpacing: '0.3px' }}>{new Date(p.fecha_pago).toLocaleDateString('es-AR')}</TableCell>
+                          <TableCell sx={{ letterSpacing: '0.3px' }}>{formatDateDisplay(p.fecha_pago)}</TableCell>
                           <TableCell align="center">
                             <IconButton
                               onClick={() => handleEditPayment(p)}
@@ -764,7 +717,23 @@ const PaymentsPage: React.FC = () => {
                   </TableBody>
                 </Table>
               </TableContainer>
-              )}
+              <TablePagination
+                component="div"
+                count={filteredPayments.length}
+                page={paymentsPage}
+                onPageChange={handlePaymentsPageChange}
+                rowsPerPage={paymentsRowsPerPage}
+                onRowsPerPageChange={handlePaymentsRowsPerPageChange}
+                rowsPerPageOptions={[5, 10, 25]}
+                labelRowsPerPage="Filas por página"
+                labelDisplayedRows={({ from, to, count }) => `${from}-${to} de ${count}`}
+                sx={{
+                  borderTop: '1px solid rgba(99, 102, 241, 0.1)',
+                  '.MuiTablePagination-toolbar': {
+                    px: 2
+                  }
+                }}
+              />
             </Card>
           </Grid>
         </Grid>
