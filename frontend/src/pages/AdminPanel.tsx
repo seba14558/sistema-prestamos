@@ -71,9 +71,9 @@ const AdminPanel: React.FC = () => {
   ];
 
   const drawerContent = (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#0f172a', color: 'white', pt: 4 }}>
+    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', background: 'linear-gradient(180deg, #0f172a 0%, #111827 100%)', color: 'white', pt: 4 }}>
       {/* Brand Header */}
-      <Box sx={{ p: 3, display: 'flex', alignItems: 'center', gap: 2, bgcolor: 'linear-gradient(90deg, #1e1b4b 0%, #0f172a 100%)' }}>
+      <Box sx={{ p: 3, display: 'flex', alignItems: 'center', gap: 2, background: 'linear-gradient(90deg, rgba(79,70,229,0.24) 0%, rgba(15,23,42,0) 100%)' }}>
         <Avatar sx={{ bgcolor: '#6366f1', width: 40, height: 40, fontWeight: 'bold' }}>A</Avatar>
         <Box>
           <Typography variant="subtitle2" fontWeight="bold" color="white" sx={{ lineHeight: 1.2 }}>
@@ -105,8 +105,8 @@ const AdminPanel: React.FC = () => {
                   px: 2,
                   py: 1.5,
                   '&.Mui-selected': {
-                    bgcolor: 'rgba(99, 102, 241, 0.12)',
-                    '&:hover': { bgcolor: 'rgba(99, 102, 241, 0.18)' }
+                    bgcolor: 'rgba(99, 102, 241, 0.16)',
+                    '&:hover': { bgcolor: 'rgba(99, 102, 241, 0.22)' }
                   },
                   '&:hover': {
                     bgcolor: 'rgba(255,255,255,0.03)'
@@ -202,7 +202,7 @@ const AdminPanel: React.FC = () => {
         {/* Main Content */}
         <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
         {/* AppBar */}
-        <AppBar position="sticky" sx={{ bgcolor: 'transparent', boxShadow: 'none', zIndex: (theme) => theme.zIndex.drawer + 3 }}>
+        <AppBar position="sticky" sx={{ bgcolor: 'transparent', backdropFilter: 'blur(14px)', boxShadow: 'none', zIndex: (theme) => theme.zIndex.drawer + 3 }}>
           <Toolbar>
            {/*  <Typography variant="h6" component="div" sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' }, fontWeight: 'bold', color: '#1e293b' }}>
               {location.pathname.includes('dashboard') ? 'Panel de Resumen' : 
@@ -220,7 +220,7 @@ const AdminPanel: React.FC = () => {
                 <Typography variant="body2" fontWeight="bold" color="#1e293b">{adminName}</Typography>
                 <Typography variant="caption" color="#64748b">Administrador</Typography>
               </Box>
-              <Avatar sx={{ bgcolor: '#6366f1', width: 40, height: 40 }}>
+              <Avatar sx={{ bgcolor: '#4f46e5', width: 40, height: 40, boxShadow: '0 8px 20px rgba(79, 70, 229, 0.25)' }}>
                 <PeopleIcon />
               </Avatar>
             </Box>
