@@ -180,10 +180,23 @@ const ClientsPage: React.FC = () => {
           await eliminarCliente(id);
           await fetchClients();
           showToast('Cliente eliminado exitosamente', 'success');
+          handleCloseConfirmDialog();
         } catch (err: any) {
           console.error(err);
-          setError(err.response?.data?.message || 'Error al eliminar el cliente.');
-          showToast('Error al eliminar el cliente', 'error');
+          const status = err.response?.status;
+          const message = err.response?.data?.message || 'Error al eliminar el cliente.';
+          
+          if (status === 400 && message.includes('préstamos activos')) {
+            showToast('No se puede eliminar: el cliente tiene préstamos activos. Elimina los préstamos primero.', 'warning');
+          } else if (status === 403) {
+            showToast('No tienes permisos para eliminar clientes. Solo el administrador puede realizar esta acción.', 'error');
+          } else if (status === 404) {
+            showToast('Cliente no encontrado. Puede que ya haya sido eliminado.', 'warning');
+          } else {
+            setError(message);
+            showToast('Error al eliminar el cliente', 'error');
+          }
+          handleCloseConfirmDialog();
         }
       }
     );
