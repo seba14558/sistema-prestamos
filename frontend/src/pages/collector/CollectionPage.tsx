@@ -289,7 +289,7 @@ const CollectionPage: React.FC = () => {
                         <MenuItem value="">Seleccionar cliente...</MenuItem>
                         {loans.map((l) => (
                           <MenuItem key={l.id} value={l.id}>
-                            {l.cliente_nombre} {l.cliente_apellido} (Préstamo #{l.id})
+                            {l.cliente_nombre} {l.cliente_apellido} (N º {l.id})
                           </MenuItem>
                         ))}
                       </TextField>
@@ -478,13 +478,13 @@ const CollectionPage: React.FC = () => {
                           }, 
                           borderBottom: '1px solid rgba(16, 185, 129, 0.1)' 
                         }}>
-                          <TableCell sx={{ fontWeight: 600, color: '#10b981', letterSpacing: '0.3px' }}>#{p.id}</TableCell>
+                          <TableCell sx={{ fontWeight: 600, color: '#10b981', letterSpacing: '0.3px' }}>{p.id}</TableCell>
                           <TableCell sx={{ fontWeight: 500, color: '#1e293b', letterSpacing: '0.3px' }}>
                             {p.cliente_nombre && p.cliente_apellido 
                               ? `${p.cliente_nombre} ${p.cliente_apellido}` 
                               : 'Cliente'}
                           </TableCell>
-                          <TableCell sx={{ color: '#64748b', letterSpacing: '0.3px' }}>#{p.prestamo_id}</TableCell>
+                          <TableCell sx={{ color: '#64748b', letterSpacing: '0.3px' }}>N º {p.prestamo_id}</TableCell>
                           <TableCell sx={{ fontWeight: 'bold', color: '#10b981', letterSpacing: '0.3px' }}>
                             +${Number(p.monto).toLocaleString('es-AR', { minimumFractionDigits: 2 })}
                           </TableCell>
@@ -536,7 +536,7 @@ const CollectionPage: React.FC = () => {
 
       {/* Dialogo para editar pago */}
       <Dialog open={editDialogOpen} onClose={() => setEditDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Editar Pago #{editingPayment?.id}</DialogTitle>
+        <DialogTitle>Editar Pago {editingPayment?.id}</DialogTitle>
         <DialogContent>
           <Box sx={{ mt: 2 }}>
             <TextField

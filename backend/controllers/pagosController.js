@@ -3,41 +3,64 @@ const pool = require('../config/db');
 exports.registrarPago = async (req, res) => {
   const { prestamo_id, fecha_pago, monto } = req.body;
   const cobrador_id = req.user.id;
+  const montoPago = Number(monto);
+
+  if (!prestamo_id || !fecha_pago || !monto || Number.isNaN(montoPago) || montoPago <= 0) {
+    return res.status(400).json({ message: 'Debes enviar un préstamo válido, fecha de pago y un monto positivo.' });
+  }
+
+  const client = await pool.connect();
   try {
-    const result = await pool.query(
-      'INSERT INTO pagos (prestamo_id, fecha_pago, monto, cobrador_id) VALUES ($1, $2, $3, $4) RETURNING *',
-      [prestamo_id, fecha_pago, monto, cobrador_id]
-    );
-    
-    // Verificar si el préstamo ha sido pagado completamente
-    const prestamoResult = await pool.query(
-      'SELECT monto, monto_total FROM prestamos WHERE id = $1',
+    await client.query('BEGIN');
+
+    const prestamoResult = await client.query(
+      'SELECT id, monto, monto_total, estado FROM prestamos WHERE id = $1 FOR UPDATE',
       [prestamo_id]
     );
-    
-    if (prestamoResult.rows.length > 0) {
-      const montoTotal = parseFloat(prestamoResult.rows[0].monto_total || prestamoResult.rows[0].monto);
-      
-      // Calcular total pagado
-      const pagosResult = await pool.query(
-        'SELECT COALESCE(SUM(monto), 0) as total_pagado FROM pagos WHERE prestamo_id = $1',
-        [prestamo_id]
-      );
-      
-      const totalPagado = parseFloat(pagosResult.rows[0].total_pagado);
-      
-      // Si el total pagado es mayor o igual al monto total del préstamo (con intereses), actualizar estado a 'pagado'
-      if (totalPagado >= montoTotal) {
-        await pool.query(
-          'UPDATE prestamos SET estado = $1 WHERE id = $2',
-          ['pagado', prestamo_id]
-        );
-      }
+
+    if (prestamoResult.rows.length === 0) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ message: 'Préstamo no encontrado.' });
     }
-    
+
+    const prestamo = prestamoResult.rows[0];
+    const montoTotal = Number(prestamo.monto_total || prestamo.monto);
+
+    const pagosResult = await client.query(
+      'SELECT COALESCE(SUM(monto), 0) as total_pagado FROM pagos WHERE prestamo_id = $1',
+      [prestamo_id]
+    );
+
+    const totalPagado = Number(pagosResult.rows[0].total_pagado);
+    const saldoPendiente = Math.max(0, montoTotal - totalPagado);
+
+    if (montoPago > saldoPendiente) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({
+        message: `El monto supera el saldo pendiente del préstamo. Saldo disponible: ${saldoPendiente.toFixed(2)}`
+      });
+    }
+
+    const result = await client.query(
+      'INSERT INTO pagos (prestamo_id, fecha_pago, monto, cobrador_id) VALUES ($1, $2, $3, $4) RETURNING *',
+      [prestamo_id, fecha_pago, montoPago, cobrador_id]
+    );
+
+    const nuevoTotalPagado = totalPagado + montoPago;
+    if (nuevoTotalPagado >= montoTotal) {
+      await client.query(
+        'UPDATE prestamos SET estado = $1 WHERE id = $2',
+        ['pagado', prestamo_id]
+      );
+    }
+
+    await client.query('COMMIT');
     res.status(201).json(result.rows[0]);
   } catch (err) {
+    await client.query('ROLLBACK');
     res.status(500).json({ message: 'Error al registrar pago', error: err });
+  } finally {
+    client.release();
   }
 };
 

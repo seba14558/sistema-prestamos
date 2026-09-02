@@ -4,7 +4,7 @@ import {
   TableCell, TableContainer, TableHead, TableRow, 
   Alert, Card, Dialog, DialogTitle, 
   DialogContent, DialogActions, TextField, IconButton,
-  Grid, MenuItem, InputAdornment
+  Grid, MenuItem, InputAdornment, Divider, useMediaQuery, useTheme
 } from '@mui/material';
 import { Edit, Delete, Payment, AttachMoney, CalendarToday } from '@mui/icons-material';
 import api, { editarPago, eliminarPago } from '../../services/api';
@@ -30,8 +30,7 @@ interface Payment {
   fecha_pago: string;
   cliente_nombre?: string;
   cliente_apellido?: string;
-  cobrador_nombre?: string;
-  cobrador_apellido?: string;
+  cobrador_usuario?: string;
 }
 
 const PaymentsPage: React.FC = () => {
@@ -39,6 +38,10 @@ const PaymentsPage: React.FC = () => {
   const [loans, setLoans] = useState<Loan[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [dateFilter, setDateFilter] = useState('');
+  const [cobradorFilter, setCobradorFilter] = useState('all');
+  const [loanFilter, setLoanFilter] = useState('all');
 
   const [prestamoId, setPrestamoId] = useState<number | ''>('');
   const [selectedLoan, setSelectedLoan] = useState<Loan | null>(null);
@@ -52,6 +55,8 @@ const PaymentsPage: React.FC = () => {
   const [editingPayment, setEditingPayment] = useState<Payment | null>(null);
   const [editMonto, setEditMonto] = useState('');
   const [editFechaPago, setEditFechaPago] = useState('');
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const [toast, setToast] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' | 'warning' | 'info' });
 
@@ -188,6 +193,34 @@ const PaymentsPage: React.FC = () => {
     );
   };
 
+  const uniqueCobradores = Array.from(
+    new Set(
+      payments
+        .map((payment) => payment.cobrador_usuario)
+        .filter((value): value is string => Boolean(value))
+    )
+  );
+
+  const filteredPayments = payments.filter((payment) => {
+    const clientName = `${payment.cliente_nombre || ''} ${payment.cliente_apellido || ''}`.toLowerCase();
+    const cobradorName = (payment.cobrador_usuario || '').toLowerCase();
+    const term = searchTerm.trim().toLowerCase();
+    const matchesSearch =
+      !term ||
+      clientName.includes(term) ||
+      cobradorName.includes(term) ||
+      String(payment.id).includes(term) ||
+      String(payment.prestamo_id).includes(term);
+    const matchesDate = !dateFilter || payment.fecha_pago === dateFilter;
+    const matchesCobrador = cobradorFilter === 'all' || payment.cobrador_usuario === cobradorFilter;
+    const matchesLoan = loanFilter === 'all' || String(payment.prestamo_id) === loanFilter;
+
+    return matchesSearch && matchesDate && matchesCobrador && matchesLoan;
+  });
+
+  const filteredTotal = filteredPayments.reduce((sum, payment) => sum + Number(payment.monto || 0), 0);
+  const filteredCount = filteredPayments.length;
+
   return (
     <Box sx={{ width: '100%' }}>
       {/* Encabezado */}
@@ -199,6 +232,154 @@ const PaymentsPage: React.FC = () => {
           Registra pagos de clientes, revisa el historial y administra los cobros del sistema
         </Typography>
       </Box>
+      <Card sx={{
+        mb: 3,
+        borderRadius: 3,
+        border: '1px solid rgba(99, 102, 241, 0.12)',
+        boxShadow: '0 10px 30px rgba(15, 23, 42, 0.05)',
+        background: 'linear-gradient(135deg, #f8fafc 0%, #ffffff 55%, #eef2ff 100%)',
+        overflow: 'hidden'
+      }}>
+        <Box sx={{ p: 3 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, mb: 2, flexWrap: 'wrap' }}>
+            <Box>
+              <Typography variant="subtitle1" fontWeight={800} color="#1e293b" sx={{ letterSpacing: '0.2px' }}>
+                Buscar y filtrar cobros
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Filtra por cliente, préstamo, cobrador o fecha en una vista limpia.
+              </Typography>
+            </Box>
+          </Box>
+          <Grid container spacing={2} alignItems="stretch">
+            <Grid item xs={12} md={4}>
+              <TextField
+                fullWidth
+                label="Buscar por cliente, cobrador, préstamo o ID"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 2,
+                    bgcolor: '#ffffff',
+                    minHeight: 56,
+                    '& fieldset': { borderColor: 'rgba(99, 102, 241, 0.18)' },
+                    '&:hover fieldset': { borderColor: 'rgba(99, 102, 241, 0.35)' },
+                    '&.Mui-focused fieldset': { borderColor: '#6366f1' }
+                  }
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6} md={2.5}>
+              <TextField
+                select
+                fullWidth
+                label="Préstamo"
+                value={loanFilter}
+                onChange={(e) => setLoanFilter(e.target.value)}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 2,
+                    bgcolor: '#ffffff',
+                    minHeight: 56,
+                    '& fieldset': { borderColor: 'rgba(99, 102, 241, 0.18)' },
+                    '&:hover fieldset': { borderColor: 'rgba(99, 102, 241, 0.35)' },
+                    '&.Mui-focused fieldset': { borderColor: '#6366f1' }
+                  }
+                }}
+              >
+                <MenuItem value="all">Todos</MenuItem>
+                        {loans.map((loan) => (
+                  <MenuItem key={loan.id} value={String(loan.id)}>
+                    N º {loan.id} - {loan.cliente_nombre} {loan.cliente_apellido}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+            <Grid item xs={12} sm={6} md={2.5}>
+              <TextField
+                select
+                fullWidth
+                label="Cobrador"
+                value={cobradorFilter}
+                onChange={(e) => setCobradorFilter(e.target.value)}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 2,
+                    bgcolor: '#ffffff',
+                    minHeight: 56,
+                    '& fieldset': { borderColor: 'rgba(99, 102, 241, 0.18)' },
+                    '&:hover fieldset': { borderColor: 'rgba(99, 102, 241, 0.35)' },
+                    '&.Mui-focused fieldset': { borderColor: '#6366f1' }
+                  }
+                }}
+              >
+                <MenuItem value="all">Todos</MenuItem>
+                {uniqueCobradores.map((cobrador) => (
+                  <MenuItem key={cobrador} value={cobrador}>
+                    {cobrador}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+            <Grid item xs={12} sm={6} md={2}>
+              <TextField
+                fullWidth
+                label="Fecha"
+                type="date"
+                value={dateFilter}
+                onChange={(e) => setDateFilter(e.target.value)}
+                InputLabelProps={{ shrink: true }}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 2,
+                    bgcolor: '#ffffff',
+                    minHeight: 56,
+                    '& fieldset': { borderColor: 'rgba(99, 102, 241, 0.18)' },
+                    '&:hover fieldset': { borderColor: 'rgba(99, 102, 241, 0.35)' },
+                    '&.Mui-focused fieldset': { borderColor: '#6366f1' }
+                  }
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6} md={1} sx={{ display: 'flex', alignItems: 'stretch' }}>
+              <Button
+                fullWidth
+                variant="contained"
+                onClick={() => {
+                  setSearchTerm('');
+                  setDateFilter('');
+                  setCobradorFilter('all');
+                  setLoanFilter('all');
+                }}
+                sx={{
+                  minHeight: 56,
+                  borderRadius: 2,
+                  background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
+                  color: 'white',
+                  fontWeight: 700,
+                  boxShadow: '0 6px 16px rgba(99, 102, 241, 0.25)',
+                  '&:hover': {
+                    background: 'linear-gradient(135deg, #4f46e5 0%, #4338ca 100%)',
+                    boxShadow: '0 8px 20px rgba(99, 102, 241, 0.3)'
+                  }
+                }}
+              >
+                Limpiar
+              </Button>
+            </Grid>
+          </Grid>
+          <Divider sx={{ my: 2, borderColor: 'rgba(99, 102, 241, 0.12)' }} />
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 1 }}>
+            <Typography variant="body2" color="text.secondary">
+              Mostrando {filteredCount} de {payments.length} cobros
+            </Typography>
+            <Typography variant="body2" fontWeight={700} color="#059669">
+              Total filtrado: ${filteredTotal.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
+            </Typography>
+          </Box>
+        </Box>
+      </Card>
 
       {error && (
         <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
@@ -271,7 +452,7 @@ const PaymentsPage: React.FC = () => {
                         <MenuItem value="">Seleccionar préstamo...</MenuItem>
                         {loans.map((loan) => (
                           <MenuItem key={loan.id} value={loan.id}>
-                            {loan.cliente_nombre} {loan.cliente_apellido} (Préstamo #{loan.id})
+                            {loan.cliente_nombre} {loan.cliente_apellido} (N º {loan.id})
                           </MenuItem>
                         ))}
                       </TextField>
@@ -326,32 +507,6 @@ const PaymentsPage: React.FC = () => {
                         </Box>
                       </Grid>
                     )}
-
-                    <Grid item xs={12}>
-                      <TextField
-                        label="Monto Cobrado"
-                        fullWidth
-                        required
-                        type="number"
-                        value={monto}
-                        onChange={(e) => setMonto(e.target.value)}
-                        disabled={formSubmitting}
-                        helperText="Ingresa el monto que estás cobrando"
-                        InputProps={{
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              <AttachMoney sx={{ color: '#10b981' }} />
-                            </InputAdornment>
-                          ),
-                        }}
-                        sx={{
-                          '& .MuiOutlinedInput-root': {
-                            borderRadius: 2,
-                            minHeight: { xs: 48, sm: 'auto' }
-                          }
-                        }}
-                      />
-                    </Grid>
 
                     <Grid item xs={12}>
                       <TextField
@@ -429,28 +584,101 @@ const PaymentsPage: React.FC = () => {
                 </Typography>
               </Box>
 
-              <TableContainer sx={{ overflowX: 'auto' }}>
-                <Table sx={{ minWidth: 650 }}>
-                  <TableHead sx={{ bgcolor: 'rgba(99, 102, 241, 0.05)' }}>
+                {isMobile ? (
+                  <Box sx={{ p: 2.5 }}>
+                    {filteredPayments.length === 0 ? (
+                      <Box sx={{ py: 6, textAlign: 'center', color: 'text.secondary' }}>
+                        No hay cobros que coincidan con los filtros actuales.
+                      </Box>
+                    ) : (
+                      filteredPayments.map((payment) => {
+                        return (
+                          <Card key={payment.id} sx={{
+                            mb: 2,
+                            p: 2,
+                            borderRadius: 2.5,
+                            border: '1px solid rgba(99, 102, 241, 0.18)',
+                            borderTop: '4px solid #6366f1',
+                            boxShadow: '0 8px 22px rgba(15, 23, 42, 0.06)',
+                            background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)'
+                          }}>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 2, mb: 1.5 }}>
+                              <Box>
+                                <Typography variant="subtitle2" fontWeight={800} color="#1e293b">N º {payment.id}</Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                  {payment.cliente_nombre && payment.cliente_apellido ? `${payment.cliente_nombre} ${payment.cliente_apellido}` : 'Cliente'}
+                                </Typography>
+                              </Box>
+                            </Box>
+                            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 1.5, mb: 2 }}>
+                              <Box>
+                                <Typography variant="caption" color="text.secondary">Préstamo</Typography>
+                                <Typography variant="body2" fontWeight={700}>N º {payment.prestamo_id}</Typography>
+                              </Box>
+                              <Box>
+                                <Typography variant="caption" color="text.secondary">Monto</Typography>
+                                <Typography variant="body2" fontWeight={800} color="#059669">
+                                  +${Number(payment.monto).toLocaleString('es-AR', { minimumFractionDigits: 2 })}
+                                </Typography>
+                              </Box>
+                              <Box>
+                                <Typography variant="caption" color="text.secondary">Fecha</Typography>
+                                <Typography variant="body2" fontWeight={600}>{new Date(payment.fecha_pago).toLocaleDateString('es-AR')}</Typography>
+                              </Box>
+                              <Box>
+                                <Typography variant="caption" color="text.secondary">Cobrador</Typography>
+                                <Typography variant="body2" fontWeight={600}>{payment.cobrador_usuario || 'Cobrador'}</Typography>
+                              </Box>
+                            </Box>
+                            <Box sx={{ display: 'flex', gap: 1 }}>
+                              <Button
+                                fullWidth
+                                size="small"
+                                variant="outlined"
+                                onClick={() => handleEditPayment(payment)}
+                                sx={{ borderRadius: 2, fontWeight: 700 }}
+                              >
+                                Editar
+                              </Button>
+                              <Button
+                                fullWidth
+                                size="small"
+                                variant="outlined"
+                                color="error"
+                                onClick={() => handleDeletePayment(payment.id)}
+                                sx={{ borderRadius: 2, fontWeight: 700 }}
+                              >
+                                Eliminar
+                              </Button>
+                            </Box>
+                          </Card>
+                        );
+                      })
+                    )}
+                  </Box>
+                ) : (
+                <TableContainer sx={{ overflowX: 'auto' }}>
+                  <Table sx={{ minWidth: 650 }}>
+                    <TableHead sx={{ bgcolor: 'rgba(99, 102, 241, 0.05)' }}>
                     <TableRow>
-                      <TableCell sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }}>Cobro ID</TableCell>
-                      <TableCell sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }}>Cliente</TableCell>
-                      <TableCell sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }}>Cobrador</TableCell>
-                      <TableCell sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }}>ID Préstamo</TableCell>
-                      <TableCell sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }}>Monto Cobrado</TableCell>
-                      <TableCell sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }}>Fecha de Cobro</TableCell>
-                      <TableCell sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }} align="center">Acciones</TableCell>
+                        <TableCell sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }}>Cobro ID</TableCell>
+                        <TableCell sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }}>Cliente</TableCell>
+                        <TableCell sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }}>Cobrador</TableCell>
+                        <TableCell sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }}>ID Préstamo</TableCell>
+                        <TableCell sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }}>Monto Cobrado</TableCell>
+                        <TableCell sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }}>Fecha de Cobro</TableCell>
+                        <TableCell sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }} align="center">Acciones</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {payments.length === 0 ? (
+                    {filteredPayments.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={7} align="center" sx={{ py: 6, color: 'text.secondary' }}>
-                          No hay cobros registrados.
+                          <TableCell colSpan={7} align="center" sx={{ py: 6, color: 'text.secondary' }}>
+                          No hay cobros que coincidan con los filtros actuales.
                         </TableCell>
                       </TableRow>
                     ) : (
-                      payments.map((p) => (
+                      filteredPayments.map((p) => (
                         <TableRow key={p.id} sx={{
                           '&:hover': {
                             bgcolor: 'rgba(99, 102, 241, 0.05)',
@@ -458,18 +686,16 @@ const PaymentsPage: React.FC = () => {
                           },
                           borderBottom: '1px solid rgba(99, 102, 241, 0.1)'
                         }}>
-                          <TableCell sx={{ fontWeight: 600, color: '#10b981', letterSpacing: '0.3px' }}>#{p.id}</TableCell>
+                          <TableCell sx={{ fontWeight: 600, color: '#10b981', letterSpacing: '0.3px' }}>{p.id}</TableCell>
                           <TableCell sx={{ fontWeight: 500, color: '#1e293b', letterSpacing: '0.3px' }}>
                             {p.cliente_nombre && p.cliente_apellido
                               ? `${p.cliente_nombre} ${p.cliente_apellido}`
                               : 'Cliente'}
                           </TableCell>
                           <TableCell sx={{ color: '#64748b', letterSpacing: '0.3px' }}>
-                            {p.cobrador_nombre && p.cobrador_apellido
-                              ? `${p.cobrador_nombre} ${p.cobrador_apellido}`
-                              : 'Cobrador'}
+                            {p.cobrador_usuario || 'Cobrador'}
                           </TableCell>
-                          <TableCell sx={{ color: '#64748b', letterSpacing: '0.3px' }}>#{p.prestamo_id}</TableCell>
+                          <TableCell sx={{ color: '#64748b', letterSpacing: '0.3px' }}>N º {p.prestamo_id}</TableCell>
                           <TableCell sx={{ fontWeight: 'bold', color: '#10b981', letterSpacing: '0.3px' }}>
                             +${Number(p.monto).toLocaleString('es-AR', { minimumFractionDigits: 2 })}
                           </TableCell>
@@ -512,6 +738,7 @@ const PaymentsPage: React.FC = () => {
                   </TableBody>
                 </Table>
               </TableContainer>
+              )}
             </Card>
           </Grid>
         </Grid>
@@ -519,7 +746,7 @@ const PaymentsPage: React.FC = () => {
 
       {/* Dialogo para editar pago */}
       <Dialog open={editDialogOpen} onClose={() => setEditDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Editar Pago #{editingPayment?.id}</DialogTitle>
+        <DialogTitle>Editar Pago {editingPayment?.id}</DialogTitle>
         <DialogContent>
           <Box sx={{ mt: 2 }}>
             <TextField

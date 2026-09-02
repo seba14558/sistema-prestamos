@@ -330,7 +330,7 @@ const ClientsPage: React.FC = () => {
                         borderBottom: '1px solid rgba(99, 102, 241, 0.1)'
                       }}
                     >
-                      <TableCell sx={{ fontWeight: 600, color: '#6366f1', letterSpacing: '0.3px' }}>#{client.id}</TableCell>
+                      <TableCell sx={{ fontWeight: 600, color: '#6366f1', letterSpacing: '0.3px' }}>{client.id}</TableCell>
                       <TableCell sx={{ fontWeight: 500, color: '#1e293b', letterSpacing: '0.3px' }}>
                         {client.nombre} {client.apellido}
                       </TableCell>

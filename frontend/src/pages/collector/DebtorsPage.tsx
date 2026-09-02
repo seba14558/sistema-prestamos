@@ -205,11 +205,11 @@ const DebtorsPage: React.FC = () => {
                         }, 
                         borderBottom: '1px solid rgba(239, 68, 68, 0.1)' 
                       }}>
-                        <TableCell sx={{ fontWeight: 600, color: '#ef4444', letterSpacing: '0.3px' }}>#{loan.id}</TableCell>
+                        <TableCell sx={{ fontWeight: 600, color: '#ef4444', letterSpacing: '0.3px' }}>{loan.id}</TableCell>
                         <TableCell sx={{ fontWeight: 500, color: '#1e293b', letterSpacing: '0.3px' }}>
                           {loan.cliente_nombre && loan.cliente_apellido 
                             ? `${loan.cliente_nombre} ${loan.cliente_apellido}` 
-                            : `Cliente #${loan.cliente_id}`}
+                            : `Cliente N º ${loan.cliente_id}`}
                         </TableCell>
                         <TableCell>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>

@@ -368,7 +368,7 @@ const LoansPage: React.FC = () => {
                         borderBottom: '1px solid rgba(99, 102, 241, 0.1)'
                       }}
                     >
-                      <TableCell sx={{ fontWeight: 600, color: '#6366f1', letterSpacing: '0.3px' }}>#{loan.id}</TableCell>
+                      <TableCell sx={{ fontWeight: 600, color: '#6366f1', letterSpacing: '0.3px' }}>{loan.id}</TableCell>
                       <TableCell sx={{ fontWeight: 500, color: '#1e293b', letterSpacing: '0.3px' }}>
                         {loan.cliente_nombre && loan.cliente_apellido 
                           ? `${loan.cliente_nombre} ${loan.cliente_apellido}` 
@@ -419,7 +419,7 @@ const LoansPage: React.FC = () => {
         }}
       >
         <DialogTitle sx={{ fontWeight: 'bold' }}>
-          {editMode ? `Editar Préstamo #${selectedLoanId}` : 'Otorgar Nuevo Préstamo'}
+          {editMode ? `Editar N º ${selectedLoanId}` : 'Otorgar Nuevo Préstamo'}
         </DialogTitle>
         <Box component="form" onSubmit={handleSubmit}>
           <DialogContent sx={{ pt: 1 }}>
@@ -450,7 +450,7 @@ const LoansPage: React.FC = () => {
                   <MenuItem value="">Seleccionar cliente...</MenuItem>
                   {clients.map((c) => (
                     <MenuItem key={c.id} value={c.id}>
-                      {c.nombre} {c.apellido} (#{c.id})
+                      {c.nombre} {c.apellido} (N º {c.id})
                     </MenuItem>
                   ))}
                 </TextField>

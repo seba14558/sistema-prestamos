@@ -263,7 +263,7 @@ const UsersPage: React.FC = () => {
                       }, 
                       borderBottom: '1px solid rgba(99, 102, 241, 0.1)' 
                     }}>
-                      <TableCell sx={{ fontWeight: 600, color: '#6366f1', letterSpacing: '0.3px' }}>#{user.id}</TableCell>
+                      <TableCell sx={{ fontWeight: 600, color: '#6366f1', letterSpacing: '0.3px' }}>{user.id}</TableCell>
                       <TableCell sx={{ fontWeight: 500, color: '#1e293b', letterSpacing: '0.3px' }}>{user.nombre}</TableCell>
                       <TableCell sx={{ color: '#64748b', letterSpacing: '0.3px' }}>{user.apellido}</TableCell>
                       <TableCell sx={{ color: '#64748b', letterSpacing: '0.3px' }}>{user.usuario}</TableCell>

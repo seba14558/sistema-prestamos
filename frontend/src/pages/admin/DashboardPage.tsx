@@ -36,6 +36,8 @@ const DashboardPage: React.FC = () => {
     totalPrestado: 0,
     totalCobrado: 0,
     totalPendiente: 0,
+    totalCobradoHoy: 0,
+    ticketPromedioCobro: 0,
     prestamosActivos: 0,
     prestamosVencidos: 0,
     prestamosPagados: 0,
@@ -62,6 +64,11 @@ const DashboardPage: React.FC = () => {
       const totalPrestado = fetchedLoans.reduce((sum, l) => sum + Number(l.monto), 0);
       const totalCobrado = fetchedPayments.reduce((sum, p) => sum + Number(p.monto), 0);
       const totalPendiente = Math.max(0, totalPrestado - totalCobrado);
+      const hoy = new Date();
+      const totalCobradoHoy = fetchedPayments
+        .filter((payment) => new Date(payment.fecha_pago).toDateString() === hoy.toDateString())
+        .reduce((sum, payment) => sum + Number(payment.monto), 0);
+      const ticketPromedioCobro = fetchedPayments.length > 0 ? totalCobrado / fetchedPayments.length : 0;
       
       const prestamosActivos = fetchedLoans.filter(l => l.estado === 'activo').length;
       const prestamosVencidos = fetchedLoans.filter(l => l.estado === 'vencido').length;
@@ -74,6 +81,8 @@ const DashboardPage: React.FC = () => {
         totalPrestado,
         totalCobrado,
         totalPendiente,
+        totalCobradoHoy,
+        ticketPromedioCobro,
         prestamosActivos,
         prestamosVencidos,
         prestamosPagados,
@@ -259,10 +268,10 @@ const DashboardPage: React.FC = () => {
               </Box>
               <Box>
                 <Typography variant="caption" fontWeight="bold" color="#64748b" sx={{ fontSize: '0.75rem', letterSpacing: '0.5px' }}>
-                  TOTAL CLIENTES
+                  PRÉSTAMOS TOTALES
                 </Typography>
                 <Typography variant="h6" fontWeight="bold" color="#1e293b" sx={{ letterSpacing: '0.3px' }}>
-                  {loans.length} Préstamos
+                  {loans.length}
                 </Typography>
               </Box>
             </Box>
@@ -456,13 +465,13 @@ const DashboardPage: React.FC = () => {
                     }, 
                     borderBottom: '1px solid rgba(99, 102, 241, 0.1)' 
                   }}>
-                    <TableCell sx={{ fontWeight: 600, color: '#6366f1', letterSpacing: '0.3px' }}>#{pay.id}</TableCell>
+                    <TableCell sx={{ fontWeight: 600, color: '#6366f1', letterSpacing: '0.3px' }}>{pay.id}</TableCell>
                     <TableCell sx={{ fontWeight: 500, display: {sm: 'table-cell' } }}>
                       {pay.cliente_nombre && pay.cliente_apellido 
                         ? `${pay.cliente_nombre} ${pay.cliente_apellido}` 
                         : 'Cliente Desconocido'}
                     </TableCell>
-                    <TableCell sx={{ color: '#64748b', display: { md: 'table-cell' } }}>Préstamo #{pay.prestamo_id}</TableCell>
+                    <TableCell sx={{ color: '#64748b', display: { md: 'table-cell' } }}>N º {pay.prestamo_id}</TableCell>
                     <TableCell sx={{ fontWeight: 'bold', color: '#10b981', letterSpacing: '0.3px' }}>
                       +${Number(pay.monto).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </TableCell>
