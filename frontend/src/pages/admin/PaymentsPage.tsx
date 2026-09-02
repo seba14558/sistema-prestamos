@@ -432,7 +432,7 @@ const PaymentsPage: React.FC = () => {
                     <Grid item xs={12}>
                       <TextField
                         select
-                        label="Seleccionar Préstamo"
+                        label="Seleccionar Cliente"
                         fullWidth
                         required
                         value={prestamoId}
@@ -507,6 +507,32 @@ const PaymentsPage: React.FC = () => {
                         </Box>
                       </Grid>
                     )}
+
+                    <Grid item xs={12}>
+                      <TextField
+                        label="Monto Cobrado"
+                        fullWidth
+                        required
+                        type="number"
+                        value={monto}
+                        onChange={(e) => setMonto(e.target.value)}
+                        disabled={formSubmitting}
+                        helperText="Ingresa el monto que estás cobrando hoy"
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <AttachMoney sx={{ color: '#10b981' }} />
+                            </InputAdornment>
+                          ),
+                        }}
+                        sx={{
+                          '& .MuiOutlinedInput-root': {
+                            borderRadius: 2,
+                            minHeight: { xs: 48, sm: 'auto' }
+                          }
+                        }}
+                      />
+                    </Grid>
 
                     <Grid item xs={12}>
                       <TextField
