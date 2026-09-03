@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Box, TextField, Button, Typography, Alert, 
+import {
+  Box, TextField, Button, Typography, Alert,
   CircularProgress, Card, InputAdornment, IconButton
 } from '@mui/material';
-import { 
+import {
   Person, Lock, Visibility, VisibilityOff, MonetizationOn
 } from '@mui/icons-material';
 import api from '../services/api';
@@ -44,9 +44,9 @@ const LoginPage: React.FC = () => {
 
     try {
       // Llamada corregida al backend usando nuestro servicio de API centralizado
-      const res = await api.post('/auth/login', { 
-        usuario: username, 
-        password 
+      const res = await api.post('/auth/login', {
+        usuario: username,
+        password
       });
 
       const { token, usuario, rol } = res.data;
@@ -88,57 +88,57 @@ const LoginPage: React.FC = () => {
       px: 2,
     }}>
       {/* Background effects */}
-      <Box sx={{ 
-        position: 'absolute', 
-        top: '-10%', 
-        left: '-5%', 
-        width: 300, 
-        height: 300, 
-        bgcolor: 'rgba(79, 70, 229, 0.16)', 
-        borderRadius: '50%', 
-        filter: 'blur(80px)' 
+      <Box sx={{
+        position: 'absolute',
+        top: '-10%',
+        left: '-5%',
+        width: 300,
+        height: 300,
+        bgcolor: 'rgba(79, 70, 229, 0.16)',
+        borderRadius: '50%',
+        filter: 'blur(80px)'
       }} />
-      <Box sx={{ 
-        position: 'absolute', 
-        bottom: '-10%', 
-        right: '-5%', 
-        width: 400, 
-        height: 400, 
-        bgcolor: 'rgba(16, 185, 129, 0.08)', 
-        borderRadius: '50%', 
-        filter: 'blur(100px)' 
+      <Box sx={{
+        position: 'absolute',
+        bottom: '-10%',
+        right: '-5%',
+        width: 400,
+        height: 400,
+        bgcolor: 'rgba(16, 185, 129, 0.08)',
+        borderRadius: '50%',
+        filter: 'blur(100px)'
       }} />
 
       <Box sx={{ position: 'relative', zIndex: 10, width: '100%', maxWidth: 460 }}>
-        <Card sx={{ 
+        <Card sx={{
           position: 'relative',
           overflow: 'hidden',
-          bgcolor: 'rgba(15, 23, 42, 0.72)', 
-          backdropFilter: 'blur(20px)', 
-          border: '1px solid rgba(148, 163, 184, 0.12)', 
-          borderRadius: 4, 
-          p: { xs: 3, sm: 4.5 }, 
+          bgcolor: 'rgba(15, 23, 42, 0.72)',
+          backdropFilter: 'blur(20px)',
+          border: '1px solid rgba(148, 163, 184, 0.12)',
+          borderRadius: 4,
+          p: { xs: 3, sm: 4.5 },
           boxShadow: '0 32px 70px -20px rgba(0, 0, 0, 0.55)'
         }}>
           <Box sx={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(79, 70, 229, 0.14) 0%, rgba(16, 185, 129, 0.05) 100%)', pointerEvents: 'none' }} />
           {/* Logo */}
           <Box sx={{ position: 'relative', zIndex: 1 }}>
-            <Box sx={{ 
-              width: 72, 
-              height: 72, 
-              borderRadius: '22px', 
+            <Box sx={{
+              width: 72,
+              height: 72,
+              borderRadius: '22px',
               background: 'linear-gradient(135deg, #6366f1 0%, #10b981 100%)',
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center', 
-              mx: 'auto', 
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              mx: 'auto',
               mb: 3,
               boxShadow: '0 16px 35px -10px rgba(79, 70, 229, 0.55)'
             }}>
               <MonetizationOn sx={{ fontSize: 34, color: 'white' }} />
             </Box>
 
-            <Typography variant="h4" fontWeight="bold" align="center" sx={{ 
+            <Typography variant="h4" fontWeight="bold" align="center" sx={{
               color: 'white',
               mb: 0.75,
               letterSpacing: '-0.03em'
@@ -168,44 +168,54 @@ const LoginPage: React.FC = () => {
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <Person sx={{ color: 'black' }} />
+                      <Person sx={{ color: 'white' }} />
                     </InputAdornment>
                   ),
                 }}
                 InputLabelProps={{ shrink: true }}
-                sx={{ 
+                sx={{
                   mb: 2.5,
-                  bgcolor: 'transparent',
                   '& .MuiOutlinedInput-root': {
-                    bgcolor: '#ffffff !important',
+                    height: 48,
+                    bgcolor: 'rgba(255, 255, 255, 0.08)',
                     borderRadius: 2.5,
-                    color: '#0f172a',
-                    '& .MuiOutlinedInput-input:-webkit-autofill': {
-                      WebkitBoxShadow: '0 0 0 1000px #ffffff inset',
-                      WebkitTextFillColor: '#0f172a',
-                      caretColor: '#0f172a',
-                      borderRadius: 'inherit',
-                    },
+                    color: 'white',
+
                     '& fieldset': {
-                      borderColor: 'rgba(148, 163, 184, 0.28)',
+                      borderColor: 'rgba(255, 255, 255, 0.35)',
                     },
+
                     '&:hover fieldset': {
-                      borderColor: 'rgba(79, 70, 229, 0.5)',
+                      borderColor: 'rgba(255, 255, 255, 0.6)',
                     },
+
                     '&.Mui-focused fieldset': {
                       borderColor: '#6366f1',
                     },
                   },
+
                   '& .MuiInputLabel-root': {
-                    color: 'rgba(71, 85, 105, 0.95)',
-                    backgroundColor: 'transparent',
+                    color: 'rgba(255, 255, 255, 0.75)',
+
+                    '&.Mui-focused': {
+                      color: 'white',
+                    },
+
                     '&.MuiInputLabel-shrink': {
                       transform: 'translate(14px, -9px) scale(0.75)',
                     },
                   },
+
                   '& .MuiInputBase-input': {
-                    color: '#0f172a',
-                  }
+                    color: 'white',
+                    py: 1,
+                  },
+
+                  '& .MuiInputBase-input:-webkit-autofill': {
+                    WebkitBoxShadow: '0 0 0 1000px #1e293b inset',
+                    WebkitTextFillColor: 'white',
+                    caretColor: 'white',
+                  },
                 }}
               />
 
@@ -221,7 +231,7 @@ const LoginPage: React.FC = () => {
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <Lock sx={{ color: 'black' }} />
+                      <Lock sx={{ color: 'white' }} />
                     </InputAdornment>
                   ),
                   endAdornment: (
@@ -237,39 +247,49 @@ const LoginPage: React.FC = () => {
                   ),
                 }}
                 InputLabelProps={{ shrink: true }}
-                sx={{ 
+                sx={{
                   mb: 3,
-                  bgcolor: 'transparent',
                   '& .MuiOutlinedInput-root': {
-                    bgcolor: '#ffffff !important',
+                    height: 48,
+                    bgcolor: 'rgba(255, 255, 255, 0.08)',
                     borderRadius: 2.5,
-                    color: '#0f172a',
-                    '& .MuiOutlinedInput-input:-webkit-autofill': {
-                      WebkitBoxShadow: '0 0 0 1000px #ffffff inset',
-                      WebkitTextFillColor: '#0f172a',
-                      caretColor: '#0f172a',
-                      borderRadius: 'inherit',
-                    },
+                    color: 'white',
+
                     '& fieldset': {
-                      borderColor: 'rgba(148, 163, 184, 0.28)',
+                      borderColor: 'rgba(255, 255, 255, 0.35)',
                     },
+
                     '&:hover fieldset': {
-                      borderColor: 'rgba(79, 70, 229, 0.5)',
+                      borderColor: 'rgba(255, 255, 255, 0.6)',
                     },
+
                     '&.Mui-focused fieldset': {
                       borderColor: '#6366f1',
                     },
                   },
+
                   '& .MuiInputLabel-root': {
-                    color: 'rgba(71, 85, 105, 0.95)',
-                    backgroundColor: 'transparent',
+                    color: 'rgba(255, 255, 255, 0.75)',
+
+                    '&.Mui-focused': {
+                      color: 'white',
+                    },
+
                     '&.MuiInputLabel-shrink': {
                       transform: 'translate(14px, -9px) scale(0.75)',
                     },
                   },
+
                   '& .MuiInputBase-input': {
-                    color: '#0f172a',
-                  }
+                    color: 'white',
+                    py: 1,
+                  },
+
+                  '& .MuiInputBase-input:-webkit-autofill': {
+                    WebkitBoxShadow: '0 0 0 1000px #1e293b inset',
+                    WebkitTextFillColor: 'white',
+                    caretColor: 'white',
+                  },
                 }}
               />
 
