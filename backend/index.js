@@ -64,10 +64,17 @@ const initializeDatabase = async () => {
         cliente_id INTEGER REFERENCES clientes(id),
         plan VARCHAR(50) NOT NULL,
         monto NUMERIC(12,2) NOT NULL,
+        monto_total NUMERIC(12,2),
         fecha_inicio DATE NOT NULL,
         fecha_vencimiento DATE NOT NULL,
         estado VARCHAR(20) NOT NULL
       )
+    `);
+
+    // Asegurar que la columna monto_total existe si la tabla ya existía previamente
+    await pool.query(`
+      ALTER TABLE prestamos ADD COLUMN IF NOT EXISTS monto_total NUMERIC(12,2);
+      UPDATE prestamos SET monto_total = monto WHERE monto_total IS NULL;
     `);
 
     // Tabla de pagos

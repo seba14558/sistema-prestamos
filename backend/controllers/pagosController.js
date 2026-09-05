@@ -58,7 +58,8 @@ exports.registrarPago = async (req, res) => {
     res.status(201).json(result.rows[0]);
   } catch (err) {
     await client.query('ROLLBACK');
-    res.status(500).json({ message: 'Error al registrar pago', error: err });
+    console.error('Error al registrar pago:', err);
+    res.status(500).json({ message: 'Error al registrar pago', error: err.message || err });
   } finally {
     client.release();
   }
