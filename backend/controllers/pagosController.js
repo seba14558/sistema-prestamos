@@ -3,9 +3,10 @@ const pool = require('../config/db');
 exports.registrarPago = async (req, res) => {
   const { prestamo_id, fecha_pago, monto } = req.body;
   const cobrador_id = req.user.id;
-  const montoPago = Number(monto);
 
-  if (!prestamo_id || !fecha_pago || !monto || Number.isNaN(montoPago) || montoPago <= 0) {
+  // Validación básica del monto antes de hacer cualquier consulta
+  const montoPago = parseFloat(monto);
+  if (!prestamo_id || !fecha_pago || !monto || isNaN(montoPago) || montoPago <= 0) {
     return res.status(400).json({ message: 'Debes enviar un préstamo válido, fecha de pago y un monto positivo.' });
   }
 
@@ -13,8 +14,16 @@ exports.registrarPago = async (req, res) => {
   try {
     await client.query('BEGIN');
 
+    // Traer datos del préstamo con el saldo ya calculado en SQL (NUMERIC exacto)
     const prestamoResult = await client.query(
-      'SELECT id, monto, monto_total, estado FROM prestamos WHERE id = $1 FOR UPDATE',
+      `SELECT p.id, p.monto_total, p.estado,
+              COALESCE(SUM(pg.monto), 0) AS total_pagado,
+              (COALESCE(p.monto_total, p.monto) - COALESCE(SUM(pg.monto), 0)) AS saldo_pendiente
+       FROM prestamos p
+       LEFT JOIN pagos pg ON pg.prestamo_id = p.id
+       WHERE p.id = $1
+       GROUP BY p.id, p.monto_total, p.monto, p.estado
+       FOR UPDATE OF p`,
       [prestamo_id]
     );
 
@@ -24,35 +33,36 @@ exports.registrarPago = async (req, res) => {
     }
 
     const prestamo = prestamoResult.rows[0];
-    const montoTotal = Number(prestamo.monto_total || prestamo.monto);
+    const saldoPendiente = parseFloat(prestamo.saldo_pendiente);
 
-    const pagosResult = await client.query(
-      'SELECT COALESCE(SUM(monto), 0) as total_pagado FROM pagos WHERE prestamo_id = $1',
-      [prestamo_id]
-    );
-
-    const totalPagado = Number(pagosResult.rows[0].total_pagado);
-    const saldoPendiente = Math.max(0, montoTotal - totalPagado);
-
-    if (montoPago > saldoPendiente) {
+    // Comparación con tolerancia de 1 centavo para evitar errores de redondeo
+    if (montoPago > saldoPendiente + 0.01) {
       await client.query('ROLLBACK');
       return res.status(400).json({
         message: `El monto supera el saldo pendiente del préstamo. Saldo disponible: ${saldoPendiente.toFixed(2)}`
       });
     }
 
+    // Insertar el pago
     const result = await client.query(
       'INSERT INTO pagos (prestamo_id, fecha_pago, monto, cobrador_id) VALUES ($1, $2, $3, $4) RETURNING *',
       [prestamo_id, fecha_pago, montoPago, cobrador_id]
     );
 
-    const nuevoTotalPagado = totalPagado + montoPago;
-    if (nuevoTotalPagado >= montoTotal) {
-      await client.query(
-        'UPDATE prestamos SET estado = $1 WHERE id = $2',
-        ['pagado', prestamo_id]
-      );
-    }
+    // Actualizar estado a 'pagado' usando comparación en SQL para evitar problemas de punto flotante
+    // Si el nuevo total pagado >= monto_total (con tolerancia de 1 centavo), marcar como pagado
+    await client.query(
+      `UPDATE prestamos
+       SET estado = CASE
+         WHEN (
+           SELECT COALESCE(SUM(monto), 0) FROM pagos WHERE prestamo_id = $1
+         ) >= COALESCE(monto_total, monto) - 0.01
+         THEN 'pagado'
+         ELSE estado
+       END
+       WHERE id = $1`,
+      [prestamo_id]
+    );
 
     await client.query('COMMIT');
     res.status(201).json(result.rows[0]);
@@ -63,6 +73,7 @@ exports.registrarPago = async (req, res) => {
   } finally {
     client.release();
   }
+
 };
 
 exports.verRecaudacion = async (req, res) => {

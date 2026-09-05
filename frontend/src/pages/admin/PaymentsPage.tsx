@@ -55,6 +55,8 @@ const PaymentsPage: React.FC = () => {
 
   const [prestamoId, setPrestamoId] = useState<number | ''>('');
   const [selectedLoan, setSelectedLoan] = useState<Loan | null>(null);
+  const [saldoPendiente, setSaldoPendiente] = useState<number | null>(null);
+  const [loadingSaldo, setLoadingSaldo] = useState(false);
   const [monto, setMonto] = useState('');
   const [fechaPago, setFechaPago] = useState(getLocalDateString());
   const [formError, setFormError] = useState('');
@@ -142,6 +144,7 @@ const PaymentsPage: React.FC = () => {
       setFormSuccess('¡Cobro registrado exitosamente en el sistema!');
       setPrestamoId('');
       setSelectedLoan(null);
+      setSaldoPendiente(null);
       setMonto('');
       setFechaPago(getLocalDateString());
       showToast('Cobro registrado exitosamente', 'success');
@@ -465,7 +468,16 @@ const PaymentsPage: React.FC = () => {
                         onChange={(e) => {
                           const value = Number(e.target.value);
                           setPrestamoId(value);
-                          setSelectedLoan(loans.find((loan) => loan.id === value) || null);
+                          const found = loans.find((loan) => loan.id === value) || null;
+                          setSelectedLoan(found);
+                          setSaldoPendiente(null);
+                          if (value) {
+                            setLoadingSaldo(true);
+                            api.get(`/prestamos/${value}/saldo`)
+                              .then((res) => setSaldoPendiente(parseFloat(res.data.saldo_pendiente)))
+                              .catch(() => setSaldoPendiente(null))
+                              .finally(() => setLoadingSaldo(false));
+                          }
                         }}
                         disabled={formSubmitting}
                         sx={{
@@ -507,10 +519,14 @@ const PaymentsPage: React.FC = () => {
                             </Grid>
                             <Grid item xs={6} sm={3}>
                               <Typography variant="caption" color="#64748b" sx={{ display: 'block', mb: 0.5 }}>
-                                Estado
+                                Saldo Pendiente
                               </Typography>
-                              <Typography variant="body2" fontWeight="600" color="#1e293b">
-                                {selectedLoan.estado}
+                              <Typography variant="body2" fontWeight="700" color={saldoPendiente === 0 ? '#10b981' : '#ef4444'}>
+                                {loadingSaldo
+                                  ? 'Calculando...'
+                                  : saldoPendiente !== null
+                                    ? `$${saldoPendiente.toLocaleString('es-AR', { minimumFractionDigits: 2 })}`
+                                    : '-'}
                               </Typography>
                             </Grid>
                             <Grid item xs={6} sm={3}>

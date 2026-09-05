@@ -84,3 +84,28 @@ exports.prestamosProximosAVencer = async (req, res) => {
     res.status(500).json({ message: 'Error al consultar próximos a vencer', error: err });
   }
 };
+
+// Endpoint: saldo pendiente exacto de un préstamo (todo calculado en PostgreSQL NUMERIC)
+exports.getSaldoPrestamo = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await pool.query(
+      `SELECT p.id,
+              COALESCE(p.monto_total, p.monto) AS monto_total,
+              COALESCE(SUM(pg.monto), 0) AS total_pagado,
+              GREATEST(COALESCE(p.monto_total, p.monto) - COALESCE(SUM(pg.monto), 0), 0) AS saldo_pendiente,
+              p.estado
+       FROM prestamos p
+       LEFT JOIN pagos pg ON pg.prestamo_id = p.id
+       WHERE p.id = $1
+       GROUP BY p.id, p.monto_total, p.monto, p.estado`,
+      [id]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Préstamo no encontrado' });
+    }
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ message: 'Error al consultar saldo del préstamo', error: err.message || err });
+  }
+};
