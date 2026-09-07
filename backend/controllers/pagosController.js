@@ -14,7 +14,10 @@ exports.registrarPago = async (req, res) => {
   try {
     await client.query('BEGIN');
 
-    // Traer datos del préstamo con el saldo ya calculado en SQL (NUMERIC exacto)
+    // Primero bloquear el préstamo para evitar conflictos de concurrencia
+    await client.query('SELECT id FROM prestamos WHERE id = $1 FOR UPDATE', [prestamo_id]);
+
+    // Luego calcular el saldo pendiente sin FOR UPDATE
     const prestamoResult = await client.query(
       `SELECT p.id, p.monto_total, p.estado,
               COALESCE(SUM(pg.monto), 0) AS total_pagado,
@@ -22,8 +25,7 @@ exports.registrarPago = async (req, res) => {
        FROM prestamos p
        LEFT JOIN pagos pg ON pg.prestamo_id = p.id
        WHERE p.id = $1
-       GROUP BY p.id, p.monto_total, p.monto, p.estado
-       FOR UPDATE OF p`,
+       GROUP BY p.id, p.monto_total, p.monto, p.estado`,
       [prestamo_id]
     );
 
@@ -51,7 +53,7 @@ exports.registrarPago = async (req, res) => {
 
     // Actualizar estado a 'pagado' usando comparación en SQL para evitar problemas de punto flotante
     // Si el nuevo total pagado >= monto_total (con tolerancia de 1 centavo), marcar como pagado
-    await client.query(
+    const estadoUpdate = await client.query(
       `UPDATE prestamos
        SET estado = CASE
          WHEN (
@@ -60,9 +62,14 @@ exports.registrarPago = async (req, res) => {
          THEN 'pagado'
          ELSE estado
        END
-       WHERE id = $1`,
+       WHERE id = $1
+       RETURNING estado`,
       [prestamo_id]
     );
+    
+    console.log('Estado actualizado:', estadoUpdate.rows[0].estado);
+    console.log('Total pagado:', (await client.query('SELECT COALESCE(SUM(monto), 0) as total FROM pagos WHERE prestamo_id = $1', [prestamo_id])).rows[0].total);
+    console.log('Monto total:', (await client.query('SELECT COALESCE(monto_total, monto) as monto FROM prestamos WHERE id = $1', [prestamo_id])).rows[0].monto);
 
     await client.query('COMMIT');
     res.status(201).json(result.rows[0]);

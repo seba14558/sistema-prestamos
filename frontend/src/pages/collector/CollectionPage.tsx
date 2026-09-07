@@ -95,7 +95,18 @@ const CollectionPage: React.FC = () => {
       ]);
       
       // Filtrar préstamos activos, morosos o vencidos (no pagados)
-      const activeLoans = loansRes.data.filter((l: Loan) => l.estado !== 'pagado');
+      // Primero filtramos por estado, luego calculamos el saldo pendiente para cada préstamo
+      const activeLoans = loansRes.data.filter((l: Loan) => {
+        if (l.estado === 'pagado') return false;
+        
+        // Calcular saldo pendiente basado en los pagos
+        const loanPayments = paymentsRes.data.filter((p: Payment) => p.prestamo_id === l.id);
+        const totalPagado = loanPayments.reduce((sum: number, p: Payment) => sum + Number(p.monto), 0);
+        const saldoPendiente = Number(l.monto) - totalPagado;
+        
+        // Solo mostrar si tiene saldo pendiente mayor a 0.01 (tolerancia)
+        return saldoPendiente > 0.01;
+      });
       setLoans(activeLoans);
       setPayments(paymentsRes.data);
     } catch (err) {

@@ -44,6 +44,12 @@ exports.eliminarCliente = async (req, res) => {
   console.log('Usuario autenticado:', req.user);
   console.log('Rol del usuario:', req.user?.rol);
   
+  // Validar que req.user existe y tiene rol
+  if (!req.user || !req.user.rol) {
+    console.log('Acceso denegado: usuario no autenticado correctamente');
+    return res.status(401).json({ message: 'Usuario no autenticado correctamente' });
+  }
+  
   // Solo admin puede eliminar clientes
   if (req.user.rol !== 'admin') {
     console.log('Acceso denegado: rol no es admin');
@@ -51,31 +57,57 @@ exports.eliminarCliente = async (req, res) => {
   }
   
   try {
-    // Verificar si el cliente tiene préstamos activos
-    const prestamosResult = await pool.query(
-      'SELECT COUNT(*) as count FROM prestamos WHERE cliente_id = $1 AND estado != $2',
-      [id, 'pagado']
+    // Verificar si el cliente tiene préstamos con saldo pendiente > 0
+    const prestamosConSaldoResult = await pool.query(
+      `SELECT p.id, 
+              COALESCE(p.monto_total, p.monto) AS monto_total,
+              COALESCE(SUM(pg.monto), 0) AS total_pagado,
+              (COALESCE(p.monto_total, p.monto) - COALESCE(SUM(pg.monto), 0)) AS saldo_pendiente
+       FROM prestamos p
+       LEFT JOIN pagos pg ON pg.prestamo_id = p.id
+       WHERE p.cliente_id = $1
+       GROUP BY p.id, p.monto_total, p.monto
+       HAVING (COALESCE(p.monto_total, p.monto) - COALESCE(SUM(pg.monto), 0)) > 0.01`,
+      [id]
     );
-    const prestamosCount = parseInt(prestamosResult.rows[0].count);
-    console.log('Préstamos activos del cliente:', prestamosCount);
     
-    if (prestamosCount > 0) {
-      console.log('Cliente tiene préstamos activos');
+    const prestamosConSaldo = prestamosConSaldoResult.rows;
+    console.log('Préstamos con saldo pendiente del cliente:', prestamosConSaldo.length);
+    console.log('Detalles de préstamos con saldo:', JSON.stringify(prestamosConSaldo, null, 2));
+    
+    // También verificar todos los préstamos del cliente para debug
+    const todosPrestamosDebug = await pool.query(
+      `SELECT p.id, p.estado,
+              COALESCE(p.monto_total, p.monto) AS monto_total,
+              COALESCE(SUM(pg.monto), 0) AS total_pagado,
+              (COALESCE(p.monto_total, p.monto) - COALESCE(SUM(pg.monto), 0)) AS saldo_pendiente
+       FROM prestamos p
+       LEFT JOIN pagos pg ON pg.prestamo_id = p.id
+       WHERE p.cliente_id = $1
+       GROUP BY p.id, p.monto_total, p.monto, p.estado`,
+      [id]
+    );
+    console.log('Todos los préstamos del cliente (debug):', JSON.stringify(todosPrestamosDebug.rows, null, 2));
+    
+    if (prestamosConSaldo.length > 0) {
+      console.log('Cliente tiene préstamos con saldo pendiente:', prestamosConSaldo);
       return res.status(400).json({ 
-        message: 'No se puede eliminar el cliente porque tiene préstamos activos' 
+        message: 'No se puede eliminar el cliente porque tiene préstamos con saldo pendiente',
+        prestamos: prestamosConSaldo,
+        debug: todosPrestamosDebug.rows
       });
     }
     
-    // Verificar si el cliente tiene préstamos pagados (para eliminarlos primero)
-    const prestamosPagadosResult = await pool.query(
-      'SELECT id FROM prestamos WHERE cliente_id = $1 AND estado = $2',
-      [id, 'pagado']
+    // Obtener todos los préstamos del cliente (independientemente del estado)
+    const todosPrestamosResult = await pool.query(
+      'SELECT id FROM prestamos WHERE cliente_id = $1',
+      [id]
     );
-    const prestamosPagados = prestamosPagadosResult.rows;
-    console.log('Préstamos pagados del cliente:', prestamosPagados.length);
+    const todosPrestamos = todosPrestamosResult.rows;
+    console.log('Total préstamos del cliente:', todosPrestamos.length);
     
-    // Eliminar préstamos pagados y sus pagos asociados
-    for (const prestamo of prestamosPagados) {
+    // Eliminar todos los préstamos y sus pagos asociados (tienen saldo 0)
+    for (const prestamo of todosPrestamos) {
       console.log('Eliminando pagos del préstamo:', prestamo.id);
       await pool.query('DELETE FROM pagos WHERE prestamo_id = $1', [prestamo.id]);
       console.log('Eliminando préstamo:', prestamo.id);
