@@ -23,6 +23,7 @@ interface Loan {
   cliente_apellido?: string;
   plan: string;
   monto: string | number;
+  monto_total?: string | number;
   fecha_inicio: string;
   fecha_vencimiento: string;
   estado: string; // 'activo', 'vencido', 'pagado', 'moroso'
@@ -144,6 +145,7 @@ const LoansPage: React.FC = () => {
       setClienteId(loan.cliente_id);
       setPlan(loan.plan);
       setMonto(String(loan.monto));
+      setMontoTotal(loan.monto_total ? String(loan.monto_total) : '');
       // Formatear fechas para los inputs
       setFechaInicio(new Date(loan.fecha_inicio).toISOString().slice(0, 10));
       setFechaVencimiento(new Date(loan.fecha_vencimiento).toISOString().slice(0, 10));
@@ -188,6 +190,7 @@ const LoansPage: React.FC = () => {
         await api.put(`/prestamos/${selectedLoanId}`, {
           plan,
           monto: numMonto,
+          monto_total: parseFloat(montoTotal || monto),
           fecha_inicio: fechaInicio,
           fecha_vencimiento: fechaVencimiento,
           estado
@@ -199,6 +202,7 @@ const LoansPage: React.FC = () => {
           cliente_id: Number(clienteId),
           plan,
           monto: numMonto,
+          monto_total: parseFloat(montoTotal || monto),
           fecha_inicio: fechaInicio,
           fecha_vencimiento: fechaVencimiento,
           estado: 'activo'
@@ -364,7 +368,7 @@ const LoansPage: React.FC = () => {
                         borderBottom: '1px solid rgba(99, 102, 241, 0.1)'
                       }}
                     >
-                      <TableCell sx={{ fontWeight: 600, color: '#6366f1', letterSpacing: '0.3px' }}>#{loan.id}</TableCell>
+                      <TableCell sx={{ fontWeight: 600, color: '#6366f1', letterSpacing: '0.3px' }}>{loan.id}</TableCell>
                       <TableCell sx={{ fontWeight: 500, color: '#1e293b', letterSpacing: '0.3px' }}>
                         {loan.cliente_nombre && loan.cliente_apellido 
                           ? `${loan.cliente_nombre} ${loan.cliente_apellido}` 
@@ -415,7 +419,7 @@ const LoansPage: React.FC = () => {
         }}
       >
         <DialogTitle sx={{ fontWeight: 'bold' }}>
-          {editMode ? `Editar Préstamo #${selectedLoanId}` : 'Otorgar Nuevo Préstamo'}
+          {editMode ? `Editar N º ${selectedLoanId}` : 'Otorgar Nuevo Préstamo'}
         </DialogTitle>
         <Box component="form" onSubmit={handleSubmit}>
           <DialogContent sx={{ pt: 1 }}>
@@ -446,7 +450,7 @@ const LoansPage: React.FC = () => {
                   <MenuItem value="">Seleccionar cliente...</MenuItem>
                   {clients.map((c) => (
                     <MenuItem key={c.id} value={c.id}>
-                      {c.nombre} {c.apellido} (#{c.id})
+                      {c.nombre} {c.apellido} (N º {c.id})
                     </MenuItem>
                   ))}
                 </TextField>

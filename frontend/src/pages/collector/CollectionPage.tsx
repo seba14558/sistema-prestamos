@@ -10,6 +10,7 @@ import api, { editarPago, eliminarPago } from '../../services/api';
 import Toast from '../../components/Toast';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import TableSkeleton from '../../components/TableSkeleton';
+import { formatDateDisplay } from '../../utils/date';
 
 interface Loan {
   id: number;
@@ -31,6 +32,12 @@ interface Payment {
   cliente_apellido?: string;
 }
 
+const getLocalDateString = () => {
+  const now = new Date();
+  const localDate = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
+  return localDate.toISOString().slice(0, 10);
+};
+
 const CollectionPage: React.FC = () => {
   const [loans, setLoans] = useState<Loan[]>([]);
   const [payments, setPayments] = useState<Payment[]>([]);
@@ -41,8 +48,10 @@ const CollectionPage: React.FC = () => {
   // Estado del formulario
   const [prestamoId, setPrestamoId] = useState<number | ''>('');
   const [selectedLoan, setSelectedLoan] = useState<Loan | null>(null);
+  const [saldoPendiente, setSaldoPendiente] = useState<number | null>(null);
+  const [loadingSaldo, setLoadingSaldo] = useState(false);
   const [monto, setMonto] = useState('');
-  const [fechaPago, setFechaPago] = useState(new Date().toISOString().slice(0, 10));
+  const [fechaPago, setFechaPago] = useState(getLocalDateString());
   
   const [formError, setFormError] = useState('');
   const [formSuccess, setFormSuccess] = useState('');
@@ -86,7 +95,18 @@ const CollectionPage: React.FC = () => {
       ]);
       
       // Filtrar préstamos activos, morosos o vencidos (no pagados)
-      const activeLoans = loansRes.data.filter((l: Loan) => l.estado !== 'pagado');
+      // Primero filtramos por estado, luego calculamos el saldo pendiente para cada préstamo
+      const activeLoans = loansRes.data.filter((l: Loan) => {
+        if (l.estado === 'pagado') return false;
+        
+        // Calcular saldo pendiente basado en los pagos
+        const loanPayments = paymentsRes.data.filter((p: Payment) => p.prestamo_id === l.id);
+        const totalPagado = loanPayments.reduce((sum: number, p: Payment) => sum + Number(p.monto), 0);
+        const saldoPendiente = Number(l.monto) - totalPagado;
+        
+        // Solo mostrar si tiene saldo pendiente mayor a 0.01 (tolerancia)
+        return saldoPendiente > 0.01;
+      });
       setLoans(activeLoans);
       setPayments(paymentsRes.data);
     } catch (err) {
@@ -138,8 +158,10 @@ const CollectionPage: React.FC = () => {
 
       setFormSuccess('¡Cobro registrado exitosamente en el sistema!');
       setPrestamoId('');
+      setSelectedLoan(null);
+      setSaldoPendiente(null);
       setMonto('');
-      setFechaPago(new Date().toISOString().slice(0, 10));
+      setFechaPago(getLocalDateString());
       showToast('Cobro registrado exitosamente', 'success');
       
       // Recargar listados
@@ -277,6 +299,14 @@ const CollectionPage: React.FC = () => {
                           const value = Number(e.target.value);
                           setPrestamoId(value);
                           setSelectedLoan(loans.find(l => l.id === value) || null);
+                          setSaldoPendiente(null);
+                          if (value) {
+                            setLoadingSaldo(true);
+                            api.get(`/prestamos/${value}/saldo`)
+                              .then((res) => setSaldoPendiente(parseFloat(res.data.saldo_pendiente)))
+                              .catch(() => setSaldoPendiente(null))
+                              .finally(() => setLoadingSaldo(false));
+                          }
                         }}
                         disabled={formSubmitting}
                         sx={{ 
@@ -289,7 +319,7 @@ const CollectionPage: React.FC = () => {
                         <MenuItem value="">Seleccionar cliente...</MenuItem>
                         {loans.map((l) => (
                           <MenuItem key={l.id} value={l.id}>
-                            {l.cliente_nombre} {l.cliente_apellido} (Préstamo #{l.id})
+                            {l.cliente_nombre} {l.cliente_apellido} (N º {l.id})
                           </MenuItem>
                         ))}
                       </TextField>
@@ -318,10 +348,14 @@ const CollectionPage: React.FC = () => {
                             </Grid>
                             <Grid item xs={6} sm={3}>
                               <Typography variant="caption" color="#64748b" sx={{ display: 'block', mb: 0.5 }}>
-                                Estado
+                                Saldo Pendiente
                               </Typography>
-                              <Typography variant="body2" fontWeight="600" color="#1e293b">
-                                {selectedLoan.estado}
+                              <Typography variant="body2" fontWeight="700" color={saldoPendiente === 0 ? '#10b981' : '#ef4444'}>
+                                {loadingSaldo
+                                  ? 'Calculando...'
+                                  : saldoPendiente !== null
+                                    ? `$${saldoPendiente.toLocaleString('es-AR', { minimumFractionDigits: 2 })}`
+                                    : '-'}
                               </Typography>
                             </Grid>
                             <Grid item xs={6} sm={3}>
@@ -478,17 +512,17 @@ const CollectionPage: React.FC = () => {
                           }, 
                           borderBottom: '1px solid rgba(16, 185, 129, 0.1)' 
                         }}>
-                          <TableCell sx={{ fontWeight: 600, color: '#10b981', letterSpacing: '0.3px' }}>#{p.id}</TableCell>
+                          <TableCell sx={{ fontWeight: 600, color: '#10b981', letterSpacing: '0.3px' }}>{p.id}</TableCell>
                           <TableCell sx={{ fontWeight: 500, color: '#1e293b', letterSpacing: '0.3px' }}>
                             {p.cliente_nombre && p.cliente_apellido 
                               ? `${p.cliente_nombre} ${p.cliente_apellido}` 
                               : 'Cliente'}
                           </TableCell>
-                          <TableCell sx={{ color: '#64748b', letterSpacing: '0.3px' }}>#{p.prestamo_id}</TableCell>
+                          <TableCell sx={{ color: '#64748b', letterSpacing: '0.3px' }}>N º {p.prestamo_id}</TableCell>
                           <TableCell sx={{ fontWeight: 'bold', color: '#10b981', letterSpacing: '0.3px' }}>
                             +${Number(p.monto).toLocaleString('es-AR', { minimumFractionDigits: 2 })}
                           </TableCell>
-                          <TableCell sx={{ letterSpacing: '0.3px' }}>{new Date(p.fecha_pago).toLocaleDateString('es-AR')}</TableCell>
+                          <TableCell sx={{ letterSpacing: '0.3px' }}>{formatDateDisplay(p.fecha_pago)}</TableCell>
                           {isAdmin && (
                             <TableCell align="center">
                               <IconButton 
@@ -536,7 +570,7 @@ const CollectionPage: React.FC = () => {
 
       {/* Dialogo para editar pago */}
       <Dialog open={editDialogOpen} onClose={() => setEditDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Editar Pago #{editingPayment?.id}</DialogTitle>
+        <DialogTitle>Editar Pago {editingPayment?.id}</DialogTitle>
         <DialogContent>
           <Box sx={{ mt: 2 }}>
             <TextField

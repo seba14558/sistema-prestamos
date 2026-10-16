@@ -1,9 +1,7 @@
-version: '3.8'
-
 services:
   postgres:
     image: postgres:15-alpine
-    container_name: sistema-prestamos-db
+    container_name: prestamos_db
     environment:
       POSTGRES_DB: prestamos
       POSTGRES_USER: postgres
@@ -12,7 +10,6 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./backend/config:/docker-entrypoint-initdb.d
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
@@ -21,7 +18,9 @@ services:
 
   backend:
     build: ./backend
-    container_name: sistema-prestamos-backend
+    container_name: prestamos_backend
+    ports:
+      - "3001:3000"
     environment:
       PORT: 3000
       PGHOST: postgres
@@ -30,8 +29,6 @@ services:
       PGUSER: postgres
       PGPASSWORD: postgres
       JWT_SECRET: tu_secreto_jwt_aqui
-    ports:
-      - "3000:3000"
     depends_on:
       postgres:
         condition: service_healthy
@@ -41,17 +38,16 @@ services:
 
   frontend:
     build: ./frontend
-    container_name: sistema-prestamos-frontend
+    container_name: prestamos_frontend
     ports:
-      - "3001:3000"
+      - "3002:3000"
+    environment:
+      REACT_APP_API_URL: http://localhost:3001/api
     depends_on:
       - backend
     volumes:
       - ./frontend:/app
       - /app/node_modules
-    environment:
-      - CHOKIDAR_USEPOLLING=true
-      - REACT_APP_API_URL=http://localhost:3000/api
 
 volumes:
   postgres_data:

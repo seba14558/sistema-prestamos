@@ -64,6 +64,42 @@ exports.eliminarUsuario = async (req, res) => {
   }
   
   try {
+    // Verificar si el usuario tiene pagos registrados
+    const pagosResult = await pool.query(
+      'SELECT COUNT(*) as count FROM pagos WHERE cobrador_id = $1',
+      [id]
+    );
+    
+    if (parseInt(pagosResult.rows[0].count) > 0) {
+      return res.status(400).json({ 
+        message: 'No se puede eliminar el usuario: tiene pagos registrados en el sistema.' 
+      });
+    }
+    
+    // Verificar si el usuario tiene clientes asignados
+    const clientesResult = await pool.query(
+      'SELECT COUNT(*) as count FROM clientes WHERE usuario_cobrador_id = $1',
+      [id]
+    );
+    
+    if (parseInt(clientesResult.rows[0].count) > 0) {
+      return res.status(400).json({ 
+        message: 'No se puede eliminar el usuario: tiene clientes asignados. Reasigna los clientes antes de eliminar.' 
+      });
+    }
+    
+    // Verificar si el usuario tiene préstamos activos a través de sus clientes
+    const prestamosResult = await pool.query(
+      'SELECT COUNT(*) as count FROM prestamos WHERE cliente_id IN (SELECT id FROM clientes WHERE usuario_cobrador_id = $1)',
+      [id]
+    );
+    
+    if (parseInt(prestamosResult.rows[0].count) > 0) {
+      return res.status(400).json({ 
+        message: 'No se puede eliminar el usuario: tiene clientes con préstamos activos asignados. Reasigna los clientes antes de eliminar.' 
+      });
+    }
+    
     const result = await pool.query('DELETE FROM usuarios WHERE id = $1 RETURNING *', [id]);
     if (result.rows.length === 0) {
       return res.status(404).json({ message: 'Usuario no encontrado' });

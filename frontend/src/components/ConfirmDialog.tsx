@@ -7,9 +7,10 @@ import {
   DialogContentText,
   Button,
   Box,
-  Typography
+  Typography,
+  IconButton
 } from '@mui/material';
-import { Warning as WarningIcon } from '@mui/icons-material';
+import { Warning as WarningIcon, Close as CloseIcon } from '@mui/icons-material';
 
 interface ConfirmDialogProps {
   open: boolean;
@@ -69,24 +70,43 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
       }}
     >
       <DialogTitle sx={{ pb: 1 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <Box
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Box
+              sx={{
+                width: 48,
+                height: 48,
+                borderRadius: '50%',
+                background: severityColors.bg,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 4px 15px rgba(0,0,0,0.2)'
+              }}
+            >
+              <WarningIcon sx={{ color: 'white', fontSize: 28 }} />
+            </Box>
+            <Typography variant="h6" fontWeight="bold" color="#1e293b">
+              {title}
+            </Typography>
+          </Box>
+          <IconButton
+            onClick={onCancel}
             sx={{
-              width: 48,
-              height: 48,
-              borderRadius: '50%',
-              background: severityColors.bg,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 4px 15px rgba(0,0,0,0.2)'
+              color: '#64748b',
+              fontSize: 24,
+              width: 36,
+              height: 36,
+              '&:hover': {
+                color: '#1e293b',
+                bgcolor: 'rgba(0,0,0,0.1)',
+                transform: 'scale(1.1)'
+              },
+              transition: 'all 0.2s ease'
             }}
           >
-            <WarningIcon sx={{ color: 'white', fontSize: 28 }} />
-          </Box>
-          <Typography variant="h6" fontWeight="bold" color="#1e293b">
-            {title}
-          </Typography>
+            <CloseIcon sx={{ fontSize: 24 }} />
+          </IconButton>
         </Box>
       </DialogTitle>
       <DialogContent>

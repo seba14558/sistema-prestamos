@@ -62,9 +62,9 @@ const CollectorPanel: React.FC = () => {
   ];
 
   const drawerContent = (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#062f4f', color: 'white', pt: 4 }}>
+    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', background: 'linear-gradient(180deg, #07263f 0%, #0f172a 100%)', color: 'white', pt: 4 }}>
       {/* Brand Header */}
-      <Box sx={{ p: 3, display: 'flex', alignItems: 'center', gap: 2, bgcolor: 'linear-gradient(90deg, #051e3e 0%, #062f4f 100%)' }}>
+      <Box sx={{ p: 3, display: 'flex', alignItems: 'center', gap: 2, background: 'linear-gradient(90deg, rgba(16,185,129,0.18) 0%, rgba(15,23,42,0) 100%)' }}>
         <Avatar sx={{ bgcolor: '#00b159', width: 40, height: 40, fontWeight: 'bold' }}>C</Avatar>
         <Box>
           <Typography variant="subtitle2" fontWeight="bold" color="white" sx={{ lineHeight: 1.2 }}>
@@ -95,8 +95,8 @@ const CollectorPanel: React.FC = () => {
                   px: 2,
                   py: 1.5,
                   '&.Mui-selected': {
-                    bgcolor: 'rgba(0, 177, 89, 0.15)',
-                    '&:hover': { bgcolor: 'rgba(0, 177, 89, 0.2)' }
+                    bgcolor: 'rgba(16, 185, 129, 0.18)',
+                    '&:hover': { bgcolor: 'rgba(16, 185, 129, 0.24)' }
                   },
                   '&:hover': {
                     bgcolor: 'rgba(255,255,255,0.03)'
@@ -192,7 +192,7 @@ const CollectorPanel: React.FC = () => {
         {/* Main Content */}
         <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
         {/* AppBar */}
-        <AppBar position="sticky" sx={{ bgcolor: 'transparent', boxShadow: 'none', zIndex: (theme) => theme.zIndex.drawer + 3 }}>
+        <AppBar position="sticky" sx={{ bgcolor: 'transparent', backdropFilter: 'blur(14px)', boxShadow: 'none', zIndex: (theme) => theme.zIndex.drawer + 3 }}>
           <Toolbar>
             <Typography variant="h6" component="div" sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' }, fontWeight: 'bold', color: '#1e293b' }}>
               {location.pathname.includes('collection') ? 'Registro de Recaudación' : 
@@ -206,7 +206,7 @@ const CollectorPanel: React.FC = () => {
                 <Typography variant="body2" fontWeight="bold" color="#1e293b">{collectorName}</Typography>
                 <Typography variant="caption" color="#64748b">Cobrador Autorizado</Typography>
               </Box>
-              <Avatar sx={{ bgcolor: '#00b159', width: 40, height: 40 }}>
+              <Avatar sx={{ bgcolor: '#10b981', width: 40, height: 40, boxShadow: '0 8px 20px rgba(16, 185, 129, 0.25)' }}>
                 <AccessTimeIcon />
               </Avatar>
             </Box>

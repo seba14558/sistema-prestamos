@@ -180,10 +180,23 @@ const ClientsPage: React.FC = () => {
           await eliminarCliente(id);
           await fetchClients();
           showToast('Cliente eliminado exitosamente', 'success');
+          handleCloseConfirmDialog();
         } catch (err: any) {
           console.error(err);
-          setError(err.response?.data?.message || 'Error al eliminar el cliente.');
-          showToast('Error al eliminar el cliente', 'error');
+          const status = err.response?.status;
+          const message = err.response?.data?.message || 'Error al eliminar el cliente.';
+          
+          if (status === 400 && message.includes('préstamos activos')) {
+            showToast('No se puede eliminar: el cliente tiene préstamos activos. Elimina los préstamos primero.', 'warning');
+          } else if (status === 403) {
+            showToast('No tienes permisos para eliminar clientes. Solo el administrador puede realizar esta acción.', 'error');
+          } else if (status === 404) {
+            showToast('Cliente no encontrado. Puede que ya haya sido eliminado.', 'warning');
+          } else {
+            setError(message);
+            showToast('Error al eliminar el cliente', 'error');
+          }
+          handleCloseConfirmDialog();
         }
       }
     );
@@ -317,7 +330,7 @@ const ClientsPage: React.FC = () => {
                         borderBottom: '1px solid rgba(99, 102, 241, 0.1)'
                       }}
                     >
-                      <TableCell sx={{ fontWeight: 600, color: '#6366f1', letterSpacing: '0.3px' }}>#{client.id}</TableCell>
+                      <TableCell sx={{ fontWeight: 600, color: '#6366f1', letterSpacing: '0.3px' }}>{client.id}</TableCell>
                       <TableCell sx={{ fontWeight: 500, color: '#1e293b', letterSpacing: '0.3px' }}>
                         {client.nombre} {client.apellido}
                       </TableCell>

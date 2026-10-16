@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, Link, useLocation, useNavigate, Navigate } from 'react-router-dom';
-import { 
-  Box, AppBar, Toolbar, Drawer, List, ListItem, ListItemButton, 
-  ListItemIcon, ListItemText, Typography, IconButton, Divider, 
+import {
+  Box, AppBar, Toolbar, Drawer, List, ListItem, ListItemButton,
+  ListItemIcon, ListItemText, Typography, IconButton, Divider,
   useTheme, useMediaQuery, Avatar, Chip
 } from '@mui/material';
-import { 
-  Menu as MenuIcon, Dashboard as DashboardIcon, 
+import {
+  Menu as MenuIcon, Dashboard as DashboardIcon,
   People as PeopleIcon, AccountBalance as AccountBalanceIcon,
   Logout as LogoutIcon, Person as PersonIcon, Payment as PaymentIcon,
   Warning as WarningIcon, CalendarToday as CalendarTodayIcon
@@ -71,9 +71,9 @@ const AdminPanel: React.FC = () => {
   ];
 
   const drawerContent = (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#0f172a', color: 'white', pt: 4 }}>
+    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', background: 'linear-gradient(180deg, #0f172a 0%, #111827 100%)', color: 'white', pt: 4 }}>
       {/* Brand Header */}
-      <Box sx={{ p: 3, display: 'flex', alignItems: 'center', gap: 2, bgcolor: 'linear-gradient(90deg, #1e1b4b 0%, #0f172a 100%)' }}>
+      <Box sx={{ p: 3, display: 'flex', alignItems: 'center', gap: 2, background: 'linear-gradient(90deg, rgba(79,70,229,0.24) 0%, rgba(15,23,42,0) 100%)' }}>
         <Avatar sx={{ bgcolor: '#6366f1', width: 40, height: 40, fontWeight: 'bold' }}>A</Avatar>
         <Box>
           <Typography variant="subtitle2" fontWeight="bold" color="white" sx={{ lineHeight: 1.2 }}>
@@ -84,15 +84,15 @@ const AdminPanel: React.FC = () => {
           </Typography>
         </Box>
       </Box>
-      
+
       <Divider sx={{ borderColor: 'rgba(255,255,255,0.06)' }} />
-      
+
       {/* Navegación */}
       <List sx={{ px: 1, py: 2, flex: 1 }}>
         {menuItems.map((item) => {
           const fullPath = `/admin/${item.path}`;
           const isActive = location.pathname.includes(item.path);
-          
+
           return (
             <ListItem key={item.text} disablePadding sx={{ mb: 0.5 }}>
               <ListItemButton
@@ -105,8 +105,8 @@ const AdminPanel: React.FC = () => {
                   px: 2,
                   py: 1.5,
                   '&.Mui-selected': {
-                    bgcolor: 'rgba(99, 102, 241, 0.12)',
-                    '&:hover': { bgcolor: 'rgba(99, 102, 241, 0.18)' }
+                    bgcolor: 'rgba(99, 102, 241, 0.16)',
+                    '&:hover': { bgcolor: 'rgba(99, 102, 241, 0.22)' }
                   },
                   '&:hover': {
                     bgcolor: 'rgba(255,255,255,0.03)'
@@ -116,15 +116,15 @@ const AdminPanel: React.FC = () => {
                 <ListItemIcon sx={{ minWidth: 40, color: isActive ? '#818cf8' : '#64748b' }}>
                   {item.icon}
                 </ListItemIcon>
-                <ListItemText 
-                  primary={item.text} 
-                  sx={{ 
-                    '& .MuiTypography-root': { 
+                <ListItemText
+                  primary={item.text}
+                  sx={{
+                    '& .MuiTypography-root': {
                       fontSize: '0.875rem',
                       fontWeight: isActive ? 600 : 500,
                       color: isActive ? '#a5b4fc' : '#94a3b8'
                     }
-                  }} 
+                  }}
                 />
               </ListItemButton>
             </ListItem>
@@ -133,7 +133,7 @@ const AdminPanel: React.FC = () => {
       </List>
 
       <Divider sx={{ borderColor: 'rgba(255,255,255,0.06)' }} />
-      
+
       {/* Botón Salir */}
       <Box sx={{ p: 1 }}>
         <ListItem disablePadding>
@@ -150,14 +150,14 @@ const AdminPanel: React.FC = () => {
             <ListItemIcon sx={{ minWidth: 40, color: '#f87171' }}>
               <LogoutIcon />
             </ListItemIcon>
-            <ListItemText 
-              primary="Cerrar Sesión" 
-              sx={{ 
-                '& .MuiTypography-root': { 
+            <ListItemText
+              primary="Cerrar Sesión"
+              sx={{
+                '& .MuiTypography-root': {
                   fontSize: '0.875rem',
                   fontWeight: 600
                 }
-              }} 
+              }}
             />
           </ListItemButton>
         </ListItem>
@@ -178,8 +178,8 @@ const AdminPanel: React.FC = () => {
             ModalProps={{ keepMounted: true }}
             sx={{
               display: { xs: 'block', md: 'none' },
-              '& .MuiDrawer-paper': { 
-                boxSizing: 'border-box', 
+              '& .MuiDrawer-paper': {
+                boxSizing: 'border-box',
                 width: 256,
                 zIndex: 9999
               }
@@ -201,10 +201,17 @@ const AdminPanel: React.FC = () => {
 
         {/* Main Content */}
         <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-        {/* AppBar */}
-        <AppBar position="sticky" sx={{ bgcolor: 'transparent', boxShadow: 'none', zIndex: (theme) => theme.zIndex.drawer + 3 }}>
-          <Toolbar>
-           {/*  <Typography variant="h6" component="div" sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' }, fontWeight: 'bold', color: '#1e293b' }}>
+          {/* AppBar */}
+          <AppBar
+            position="static"
+            sx={{
+              bgcolor: '#f8fafc',
+              boxShadow: 'none',
+              zIndex: 1,
+              color: '#1e293b',
+            }}
+          >          <Toolbar>
+              {/*  <Typography variant="h6" component="div" sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' }, fontWeight: 'bold', color: '#1e293b' }}>
               {location.pathname.includes('dashboard') ? 'Panel de Resumen' : 
                location.pathname.includes('clients') ? 'Gestión de Clientes' : 
                location.pathname.includes('loans') ? 'Control de Préstamos' : 
@@ -214,33 +221,33 @@ const AdminPanel: React.FC = () => {
                location.pathname.includes('users') ? 'Gestión de Usuarios' : 'Panel de Administración'}
             </Typography> */}
 
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, ml: 'auto' }}>
-              <NotificationBell />
-              <Box sx={{ display: { xs: 'none', sm: 'block' }, textAlign: 'right' }}>
-                <Typography variant="body2" fontWeight="bold" color="#1e293b">{adminName}</Typography>
-                <Typography variant="caption" color="#64748b">Administrador</Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, ml: 'auto' }}>
+                <NotificationBell />
+                <Box sx={{ display: { xs: 'none', sm: 'block' }, textAlign: 'right' }}>
+                  <Typography variant="body2" fontWeight="bold" color="#1e293b">{adminName}</Typography>
+                  <Typography variant="caption" color="#64748b">Administrador</Typography>
+                </Box>
+                <Avatar sx={{ bgcolor: '#4f46e5', width: 40, height: 40, boxShadow: '0 8px 20px rgba(79, 70, 229, 0.25)' }}>
+                  <PeopleIcon />
+                </Avatar>
               </Box>
-              <Avatar sx={{ bgcolor: '#6366f1', width: 40, height: 40 }}>
-                <PeopleIcon />
-              </Avatar>
-            </Box>
-          </Toolbar>
-        </AppBar>
+            </Toolbar>
+          </AppBar>
 
-        {/* Main Content Area */}
-        <Box component="main" sx={{ flexGrow: 1, p: { xs: 2, md: 3 } }}>
-          <Routes>
-            <Route path="clients" element={<ClientsPage />} />
-            <Route path="loans" element={<LoansPage />} />
-            <Route path="dashboard" element={<DashboardPage />} />
-            <Route path="payments" element={<PaymentsPage />} />
-            <Route path="debtors" element={<DebtorsPage />} />
-            <Route path="due" element={<DueLoansPage />} />
-            <Route path="users" element={<UsersPage />} />
-            <Route path="" element={<Navigate to="dashboard" replace />} />
-          </Routes>
+          {/* Main Content Area */}
+          <Box component="main" sx={{ flexGrow: 1, p: { xs: 2, md: 3 }, mt: { xs: 2, md: 0 } }}>
+            <Routes>
+              <Route path="clients" element={<ClientsPage />} />
+              <Route path="loans" element={<LoansPage />} />
+              <Route path="dashboard" element={<DashboardPage />} />
+              <Route path="payments" element={<PaymentsPage />} />
+              <Route path="debtors" element={<DebtorsPage />} />
+              <Route path="due" element={<DueLoansPage />} />
+              <Route path="users" element={<UsersPage />} />
+              <Route path="" element={<Navigate to="dashboard" replace />} />
+            </Routes>
+          </Box>
         </Box>
-      </Box>
       </Box>
       <Footer />
     </Box>

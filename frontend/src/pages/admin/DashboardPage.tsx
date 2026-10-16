@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Box, Typography, Card, Grid, Table, TableBody, 
-  TableCell, TableContainer, TableHead, TableRow, CircularProgress 
+  TableCell, TableContainer, TableHead, TableRow, CircularProgress,
+  TablePagination
 } from '@mui/material';
 import { 
   AccountBalanceWallet, TrendingUp, Alarm, People, 
   MonetizationOn, AttachMoney, CalendarToday 
 } from '@mui/icons-material';
 import api from '../../services/api';
+import { formatDateDisplay, normalizeDateString } from '../../utils/date';
 
 interface Loan {
   id: number;
@@ -32,10 +34,14 @@ const DashboardPage: React.FC = () => {
   // Datos financieros
   const [loans, setLoans] = useState<Loan[]>([]);
   const [payments, setPayments] = useState<Payment[]>([]);
+  const [paymentsPage, setPaymentsPage] = useState(0);
+  const [paymentsRowsPerPage, setPaymentsRowsPerPage] = useState(5);
   const [stats, setStats] = useState({
     totalPrestado: 0,
     totalCobrado: 0,
     totalPendiente: 0,
+    totalCobradoHoy: 0,
+    ticketPromedioCobro: 0,
     prestamosActivos: 0,
     prestamosVencidos: 0,
     prestamosPagados: 0,
@@ -57,11 +63,18 @@ const DashboardPage: React.FC = () => {
 
       setLoans(fetchedLoans);
       setPayments(fetchedPayments);
+      setPaymentsPage(0);
 
       // Calcular estadísticas
       const totalPrestado = fetchedLoans.reduce((sum, l) => sum + Number(l.monto), 0);
       const totalCobrado = fetchedPayments.reduce((sum, p) => sum + Number(p.monto), 0);
       const totalPendiente = Math.max(0, totalPrestado - totalCobrado);
+      const hoy = new Date();
+      const hoyLocal = normalizeDateString(hoy);
+      const totalCobradoHoy = fetchedPayments
+        .filter((payment) => normalizeDateString(payment.fecha_pago) === hoyLocal)
+        .reduce((sum, payment) => sum + Number(payment.monto), 0);
+      const ticketPromedioCobro = fetchedPayments.length > 0 ? totalCobrado / fetchedPayments.length : 0;
       
       const prestamosActivos = fetchedLoans.filter(l => l.estado === 'activo').length;
       const prestamosVencidos = fetchedLoans.filter(l => l.estado === 'vencido').length;
@@ -74,6 +87,8 @@ const DashboardPage: React.FC = () => {
         totalPrestado,
         totalCobrado,
         totalPendiente,
+        totalCobradoHoy,
+        ticketPromedioCobro,
         prestamosActivos,
         prestamosVencidos,
         prestamosPagados,
@@ -92,6 +107,29 @@ const DashboardPage: React.FC = () => {
   useEffect(() => {
     fetchDashboardData();
   }, []);
+
+  const sortedPayments = [...payments].sort((a, b) => {
+    const dateDiff = new Date(b.fecha_pago).getTime() - new Date(a.fecha_pago).getTime();
+    if (dateDiff !== 0) {
+      return dateDiff;
+    }
+
+    return b.id - a.id;
+  });
+
+  const paginatedPayments = sortedPayments.slice(
+    paymentsPage * paymentsRowsPerPage,
+    paymentsPage * paymentsRowsPerPage + paymentsRowsPerPage
+  );
+
+  const handlePaymentsPageChange = (_event: unknown, newPage: number) => {
+    setPaymentsPage(newPage);
+  };
+
+  const handlePaymentsRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setPaymentsRowsPerPage(parseInt(event.target.value, 10));
+    setPaymentsPage(0);
+  };
 
   if (loading) {
     return (
@@ -259,10 +297,10 @@ const DashboardPage: React.FC = () => {
               </Box>
               <Box>
                 <Typography variant="caption" fontWeight="bold" color="#64748b" sx={{ fontSize: '0.75rem', letterSpacing: '0.5px' }}>
-                  TOTAL CLIENTES
+                  PRÉSTAMOS TOTALES
                 </Typography>
                 <Typography variant="h6" fontWeight="bold" color="#1e293b" sx={{ letterSpacing: '0.3px' }}>
-                  {loans.length} Préstamos
+                  {loans.length}
                 </Typography>
               </Box>
             </Box>
@@ -441,14 +479,14 @@ const DashboardPage: React.FC = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {payments.length === 0 ? (
+              {sortedPayments.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} align="center" sx={{ py: 6, color: 'text.secondary' }}>
                     No se han registrado pagos en el sistema aún.
                   </TableCell>
                 </TableRow>
               ) : (
-                payments.slice(0, 5).map((pay) => (
+                paginatedPayments.map((pay) => (
                   <TableRow key={pay.id} sx={{ 
                     '&:hover': { 
                       bgcolor: 'rgba(99, 102, 241, 0.05)',
@@ -456,17 +494,17 @@ const DashboardPage: React.FC = () => {
                     }, 
                     borderBottom: '1px solid rgba(99, 102, 241, 0.1)' 
                   }}>
-                    <TableCell sx={{ fontWeight: 600, color: '#6366f1', letterSpacing: '0.3px' }}>#{pay.id}</TableCell>
+                    <TableCell sx={{ fontWeight: 600, color: '#6366f1', letterSpacing: '0.3px' }}>{pay.id}</TableCell>
                     <TableCell sx={{ fontWeight: 500, display: {sm: 'table-cell' } }}>
                       {pay.cliente_nombre && pay.cliente_apellido 
                         ? `${pay.cliente_nombre} ${pay.cliente_apellido}` 
                         : 'Cliente Desconocido'}
                     </TableCell>
-                    <TableCell sx={{ color: '#64748b', display: { md: 'table-cell' } }}>Préstamo N°{pay.prestamo_id}</TableCell>
+                    <TableCell sx={{ color: '#64748b', display: { md: 'table-cell' } }}>N º {pay.prestamo_id}</TableCell>
                     <TableCell sx={{ fontWeight: 'bold', color: '#10b981', letterSpacing: '0.3px' }}>
                       +${Number(pay.monto).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </TableCell>
-                    <TableCell sx={{ display: { sm: 'table-cell' } }}>{new Date(pay.fecha_pago).toLocaleDateString('es-AR')}</TableCell>
+                    <TableCell sx={{ display: { sm: 'table-cell' } }}>{formatDateDisplay(pay.fecha_pago)}</TableCell>
                     <TableCell sx={{ display: { md: 'table-cell' } }}>
                       <Box sx={{ 
                         px: 2, 
@@ -489,6 +527,23 @@ const DashboardPage: React.FC = () => {
             </TableBody>
           </Table>
         </TableContainer>
+        <TablePagination
+          component="div"
+          count={sortedPayments.length}
+          page={paymentsPage}
+          onPageChange={handlePaymentsPageChange}
+          rowsPerPage={paymentsRowsPerPage}
+          onRowsPerPageChange={handlePaymentsRowsPerPageChange}
+          rowsPerPageOptions={[5, 10, 25]}
+          labelRowsPerPage="Filas por página"
+          labelDisplayedRows={({ from, to, count }) => `${from}-${to} de ${count}`}
+          sx={{
+            borderTop: '1px solid rgba(99, 102, 241, 0.1)',
+            '.MuiTablePagination-toolbar': {
+              px: 2
+            }
+          }}
+        />
       </Card>
     </Box>
   );

@@ -5,3 +5,5 @@ dist/
 build/
 *.log
 .vscode/
+.vercel
+.env*
