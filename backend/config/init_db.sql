@@ -43,3 +43,20 @@ CREATE TABLE pagos (
     monto NUMERIC(12,2) NOT NULL,
     cobrador_id INTEGER REFERENCES usuarios(id)
 );
+
+-- Tabla de planes de préstamo
+CREATE TABLE planes (
+    id SERIAL PRIMARY KEY,
+    nombre VARCHAR(50) NOT NULL UNIQUE,
+    dias INTEGER NOT NULL,
+    porcentaje_interes NUMERIC(5,2) NOT NULL,
+    activo BOOLEAN DEFAULT true
+);
+
+-- Insertar planes iniciales
+INSERT INTO planes (nombre, dias, porcentaje_interes) VALUES
+('30 dias', 30, 30.00),
+('40 dias', 40, 35.00),
+('50 dias', 50, 40.00),
+('7 dias', 7, 15.00),
+('14 dias', 14, 20.00);

@@ -1,11 +1,11 @@
 const pool = require('../config/db');
 
 exports.crearCliente = async (req, res) => {
-  const { nombre, apellido, direccion } = req.body;
+  const { nombre, apellido, direccion, telefono } = req.body;
   try {
     const result = await pool.query(
-      'INSERT INTO clientes (nombre, apellido, direccion) VALUES ($1, $2, $3) RETURNING *',
-      [nombre, apellido, direccion]
+      'INSERT INTO clientes (nombre, apellido, direccion, telefono) VALUES ($1, $2, $3, $4) RETURNING *',
+      [nombre, apellido, direccion, telefono || null]
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {
@@ -15,7 +15,19 @@ exports.crearCliente = async (req, res) => {
 
 exports.listarClientes = async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM clientes ORDER BY id DESC');
+    let result;
+    if (req.user.rol === 'admin') {
+      result = await pool.query('SELECT * FROM clientes ORDER BY id DESC');
+    } else {
+      result = await pool.query(
+        `SELECT DISTINCT c.*
+         FROM clientes c
+         INNER JOIN prestamos p ON c.id = p.cliente_id
+         WHERE p.cobrador_id = $1
+         ORDER BY c.id DESC`,
+        [req.user.id]
+      );
+    }
     res.json(result.rows);
   } catch (err) {
     res.status(500).json({ message: 'Error al listar clientes', error: err });
@@ -24,11 +36,11 @@ exports.listarClientes = async (req, res) => {
 
 exports.editarCliente = async (req, res) => {
   const { id } = req.params;
-  const { nombre, apellido, direccion } = req.body;
+  const { nombre, apellido, direccion, telefono } = req.body;
   try {
     const result = await pool.query(
-      'UPDATE clientes SET nombre=$1, apellido=$2, direccion=$3 WHERE id=$4 RETURNING *',
-      [nombre, apellido, direccion, id]
+      'UPDATE clientes SET nombre=$1, apellido=$2, direccion=$3, telefono=$4 WHERE id=$5 RETURNING *',
+      [nombre, apellido, direccion, telefono || null, id]
     );
     if (result.rows.length === 0) return res.status(404).json({ message: 'Cliente no encontrado' });
     res.json(result.rows[0]);

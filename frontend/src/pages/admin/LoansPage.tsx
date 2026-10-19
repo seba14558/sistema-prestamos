@@ -1,19 +1,35 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Box, Button, TextField, Typography, Table, TableBody, 
-  TableCell, TableContainer, TableHead, TableRow, Dialog, 
-  DialogTitle, DialogContent, DialogActions, Grid, 
+import {
+  Box, Button, TextField, Typography, Table, TableBody,
+  TableCell, TableContainer, TableHead, TableRow, Dialog,
+  DialogTitle, DialogContent, DialogActions, Grid,
   InputAdornment, Alert, CircularProgress, Card, MenuItem, Chip, IconButton
 } from '@mui/material';
 import { Search, Add, Edit, AccountBalance, CalendarToday, AttachMoney } from '@mui/icons-material';
 import api from '../../services/api';
 import Toast from '../../components/Toast';
 import TableSkeleton from '../../components/TableSkeleton';
+import { calcularFechaVencimientoExcluyendoDomingos } from '../../utils/date';
 
 interface Client {
   id: number;
   nombre: string;
   apellido: string;
+}
+
+interface Plan {
+  id: number;
+  nombre: string;
+  dias: number;
+  porcentaje_interes: number;
+  activo: boolean;
+}
+
+interface Collector {
+  id: number;
+  nombre: string;
+  apellido: string;
+  usuario: string;
 }
 
 interface Loan {
@@ -27,12 +43,16 @@ interface Loan {
   fecha_inicio: string;
   fecha_vencimiento: string;
   estado: string; // 'activo', 'vencido', 'pagado', 'moroso'
+  cobrador_id?: number;
+  cobrador_nombre?: string;
 }
 
 const LoansPage: React.FC = () => {
   const [loans, setLoans] = useState<Loan[]>([]);
   const [filteredLoans, setFilteredLoans] = useState<Loan[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
+  const [plans, setPlans] = useState<Plan[]>([]);
+  const [collectors, setCollectors] = useState<Collector[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
@@ -44,13 +64,16 @@ const LoansPage: React.FC = () => {
 
   // Formulario de Préstamo
   const [clienteId, setClienteId] = useState<number | ''>('');
-  const [plan, setPlan] = useState('30 dias');
+  const [plan, setPlan] = useState('');
   const [monto, setMonto] = useState('');
   const [montoTotal, setMontoTotal] = useState('');
   const [fechaInicio, setFechaInicio] = useState(new Date().toISOString().slice(0, 10));
   const [fechaVencimiento, setFechaVencimiento] = useState('');
   const [estado, setEstado] = useState('activo');
-  
+  const [cobradorId, setCobradorId] = useState<number | ''>('');
+  const [editPercentage, setEditPercentage] = useState(false); // Para permitir edición manual del porcentaje
+  const [customPercentage, setCustomPercentage] = useState(''); // Porcentaje personalizado
+
   const [formError, setFormError] = useState('');
   const [formSubmitting, setFormSubmitting] = useState(false);
 
@@ -67,47 +90,51 @@ const LoansPage: React.FC = () => {
 
   // Calcular la fecha de vencimiento y el monto total con intereses automáticamente
   useEffect(() => {
-    if (!fechaInicio || !monto) return;
-    
-    const date = new Date(fechaInicio + 'T12:00:00'); // Evitar problemas de huso horario
-    if (isNaN(date.getTime())) return;
+    if (!fechaInicio || !monto || !plan) return;
 
-    let dias = 0;
-    let multiplicador = 1;
+    const selectedPlan = plans.find(p => p.nombre === plan);
+    if (!selectedPlan) return;
 
-    if (plan === '30 dias') {
-      dias = 30;
-      multiplicador = 1.30; // 30% de interés
-    } else if (plan === '40 dias') {
-      dias = 40;
-      multiplicador = 1.35; // 35% de interés
-    } else if (plan === '50 dias') {
-      dias = 50;
-      multiplicador = 1.40; // 40% de interés
-    }
+    const dias = selectedPlan.dias;
 
-    date.setDate(date.getDate() + dias);
-    setFechaVencimiento(date.toISOString().slice(0, 10));
-    
+    // Calcular fecha de vencimiento excluyendo domingos
+    const fechaVencimientoCalculada = calcularFechaVencimientoExcluyendoDomingos(fechaInicio, dias);
+    setFechaVencimiento(fechaVencimientoCalculada);
+
     // Calcular monto total con intereses
     const montoNumerico = parseFloat(monto);
     if (!isNaN(montoNumerico)) {
+      // Si está en modo edición de porcentaje personalizado, usar ese valor
+      const porcentaje = editPercentage && customPercentage
+        ? parseFloat(customPercentage)
+        : selectedPlan.porcentaje_interes;
+
+      const multiplicador = 1 + (porcentaje / 100);
       setMontoTotal((montoNumerico * multiplicador).toString());
     }
-  }, [plan, fechaInicio, monto]);
+  }, [plan, fechaInicio, monto, plans, editPercentage, customPercentage]);
 
-  // Cargar préstamos y clientes
+  // Cargar préstamos, clientes, planes y cobradores
   const fetchData = async () => {
     setLoading(true);
     setError('');
     try {
-      const [loansRes, clientsRes] = await Promise.all([
+      const [loansRes, clientsRes, plansRes, collectorsRes] = await Promise.all([
         api.get('/prestamos'),
-        api.get('/clientes')
+        api.get('/clientes'),
+        api.get('/planes'),
+        api.get('/usuarios/cobradores')
       ]);
       setLoans(loansRes.data);
       setFilteredLoans(loansRes.data);
       setClients(clientsRes.data);
+      setPlans(plansRes.data);
+      setCollectors(collectorsRes.data);
+      // Establecer el primer plan activo como predeterminado
+      const activePlan = plansRes.data.find((p: Plan) => p.activo);
+      if (activePlan && !plan) {
+        setPlan(activePlan.nombre);
+      }
     } catch (err) {
       console.error(err);
       setError('Error al obtener datos del servidor.');
@@ -150,15 +177,22 @@ const LoansPage: React.FC = () => {
       setFechaInicio(new Date(loan.fecha_inicio).toISOString().slice(0, 10));
       setFechaVencimiento(new Date(loan.fecha_vencimiento).toISOString().slice(0, 10));
       setEstado(loan.estado);
+      setCobradorId(loan.cobrador_id || '');
+      setEditPercentage(false);
+      setCustomPercentage('');
     } else {
       setEditMode(false);
       setSelectedLoanId(null);
       setClienteId('');
-      setPlan('30 dias');
+      const activePlan = plans.find(p => p.activo);
+      setPlan(activePlan ? activePlan.nombre : '');
       setMonto('');
       setMontoTotal('');
       setFechaInicio(new Date().toISOString().slice(0, 10));
       setEstado('activo');
+      setCobradorId('');
+      setEditPercentage(false);
+      setCustomPercentage('');
     }
     setFormError('');
     setOpen(true);
@@ -193,7 +227,8 @@ const LoansPage: React.FC = () => {
           monto_total: parseFloat(montoTotal || monto),
           fecha_inicio: fechaInicio,
           fecha_vencimiento: fechaVencimiento,
-          estado
+          estado,
+          cobrador_id: cobradorId || null
         });
         showToast('Préstamo actualizado exitosamente', 'success');
       } else {
@@ -205,11 +240,12 @@ const LoansPage: React.FC = () => {
           monto_total: parseFloat(montoTotal || monto),
           fecha_inicio: fechaInicio,
           fecha_vencimiento: fechaVencimiento,
-          estado: 'activo'
+          estado: 'activo',
+          cobrador_id: cobradorId || null
         });
         showToast('Préstamo creado exitosamente', 'success');
       }
-      
+
       await fetchData();
       handleCloseDialog();
     } catch (err: any) {
@@ -345,6 +381,7 @@ const LoansPage: React.FC = () => {
                   <TableCell sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }}>Monto Otorgado</TableCell>
                   <TableCell sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }}>Fecha de Otorgamiento</TableCell>
                   <TableCell sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }}>Vencimiento</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }}>Cobrador</TableCell>
                   <TableCell align="center" sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }}>Estado</TableCell>
                   <TableCell align="center" sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }}>Acciones</TableCell>
                 </TableRow>
@@ -352,7 +389,7 @@ const LoansPage: React.FC = () => {
               <TableBody>
                 {filteredLoans.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} align="center" sx={{ py: 6, color: 'text.secondary' }}>
+                    <TableCell colSpan={9} align="center" sx={{ py: 6, color: 'text.secondary' }}>
                       No se encontraron préstamos otorgados.
                     </TableCell>
                   </TableRow>
@@ -382,6 +419,13 @@ const LoansPage: React.FC = () => {
                       </TableCell>
                       <TableCell sx={{ letterSpacing: '0.3px' }}>{new Date(loan.fecha_inicio).toLocaleDateString('es-AR')}</TableCell>
                       <TableCell sx={{ letterSpacing: '0.3px' }}>{new Date(loan.fecha_vencimiento).toLocaleDateString('es-AR')}</TableCell>
+                      <TableCell sx={{ letterSpacing: '0.3px' }}>
+                        {loan.cobrador_nombre ? (
+                          <Chip label={loan.cobrador_nombre} size="small" variant="outlined" color="success" sx={{ fontWeight: 'bold' }} />
+                        ) : (
+                          <Chip label="Sin asignar" size="small" variant="outlined" color="default" sx={{ fontWeight: 'bold' }} />
+                        )}
+                      </TableCell>
                       <TableCell align="center">{getStatusChip(loan.estado)}</TableCell>
                       <TableCell align="center">
                         <IconButton
@@ -409,10 +453,10 @@ const LoansPage: React.FC = () => {
       </Card>
 
       {/* Modal Otorgar / Editar Préstamo */}
-      <Dialog 
-        open={open} 
-        onClose={handleCloseDialog} 
-        maxWidth="sm" 
+      <Dialog
+        open={open}
+        onClose={handleCloseDialog}
+        maxWidth="md"
         fullWidth
         PaperProps={{
           sx: { borderRadius: 3, p: 1 }
@@ -467,9 +511,30 @@ const LoansPage: React.FC = () => {
                   disabled={formSubmitting}
                   sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
                 >
-                  <MenuItem value="30 dias">30 días (30% interés)</MenuItem>
-                  <MenuItem value="40 dias">40 días (35% interés)</MenuItem>
-                  <MenuItem value="50 dias">50 días (40% interés)</MenuItem>
+                  {plans.filter(p => p.activo).map((p) => (
+                    <MenuItem key={p.id} value={p.nombre}>
+                      {p.nombre} ({p.porcentaje_interes}% interés)
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Grid>
+
+              <Grid item xs={6}>
+                <TextField
+                  select
+                  label="Asignar a Cobrador"
+                  fullWidth
+                  value={cobradorId}
+                  onChange={(e) => setCobradorId(Number(e.target.value))}
+                  disabled={formSubmitting}
+                  sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+                >
+                  <MenuItem value="">Sin asignar</MenuItem>
+                  {collectors.map((c) => (
+                    <MenuItem key={c.id} value={c.id}>
+                      {c.nombre} {c.apellido}
+                    </MenuItem>
+                  ))}
                 </TextField>
               </Grid>
 
@@ -491,6 +556,51 @@ const LoansPage: React.FC = () => {
                   }}
                   sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
                 />
+              </Grid>
+
+              <Grid item xs={12}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
+                  <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                    Editar porcentaje manualmente:
+                  </Typography>
+                  <Button
+                    size="small"
+                    variant={editPercentage ? "contained" : "outlined"}
+                    onClick={() => {
+                      setEditPercentage(!editPercentage);
+                      if (!editPercentage) {
+                        const selectedPlan = plans.find(p => p.nombre === plan);
+                        if (selectedPlan) {
+                          setCustomPercentage(selectedPlan.porcentaje_interes.toString());
+                        }
+                      } else {
+                        setCustomPercentage('');
+                      }
+                    }}
+                    sx={{ borderRadius: 2, textTransform: 'none' }}
+                  >
+                    {editPercentage ? 'Usar plan original' : 'Activar edición'}
+                  </Button>
+                </Box>
+                {editPercentage && (
+                  <TextField
+                    label="Porcentaje de interés personalizado (%)"
+                    fullWidth
+                    type="number"
+                    value={customPercentage}
+                    onChange={(e) => setCustomPercentage(e.target.value)}
+                    disabled={formSubmitting}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <AttachMoney sx={{ color: 'text.secondary', mr: 0.5 }} />
+                        </InputAdornment>
+                      ),
+                    }}
+                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+                    helperText="Ingresa un porcentaje personalizado diferente al del plan"
+                  />
+                )}
               </Grid>
 
               <Grid item xs={6}>

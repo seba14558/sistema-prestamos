@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Box, Button, TextField, Typography, Paper, Table, TableBody, 
-  TableCell, TableContainer, TableHead, TableRow, IconButton, 
-  Dialog, DialogTitle, DialogContent, DialogActions, Grid, 
+import {
+  Box, Button, TextField, Typography, Paper, Table, TableBody,
+  TableCell, TableContainer, TableHead, TableRow, IconButton,
+  Dialog, DialogTitle, DialogContent, DialogActions, Grid,
   InputAdornment, Alert, CircularProgress, Card
 } from '@mui/material';
-import { Search, Edit, Person, LocationOn, Delete } from '@mui/icons-material';
+import { Search, Edit, Person, LocationOn, Delete, Phone } from '@mui/icons-material';
 import api, { editarCliente, eliminarCliente } from '../../services/api';
 import Toast from '../../components/Toast';
 import ConfirmDialog from '../../components/ConfirmDialog';
@@ -16,6 +16,7 @@ interface Client {
   nombre: string;
   apellido: string;
   direccion: string;
+  telefono?: string;
 }
 
 const ClientsPage: React.FC = () => {
@@ -35,6 +36,7 @@ const ClientsPage: React.FC = () => {
   const [nombre, setNombre] = useState('');
   const [apellido, setApellido] = useState('');
   const [direccion, setDireccion] = useState('');
+  const [telefono, setTelefono] = useState('');
   const [formError, setFormError] = useState('');
   const [formSubmitting, setFormSubmitting] = useState(false);
 
@@ -98,10 +100,11 @@ const ClientsPage: React.FC = () => {
     } else {
       const term = search.toLowerCase();
       const filtered = clients.filter(
-        c => 
-          c.nombre.toLowerCase().includes(term) || 
-          c.apellido.toLowerCase().includes(term) || 
+        c =>
+          c.nombre.toLowerCase().includes(term) ||
+          c.apellido.toLowerCase().includes(term) ||
           c.direccion.toLowerCase().includes(term) ||
+          (c.telefono && c.telefono.toLowerCase().includes(term)) ||
           String(c.id).includes(term)
       );
       setFilteredClients(filtered);
@@ -115,12 +118,14 @@ const ClientsPage: React.FC = () => {
       setNombre(client.nombre);
       setApellido(client.apellido);
       setDireccion(client.direccion);
+      setTelefono(client.telefono || '');
     } else {
       setEditMode(false);
       setSelectedClientId(null);
       setNombre('');
       setApellido('');
       setDireccion('');
+      setTelefono('');
     }
     setFormError('');
     setOpen(true);
@@ -133,7 +138,7 @@ const ClientsPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!nombre.trim() || !apellido.trim() || !direccion.trim()) {
-      setFormError('Por favor, completa todos los campos.');
+      setFormError('Por favor, completa todos los campos requeridos.');
       return;
     }
 
@@ -146,7 +151,8 @@ const ClientsPage: React.FC = () => {
         await editarCliente(selectedClientId, {
           nombre: nombre.trim(),
           apellido: apellido.trim(),
-          direccion: direccion.trim()
+          direccion: direccion.trim(),
+          telefono: telefono.trim() || null
         });
         showToast('Cliente actualizado exitosamente', 'success');
       } else {
@@ -154,11 +160,12 @@ const ClientsPage: React.FC = () => {
         await api.post('/clientes', {
           nombre: nombre.trim(),
           apellido: apellido.trim(),
-          direccion: direccion.trim()
+          direccion: direccion.trim(),
+          telefono: telefono.trim() || null
         });
         showToast('Cliente creado exitosamente', 'success');
       }
-      
+
       // Recargar tabla y cerrar modal
       await fetchClients();
       handleCloseDialog();
@@ -308,13 +315,14 @@ const ClientsPage: React.FC = () => {
                   <TableCell sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }}>ID</TableCell>
                   <TableCell sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }}>Nombre Completo</TableCell>
                   <TableCell sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }}>Dirección de Residencia</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }}>Teléfono</TableCell>
                   <TableCell align="center" sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }}>Acciones</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {filteredClients.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={4} align="center" sx={{ py: 6, color: 'text.secondary' }}>
+                    <TableCell colSpan={5} align="center" sx={{ py: 6, color: 'text.secondary' }}>
                       No se encontraron clientes registrados.
                     </TableCell>
                   </TableRow>
@@ -335,6 +343,18 @@ const ClientsPage: React.FC = () => {
                         {client.nombre} {client.apellido}
                       </TableCell>
                       <TableCell sx={{ color: '#64748b', letterSpacing: '0.3px' }}>{client.direccion}</TableCell>
+                      <TableCell sx={{ color: '#64748b', letterSpacing: '0.3px' }}>
+                        {client.telefono ? (
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                            <Phone sx={{ fontSize: 16, color: '#6366f1' }} />
+                            {client.telefono}
+                          </Box>
+                        ) : (
+                          <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }}>
+                            No registrado
+                          </Typography>
+                        )}
+                      </TableCell>
                       <TableCell align="center">
                         <IconButton
                           color="primary"
@@ -452,6 +472,25 @@ const ClientsPage: React.FC = () => {
                     ),
                   }}
                   sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+                />
+              </Grid>
+
+              <Grid item xs={12}>
+                <TextField
+                  label="Teléfono"
+                  fullWidth
+                  value={telefono}
+                  onChange={(e) => setTelefono(e.target.value)}
+                  disabled={formSubmitting}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <Phone sx={{ color: 'text.secondary', mr: 0.5 }} />
+                      </InputAdornment>
+                    ),
+                  }}
+                  sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+                  helperText="Opcional"
                 />
               </Grid>
             </Grid>

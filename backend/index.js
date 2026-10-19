@@ -53,8 +53,14 @@ const initializeDatabase = async () => {
         id SERIAL PRIMARY KEY,
         nombre VARCHAR(50) NOT NULL,
         apellido VARCHAR(50) NOT NULL,
-        direccion VARCHAR(100) NOT NULL
+        direccion VARCHAR(100) NOT NULL,
+        telefono VARCHAR(20)
       )
+    `);
+
+    // Asegurar que la columna telefono existe si la tabla ya existía previamente
+    await pool.query(`
+      ALTER TABLE clientes ADD COLUMN IF NOT EXISTS telefono VARCHAR(20)
     `);
 
     // Tabla de prestamos
@@ -75,6 +81,16 @@ const initializeDatabase = async () => {
     await pool.query(`
       ALTER TABLE prestamos ADD COLUMN IF NOT EXISTS monto_total NUMERIC(12,2);
       UPDATE prestamos SET monto_total = monto WHERE monto_total IS NULL;
+    `);
+
+    // Asegurar que la columna cobrador_id existe en prestamos
+    await pool.query(`
+      ALTER TABLE prestamos ADD COLUMN IF NOT EXISTS cobrador_id INTEGER REFERENCES usuarios(id)
+    `);
+
+    // Crear índice para cobrador_id si no existe
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_prestamos_cobrador_id ON prestamos(cobrador_id)
     `);
 
     // Tabla de pagos
@@ -98,6 +114,30 @@ const initializeDatabase = async () => {
         fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
+
+    // Tabla de planes
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS planes (
+        id SERIAL PRIMARY KEY,
+        nombre VARCHAR(50) NOT NULL UNIQUE,
+        dias INTEGER NOT NULL,
+        porcentaje_interes NUMERIC(5,2) NOT NULL,
+        activo BOOLEAN DEFAULT true
+      )
+    `);
+
+    // Insertar planes iniciales si no existen
+    const planesCount = await pool.query('SELECT COUNT(*) FROM planes');
+    if (parseInt(planesCount.rows[0].count) === 0) {
+      await pool.query(`
+        INSERT INTO planes (nombre, dias, porcentaje_interes) VALUES
+        ('30 dias', 30, 30.00),
+        ('40 dias', 40, 35.00),
+        ('50 dias', 50, 40.00),
+        ('7 dias', 7, 15.00),
+        ('14 dias', 14, 20.00)
+      `);
+    }
 
     console.log('✅ Tablas de base de datos verificadas/creadas exitosamente');
   } catch (error) {
@@ -128,6 +168,9 @@ app.use('/api/notificaciones', notificacionesRoutes);
 
 const usuariosRoutes = require('./routes/usuarios');
 app.use('/api/usuarios', usuariosRoutes);
+
+const planesRoutes = require('./routes/planes');
+app.use('/api/planes', planesRoutes);
 
 // Iniciar cron job para verificar préstamos por vencer
 require('./cron/checkDueLoans');

@@ -9,13 +9,15 @@ import {
   Menu as MenuIcon, Dashboard as DashboardIcon,
   People as PeopleIcon, AccountBalance as AccountBalanceIcon,
   Logout as LogoutIcon, Person as PersonIcon, Payment as PaymentIcon,
-  Warning as WarningIcon, CalendarToday as CalendarTodayIcon
+  Warning as WarningIcon, CalendarToday as CalendarTodayIcon,
+  Settings as SettingsIcon
 } from '@mui/icons-material';
 import ClientsPage from './admin/ClientsPage';
 import LoansPage from './admin/LoansPage';
 import DashboardPage from './admin/DashboardPage';
 import UsersPage from './admin/UsersPage';
 import PaymentsPage from './admin/PaymentsPage';
+import PlansPage from './admin/PlansPage';
 import DebtorsPage from './collector/DebtorsPage';
 import DueLoansPage from './collector/DueLoansPage';
 import NotificationBell from '../components/NotificationBell';
@@ -67,6 +69,7 @@ const AdminPanel: React.FC = () => {
     { text: 'Cobros', path: 'payments', icon: <PaymentIcon /> },
     { text: 'Deudores Morosos', path: 'debtors', icon: <WarningIcon /> },
     { text: 'Próximos Vencimientos', path: 'due', icon: <CalendarTodayIcon /> },
+    { text: 'Planes', path: 'plans', icon: <SettingsIcon /> },
     { text: 'Usuarios', path: 'users', icon: <PersonIcon /> },
   ];
 
@@ -243,6 +246,7 @@ const AdminPanel: React.FC = () => {
               <Route path="payments" element={<PaymentsPage />} />
               <Route path="debtors" element={<DebtorsPage />} />
               <Route path="due" element={<DueLoansPage />} />
+              <Route path="plans" element={<PlansPage />} />
               <Route path="users" element={<UsersPage />} />
               <Route path="" element={<Navigate to="dashboard" replace />} />
             </Routes>
