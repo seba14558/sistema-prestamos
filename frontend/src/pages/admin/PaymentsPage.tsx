@@ -20,6 +20,7 @@ interface Loan {
   cliente_nombre?: string;
   cliente_apellido?: string;
   monto: string | number;
+  monto_total?: string | number;
   estado: string;
   plan?: string;
   fecha_vencimiento?: string;
@@ -514,7 +515,7 @@ const PaymentsPage: React.FC = () => {
                                 Monto Total
                               </Typography>
                               <Typography variant="body2" fontWeight="600" color="#1e293b">
-                                ${Number(selectedLoan.monto).toLocaleString('es-AR', { minimumFractionDigits: 2 })}
+                                ${Number(selectedLoan.monto_total ?? selectedLoan.monto).toLocaleString('es-AR', { minimumFractionDigits: 2 })}
                               </Typography>
                             </Grid>
                             <Grid item xs={6} sm={3}>
