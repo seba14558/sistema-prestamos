@@ -14,6 +14,7 @@ import { formatDateDisplay, normalizeDateString } from '../../utils/date';
 interface Loan {
   id: number;
   monto: string | number;
+  monto_total?: string | number;
   estado: string;
 }
 
@@ -68,7 +69,8 @@ const DashboardPage: React.FC = () => {
       // Calcular estadísticas
       const totalPrestado = fetchedLoans.reduce((sum, l) => sum + Number(l.monto), 0);
       const totalCobrado = fetchedPayments.reduce((sum, p) => sum + Number(p.monto), 0);
-      const totalPendiente = Math.max(0, totalPrestado - totalCobrado);
+      const totalACobrar = fetchedLoans.reduce((sum, l) => sum + Number(l.monto_total ?? l.monto), 0);
+      const totalPendiente = Math.max(0, totalACobrar - totalCobrado);
       const hoy = new Date();
       const hoyLocal = normalizeDateString(hoy);
       const totalCobradoHoy = fetchedPayments
