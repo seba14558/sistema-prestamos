@@ -194,7 +194,7 @@ const CollectorPanel: React.FC = () => {
         {/* Main Content */}
         <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
         {/* AppBar */}
-        <AppBar position="sticky" sx={{ bgcolor: 'transparent', backdropFilter: 'blur(14px)', boxShadow: 'none', zIndex: (theme) => theme.zIndex.drawer + 3 }}>
+        <AppBar position="sticky" sx={{ bgcolor: 'transparent', backdropFilter: 'blur(14px)', boxShadow: 'none', zIndex: 1 }}>
           <Toolbar>
             <Typography variant="h6" component="div" sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' }, fontWeight: 'bold', color: '#1e293b' }}>
               {location.pathname.includes('dashboard') ? 'Mi Dashboard' :
