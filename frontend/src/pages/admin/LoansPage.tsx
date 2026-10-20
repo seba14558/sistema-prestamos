@@ -5,9 +5,10 @@ import {
   DialogTitle, DialogContent, DialogActions, Grid,
   InputAdornment, Alert, CircularProgress, Card, MenuItem, Chip, IconButton
 } from '@mui/material';
-import { Search, Add, Edit, AccountBalance, CalendarToday, AttachMoney } from '@mui/icons-material';
+import { Search, Add, Edit, Delete, AccountBalance, CalendarToday, AttachMoney } from '@mui/icons-material';
 import api from '../../services/api';
 import Toast from '../../components/Toast';
+import ConfirmDialog from '../../components/ConfirmDialog';
 import TableSkeleton from '../../components/TableSkeleton';
 import { calcularFechaVencimientoExcluyendoDomingos } from '../../utils/date';
 
@@ -76,6 +77,10 @@ const LoansPage: React.FC = () => {
 
   const [formError, setFormError] = useState('');
   const [formSubmitting, setFormSubmitting] = useState(false);
+
+  // Confirmación de eliminación
+  const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; loan: Loan | null }>({ open: false, loan: null });
+  const [deleting, setDeleting] = useState(false);
 
   // Toast
   const [toast, setToast] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' | 'warning' | 'info' });
@@ -254,6 +259,22 @@ const LoansPage: React.FC = () => {
       showToast('Error al guardar el préstamo', 'error');
     } finally {
       setFormSubmitting(false);
+    }
+  };
+
+  const handleDeleteLoan = async () => {
+    if (!deleteDialog.loan) return;
+    setDeleting(true);
+    try {
+      await api.delete(`/prestamos/${deleteDialog.loan.id}`);
+      showToast('Préstamo eliminado exitosamente', 'success');
+      setDeleteDialog({ open: false, loan: null });
+      await fetchData();
+    } catch (err: any) {
+      console.error(err);
+      showToast(err.response?.data?.message || 'Error al eliminar el préstamo', 'error');
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -442,6 +463,23 @@ const LoansPage: React.FC = () => {
                         >
                           <Edit sx={{ fontSize: 20 }} />
                         </IconButton>
+                        {loan.estado === 'pagado' && (
+                          <IconButton
+                            color="error"
+                            onClick={() => setDeleteDialog({ open: true, loan })}
+                            sx={{
+                              bgcolor: 'rgba(239, 68, 68, 0.1)',
+                              ml: 1,
+                              '&:hover': {
+                                bgcolor: 'rgba(239, 68, 68, 0.2)',
+                                transform: 'scale(1.1)',
+                                transition: 'all 0.2s'
+                              }
+                            }}
+                          >
+                            <Delete sx={{ fontSize: 20 }} />
+                          </IconButton>
+                        )}
                       </TableCell>
                     </TableRow>
                   ))
@@ -717,6 +755,17 @@ const LoansPage: React.FC = () => {
         </Box>
       </Dialog>
       
+      <ConfirmDialog
+        open={deleteDialog.open}
+        title="Eliminar préstamo"
+        message={`¿Seguro que querés eliminar el préstamo Nº ${deleteDialog.loan?.id} de ${deleteDialog.loan?.cliente_nombre || ''} ${deleteDialog.loan?.cliente_apellido || ''}? También se eliminarán sus pagos registrados. Esta acción no se puede deshacer.`}
+        confirmText={deleting ? 'Eliminando...' : 'Eliminar'}
+        cancelText="Cancelar"
+        onConfirm={handleDeleteLoan}
+        onCancel={() => setDeleteDialog({ open: false, loan: null })}
+        severity="error"
+      />
+
       <Toast
         open={toast.open}
         message={toast.message}

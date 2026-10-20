@@ -157,3 +157,31 @@ exports.getSaldoPrestamo = async (req, res) => {
     res.status(500).json({ message: 'Error al consultar saldo del préstamo', error: err.message || err });
   }
 };
+
+exports.eliminarPrestamo = async (req, res) => {
+  // Solo admin puede eliminar préstamos
+  if (req.user.rol !== 'admin') {
+    return res.status(403).json({ message: 'Solo el administrador puede eliminar préstamos' });
+  }
+  const { id } = req.params;
+  const client = await pool.connect();
+  try {
+    const prestamo = await client.query('SELECT id, estado FROM prestamos WHERE id = $1', [id]);
+    if (prestamo.rows.length === 0) {
+      return res.status(404).json({ message: 'Préstamo no encontrado' });
+    }
+    if (prestamo.rows[0].estado !== 'pagado') {
+      return res.status(400).json({ message: 'Solo se pueden eliminar préstamos con estado pagado' });
+    }
+    await client.query('BEGIN');
+    await client.query('DELETE FROM pagos WHERE prestamo_id = $1', [id]);
+    const result = await client.query('DELETE FROM prestamos WHERE id = $1 RETURNING *', [id]);
+    await client.query('COMMIT');
+    res.json({ message: 'Préstamo eliminado', prestamo: result.rows[0] });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    res.status(500).json({ message: 'Error al eliminar préstamo', error: err.message || err });
+  } finally {
+    client.release();
+  }
+};
