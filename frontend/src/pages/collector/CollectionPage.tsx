@@ -18,6 +18,7 @@ interface Loan {
   cliente_nombre?: string;
   cliente_apellido?: string;
   monto: string | number;
+  monto_total?: string | number;
   estado: string;
   plan?: string;
   fecha_vencimiento?: string;
@@ -102,7 +103,7 @@ const CollectionPage: React.FC = () => {
         // Calcular saldo pendiente basado en los pagos
         const loanPayments = paymentsRes.data.filter((p: Payment) => p.prestamo_id === l.id);
         const totalPagado = loanPayments.reduce((sum: number, p: Payment) => sum + Number(p.monto), 0);
-        const saldoPendiente = Number(l.monto) - totalPagado;
+        const saldoPendiente = Number(l.monto_total ?? l.monto) - totalPagado;
         
         // Solo mostrar si tiene saldo pendiente mayor a 0.01 (tolerancia)
         return saldoPendiente > 0.01;
@@ -343,7 +344,7 @@ const CollectionPage: React.FC = () => {
                                 Monto Total
                               </Typography>
                               <Typography variant="body2" fontWeight="600" color="#1e293b">
-                                ${Number(selectedLoan.monto).toLocaleString('es-AR', { minimumFractionDigits: 2 })}
+                                ${Number(selectedLoan.monto_total ?? selectedLoan.monto).toLocaleString('es-AR', { minimumFractionDigits: 2 })}
                               </Typography>
                             </Grid>
                             <Grid item xs={6} sm={3}>
