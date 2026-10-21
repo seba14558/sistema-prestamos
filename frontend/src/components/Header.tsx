@@ -13,7 +13,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick, showMenuButton = false }) 
       sx={{ 
         background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
         borderBottom: '1px solid rgba(99, 102, 241, 0.2)',
-        py: { xs: 3.5, sm: 2 },
+        py: { xs: 2, sm: 2 },
         boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
         position: 'relative',
         overflow: 'hidden',
@@ -54,7 +54,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick, showMenuButton = false }) 
                   fontWeight: 800, 
                   color: 'white',
                   lineHeight: 1.2,
-                  fontSize: { xs: '1.5rem', sm: '1.5rem' },
+                  fontSize: { xs: '1.25rem', sm: '1.5rem' },
                   letterSpacing: '0.5px',
                   textShadow: '0 2px 10px rgba(0, 0, 0, 0.2)'
                 }}

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   Box, Typography, Card, Table, TableBody, 
   TableCell, TableContainer, TableHead, TableRow, 
-  Tabs, Tab, Alert, CircularProgress, Chip, Button
+  Tabs, Tab, Alert, CircularProgress, Chip, Button, Tooltip
 } from '@mui/material';
 import { AccessTime, Warning, Home, Payments } from '@mui/icons-material';
 import api from '../../services/api';
@@ -97,7 +97,23 @@ const DueLoansPage: React.FC = () => {
     }
 
     return (
-      <TableContainer sx={{ overflowX: 'auto' }}>
+      <TableContainer 
+        sx={{ 
+          overflowX: 'auto',
+          position: 'relative',
+          '&::after': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            right: 0,
+            bottom: 0,
+            width: 40,
+            background: 'linear-gradient(to right, transparent, rgba(255, 255, 255, 0.9))',
+            pointerEvents: 'none',
+            display: { xs: 'block', sm: 'none' }
+          }
+        }}
+      >
         <Table sx={{ minWidth: 650 }}>
           <TableHead sx={{ bgcolor: 'rgba(99, 102, 241, 0.05)' }}>
             <TableRow>
@@ -149,36 +165,38 @@ const DueLoansPage: React.FC = () => {
                   />
                 </TableCell>
                 <TableCell align="center">
-                  <Button
-                    variant="contained"
-                    color={isOverdue ? 'error' : 'success'}
-                    size="small"
-                    startIcon={<Payments />}
-                    onClick={() => navigate('/cobrador/collection')}
-                    sx={{ 
-                      textTransform: 'none', 
-                      fontWeight: 'bold',
-                      background: isOverdue 
-                        ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)'
-                        : 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                      '&:hover': { 
+                  <Tooltip title={isOverdue ? 'Registrar cobro de préstamo vencido' : 'Registrar cobro de préstamo pendiente'} arrow>
+                    <Button
+                      variant="contained"
+                      color={isOverdue ? 'error' : 'success'}
+                      size="small"
+                      startIcon={<Payments />}
+                      onClick={() => navigate('/cobrador/collection')}
+                      sx={{ 
+                        textTransform: 'none', 
+                        fontWeight: 'bold',
                         background: isOverdue 
-                          ? 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)'
-                          : 'linear-gradient(135deg, #059669 0%, #047857 100%)',
-                        transform: 'translateY(-2px)',
+                          ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)'
+                          : 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                        '&:hover': { 
+                          background: isOverdue 
+                            ? 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)'
+                            : 'linear-gradient(135deg, #059669 0%, #047857 100%)',
+                          transform: 'translateY(-2px)',
+                          boxShadow: isOverdue 
+                            ? '0 6px 16px rgba(239, 68, 68, 0.35)'
+                            : '0 6px 16px rgba(16, 185, 129, 0.35)',
+                          transition: 'all 0.3s ease'
+                        },
                         boxShadow: isOverdue 
-                          ? '0 6px 16px rgba(239, 68, 68, 0.35)'
-                          : '0 6px 16px rgba(16, 185, 129, 0.35)',
-                        transition: 'all 0.3s ease'
-                      },
-                      boxShadow: isOverdue 
-                        ? '0 4px 12px rgba(239, 68, 68, 0.25)'
-                        : '0 4px 12px rgba(16, 185, 129, 0.25)',
-                      letterSpacing: '0.3px'
-                    }}
-                  >
-                    Registrar Cobro
-                  </Button>
+                          ? '0 4px 12px rgba(239, 68, 68, 0.25)'
+                          : '0 4px 12px rgba(16, 185, 129, 0.25)',
+                        letterSpacing: '0.3px'
+                      }}
+                    >
+                      Registrar Cobro
+                    </Button>
+                  </Tooltip>
                 </TableCell>
               </TableRow>
             ))}

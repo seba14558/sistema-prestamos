@@ -3,7 +3,7 @@ import {
   Box, Button, TextField, Typography, Paper, Table, TableBody,
   TableCell, TableContainer, TableHead, TableRow, IconButton,
   Dialog, DialogTitle, DialogContent, DialogActions, Grid,
-  InputAdornment, Alert, CircularProgress, Card
+  InputAdornment, Alert, CircularProgress, Card, Tooltip
 } from '@mui/material';
 import { Search, Edit, Person, LocationOn, Delete, Phone } from '@mui/icons-material';
 import api, { editarCliente, eliminarCliente } from '../../services/api';
@@ -308,7 +308,23 @@ const ClientsPage: React.FC = () => {
         {loading ? (
           <TableSkeleton rows={8} columns={4} />
         ) : (
-          <TableContainer sx={{ overflowX: 'auto' }}>
+          <TableContainer 
+            sx={{ 
+              overflowX: 'auto',
+              position: 'relative',
+              '&::after': {
+                content: '""',
+                position: 'absolute',
+                top: 0,
+                right: 0,
+                bottom: 0,
+                width: 40,
+                background: 'linear-gradient(to right, transparent, rgba(255, 255, 255, 0.9))',
+                pointerEvents: 'none',
+                display: { xs: 'block', sm: 'none' }
+              }
+            }}
+          >
             <Table sx={{ minWidth: 650 }}>
               <TableHead sx={{ bgcolor: 'rgba(99, 102, 241, 0.05)' }}>
                 <TableRow>
@@ -356,36 +372,40 @@ const ClientsPage: React.FC = () => {
                         )}
                       </TableCell>
                       <TableCell align="center">
-                        <IconButton
-                          color="primary"
-                          onClick={() => handleOpenDialog(client)}
-                          sx={{ 
-                            bgcolor: 'rgba(99, 102, 241, 0.1)',
-                            '&:hover': { 
-                              bgcolor: 'rgba(99, 102, 241, 0.2)',
-                              transform: 'scale(1.1)',
-                              transition: 'all 0.2s'
-                            }
-                          }}
-                        >
-                          <Edit sx={{ fontSize: 20 }} />
-                        </IconButton>
-                        {isAdmin && (
+                        <Tooltip title="Editar cliente" arrow>
                           <IconButton
-                            color="error"
-                            onClick={() => handleDelete(client.id)}
+                            color="primary"
+                            onClick={() => handleOpenDialog(client)}
                             sx={{ 
-                            ml: 1,
-                            bgcolor: 'rgba(239, 68, 68, 0.1)',
-                            '&:hover': { 
-                              bgcolor: 'rgba(239, 68, 68, 0.2)',
-                              transform: 'scale(1.1)',
-                              transition: 'all 0.2s'
-                            }
+                              bgcolor: 'rgba(99, 102, 241, 0.1)',
+                              '&:hover': { 
+                                bgcolor: 'rgba(99, 102, 241, 0.2)',
+                                transform: 'scale(1.1)',
+                                transition: 'all 0.2s'
+                              }
                             }}
                           >
-                            <Delete sx={{ fontSize: 20 }} />
+                            <Edit sx={{ fontSize: 20 }} />
                           </IconButton>
+                        </Tooltip>
+                        {isAdmin && (
+                          <Tooltip title="Eliminar cliente" arrow>
+                            <IconButton
+                              color="error"
+                              onClick={() => handleDelete(client.id)}
+                              sx={{ 
+                              ml: 1,
+                              bgcolor: 'rgba(239, 68, 68, 0.1)',
+                              '&:hover': { 
+                                bgcolor: 'rgba(239, 68, 68, 0.2)',
+                                transform: 'scale(1.1)',
+                                transition: 'all 0.2s'
+                              }
+                              }}
+                            >
+                              <Delete sx={{ fontSize: 20 }} />
+                            </IconButton>
+                          </Tooltip>
                         )}
                       </TableCell>
                     </TableRow>
