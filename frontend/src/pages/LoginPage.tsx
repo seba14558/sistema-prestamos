@@ -23,7 +23,7 @@ const LoginPage: React.FC = () => {
       try {
         const user = JSON.parse(userStr);
         if (user.rol === 'admin') navigate('/admin/dashboard');
-        else if (user.rol === 'cobrador') navigate('/cobrador/collection');
+        else if (user.rol === 'cobrador') navigate('/cobrador/dashboard');
       } catch (e) {
         localStorage.clear();
       }
@@ -57,7 +57,7 @@ const LoginPage: React.FC = () => {
       if (rol === 'admin') {
         navigate('/admin/dashboard');
       } else if (rol === 'cobrador') {
-        navigate('/cobrador/collection');
+        navigate('/cobrador/dashboard');
       } else {
         setError('Rol de usuario no reconocido.');
         localStorage.clear();

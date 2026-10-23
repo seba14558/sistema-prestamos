@@ -168,34 +168,34 @@ const CollectorDashboardPage: React.FC = () => {
       {/* KPI Cards */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
         <Grid item xs={12} sm={6} lg={3}>
-          <Card sx={{ 
-            borderRadius: 3, 
-            boxShadow: '0 4px 20px rgba(0,0,0,0.08)', 
-            border: '1px solid rgba(99, 102, 241, 0.1)', 
-            p: 3, 
+          <Card sx={{
+            borderRadius: 3,
+            boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+            border: '1px solid rgba(99, 102, 241, 0.1)',
+            p: { xs: 2, sm: 3 },
             background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
-            '&:hover': { 
-              transform: 'translateY(-4px)', 
+            '&:hover': {
+              transform: 'translateY(-4px)',
               transition: 'all 0.3s ease',
               boxShadow: '0 12px 30px rgba(99, 102, 241, 0.15)',
               borderColor: 'rgba(99, 102, 241, 0.3)'
-            } 
+            }
           }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <Box sx={{ 
-                p: 2, 
-                borderRadius: 2, 
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1.5, sm: 2 } }}>
+              <Box sx={{
+                p: { xs: 1.5, sm: 2 },
+                borderRadius: 2,
                 background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
                 color: 'white',
                 boxShadow: '0 4px 15px rgba(99, 102, 241, 0.3)'
               }}>
-                <AttachMoney sx={{ fontSize: 32 }} />
+                <AttachMoney sx={{ fontSize: { xs: 24, sm: 32 } }} />
               </Box>
               <Box>
-                <Typography variant="caption" fontWeight="bold" color="#64748b" sx={{ fontSize: '0.75rem', letterSpacing: '0.5px' }}>
+                <Typography variant="caption" fontWeight="bold" color="#64748b" sx={{ fontSize: { xs: '0.65rem', sm: '0.75rem' }, letterSpacing: '0.5px' }}>
                   CAPITAL PRESTADO
                 </Typography>
-                <Typography variant="h6" fontWeight="bold" color="#1e293b" sx={{ letterSpacing: '0.3px' }}>
+                <Typography variant="h6" fontWeight="bold" color="#1e293b" sx={{ letterSpacing: '0.3px', fontSize: { xs: '1rem', sm: '1.25rem' } }}>
                   {formatCurrency(stats.totalPrestado)}
                 </Typography>
               </Box>
@@ -208,7 +208,7 @@ const CollectorDashboardPage: React.FC = () => {
             borderRadius: 3,
             boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
             border: '1px solid rgba(245, 158, 11, 0.1)',
-            p: 3,
+            p: { xs: 2, sm: 3 },
             background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
             '&:hover': {
               transform: 'translateY(-4px)',
@@ -217,21 +217,21 @@ const CollectorDashboardPage: React.FC = () => {
               borderColor: 'rgba(245, 158, 11, 0.3)'
             }
           }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1.5, sm: 2 } }}>
               <Box sx={{
-                p: 2,
+                p: { xs: 1.5, sm: 2 },
                 borderRadius: 2,
                 background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
                 color: 'white',
                 boxShadow: '0 4px 15px rgba(245, 158, 11, 0.3)'
               }}>
-                <AccountBalanceWallet sx={{ fontSize: 32 }} />
+                <AccountBalanceWallet sx={{ fontSize: { xs: 24, sm: 32 } }} />
               </Box>
               <Box>
-                <Typography variant="caption" fontWeight="bold" color="#64748b" sx={{ fontSize: '0.75rem', letterSpacing: '0.5px' }}>
+                <Typography variant="caption" fontWeight="bold" color="#64748b" sx={{ fontSize: { xs: '0.65rem', sm: '0.75rem' }, letterSpacing: '0.5px' }}>
                   TOTAL A COBRAR
                 </Typography>
-                <Typography variant="h6" fontWeight="bold" color="#1e293b" sx={{ letterSpacing: '0.3px' }}>
+                <Typography variant="h6" fontWeight="bold" color="#1e293b" sx={{ letterSpacing: '0.3px', fontSize: { xs: '1rem', sm: '1.25rem' } }}>
                   {formatCurrency(stats.totalACobrar)}
                 </Typography>
               </Box>
@@ -240,34 +240,34 @@ const CollectorDashboardPage: React.FC = () => {
         </Grid>
 
         <Grid item xs={12} sm={6} lg={3}>
-          <Card sx={{ 
-            borderRadius: 3, 
-            boxShadow: '0 4px 20px rgba(0,0,0,0.08)', 
-            border: '1px solid rgba(16, 185, 129, 0.1)', 
-            p: 3, 
+          <Card sx={{
+            borderRadius: 3,
+            boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+            border: '1px solid rgba(16, 185, 129, 0.1)',
+            p: { xs: 2, sm: 3 },
             background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
-            '&:hover': { 
-              transform: 'translateY(-4px)', 
+            '&:hover': {
+              transform: 'translateY(-4px)',
               transition: 'all 0.3s ease',
               boxShadow: '0 12px 30px rgba(16, 185, 129, 0.15)',
               borderColor: 'rgba(16, 185, 129, 0.3)'
-            } 
+            }
           }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <Box sx={{ 
-                p: 2, 
-                borderRadius: 2, 
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1.5, sm: 2 } }}>
+              <Box sx={{
+                p: { xs: 1.5, sm: 2 },
+                borderRadius: 2,
                 background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
                 color: 'white',
                 boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)'
               }}>
-                <TrendingUp sx={{ fontSize: 32 }} />
+                <TrendingUp sx={{ fontSize: { xs: 24, sm: 32 } }} />
               </Box>
               <Box>
-                <Typography variant="caption" fontWeight="bold" color="#64748b" sx={{ fontSize: '0.75rem', letterSpacing: '0.5px' }}>
+                <Typography variant="caption" fontWeight="bold" color="#64748b" sx={{ fontSize: { xs: '0.65rem', sm: '0.75rem' }, letterSpacing: '0.5px' }}>
                   RECAUDADO
                 </Typography>
-                <Typography variant="h6" fontWeight="bold" color="#1e293b" sx={{ letterSpacing: '0.3px' }}>
+                <Typography variant="h6" fontWeight="bold" color="#1e293b" sx={{ letterSpacing: '0.3px', fontSize: { xs: '1rem', sm: '1.25rem' } }}>
                   {formatCurrency(stats.totalCobrado)}
                 </Typography>
               </Box>
@@ -276,34 +276,34 @@ const CollectorDashboardPage: React.FC = () => {
         </Grid>
 
         <Grid item xs={12} sm={6} lg={3}>
-          <Card sx={{ 
-            borderRadius: 3, 
-            boxShadow: '0 4px 20px rgba(0,0,0,0.08)', 
-            border: '1px solid rgba(245, 158, 11, 0.1)', 
-            p: 3, 
+          <Card sx={{
+            borderRadius: 3,
+            boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+            border: '1px solid rgba(245, 158, 11, 0.1)',
+            p: { xs: 2, sm: 3 },
             background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
-            '&:hover': { 
-              transform: 'translateY(-4px)', 
+            '&:hover': {
+              transform: 'translateY(-4px)',
               transition: 'all 0.3s ease',
               boxShadow: '0 12px 30px rgba(245, 158, 11, 0.15)',
               borderColor: 'rgba(245, 158, 11, 0.3)'
-            } 
+            }
           }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <Box sx={{ 
-                p: 2, 
-                borderRadius: 2, 
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1.5, sm: 2 } }}>
+              <Box sx={{
+                p: { xs: 1.5, sm: 2 },
+                borderRadius: 2,
                 background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
                 color: 'white',
                 boxShadow: '0 4px 15px rgba(245, 158, 11, 0.3)'
               }}>
-                <Alarm sx={{ fontSize: 32 }} />
+                <Alarm sx={{ fontSize: { xs: 24, sm: 32 } }} />
               </Box>
               <Box>
-                <Typography variant="caption" fontWeight="bold" color="#64748b" sx={{ fontSize: '0.75rem', letterSpacing: '0.5px' }}>
+                <Typography variant="caption" fontWeight="bold" color="#64748b" sx={{ fontSize: { xs: '0.65rem', sm: '0.75rem' }, letterSpacing: '0.5px' }}>
                   SALDO EN CALLE
                 </Typography>
-                <Typography variant="h6" fontWeight="bold" color="#1e293b" sx={{ letterSpacing: '0.3px' }}>
+                <Typography variant="h6" fontWeight="bold" color="#1e293b" sx={{ letterSpacing: '0.3px', fontSize: { xs: '1rem', sm: '1.25rem' } }}>
                   {formatCurrency(stats.totalPendiente)}
                 </Typography>
               </Box>
@@ -312,34 +312,34 @@ const CollectorDashboardPage: React.FC = () => {
         </Grid>
 
         <Grid item xs={12} sm={6} lg={3}>
-          <Card sx={{ 
-            borderRadius: 3, 
-            boxShadow: '0 4px 20px rgba(0,0,0,0.08)', 
-            border: '1px solid rgba(239, 68, 68, 0.1)', 
-            p: 3, 
+          <Card sx={{
+            borderRadius: 3,
+            boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+            border: '1px solid rgba(239, 68, 68, 0.1)',
+            p: { xs: 2, sm: 3 },
             background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
-            '&:hover': { 
-              transform: 'translateY(-4px)', 
+            '&:hover': {
+              transform: 'translateY(-4px)',
               transition: 'all 0.3s ease',
               boxShadow: '0 12px 30px rgba(239, 68, 68, 0.15)',
               borderColor: 'rgba(239, 68, 68, 0.3)'
             } 
           }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <Box sx={{ 
-                p: 2, 
-                borderRadius: 2, 
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1.5, sm: 2 } }}>
+              <Box sx={{
+                p: { xs: 1.5, sm: 2 },
+                borderRadius: 2,
                 background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
                 color: 'white',
                 boxShadow: '0 4px 15px rgba(239, 68, 68, 0.3)'
               }}>
-                <People sx={{ fontSize: 32 }} />
+                <People sx={{ fontSize: { xs: 24, sm: 32 } }} />
               </Box>
               <Box>
-                <Typography variant="caption" fontWeight="bold" color="#64748b" sx={{ fontSize: '0.75rem', letterSpacing: '0.5px' }}>
+                <Typography variant="caption" fontWeight="bold" color="#64748b" sx={{ fontSize: { xs: '0.65rem', sm: '0.75rem' }, letterSpacing: '0.5px' }}>
                   PRÉSTAMOS TOTALES
                 </Typography>
-                <Typography variant="h6" fontWeight="bold" color="#1e293b" sx={{ letterSpacing: '0.3px' }}>
+                <Typography variant="h6" fontWeight="bold" color="#1e293b" sx={{ letterSpacing: '0.3px', fontSize: { xs: '1rem', sm: '1.25rem' } }}>
                   {loans.length}
                 </Typography>
               </Box>
