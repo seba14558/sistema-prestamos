@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   Box, Typography, Card, Grid, Table, TableBody, 
   TableCell, TableContainer, TableHead, TableRow, CircularProgress,
-  TablePagination
+  TablePagination, Tooltip
 } from '@mui/material';
 import { 
   AccountBalanceWallet, TrendingUp, Alarm, People, 
@@ -14,6 +14,7 @@ import { formatDateDisplay, normalizeDateString } from '../../utils/date';
 interface Loan {
   id: number;
   monto: string | number;
+  monto_total?: string | number;
   estado: string;
 }
 
@@ -68,7 +69,8 @@ const DashboardPage: React.FC = () => {
       // Calcular estadísticas
       const totalPrestado = fetchedLoans.reduce((sum, l) => sum + Number(l.monto), 0);
       const totalCobrado = fetchedPayments.reduce((sum, p) => sum + Number(p.monto), 0);
-      const totalPendiente = Math.max(0, totalPrestado - totalCobrado);
+      const totalACobrar = fetchedLoans.reduce((sum, l) => sum + Number(l.monto_total ?? l.monto), 0);
+      const totalPendiente = Math.max(0, totalACobrar - totalCobrado);
       const hoy = new Date();
       const hoyLocal = normalizeDateString(hoy);
       const totalCobradoHoy = fetchedPayments
@@ -168,7 +170,7 @@ const DashboardPage: React.FC = () => {
             borderRadius: 3, 
             boxShadow: '0 4px 20px rgba(0,0,0,0.08)', 
             border: '1px solid rgba(99, 102, 241, 0.1)', 
-            p: 3, 
+            p: { xs: 2, sm: 3 }, 
             background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
             '&:hover': { 
               transform: 'translateY(-4px)', 
@@ -177,21 +179,21 @@ const DashboardPage: React.FC = () => {
               borderColor: 'rgba(99, 102, 241, 0.3)'
             } 
           }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1.5, sm: 2 } }}>
               <Box sx={{ 
-                p: 2, 
+                p: { xs: 1.5, sm: 2 }, 
                 borderRadius: 2, 
                 background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
                 color: 'white',
                 boxShadow: '0 4px 15px rgba(99, 102, 241, 0.3)'
               }}>
-                <AttachMoney sx={{ fontSize: 32 }} />
+                <AttachMoney sx={{ fontSize: { xs: 24, sm: 32 } }} />
               </Box>
               <Box>
-                <Typography variant="caption" fontWeight="bold" color="#64748b" sx={{ fontSize: '0.75rem', letterSpacing: '0.5px' }}>
+                <Typography variant="caption" fontWeight="bold" color="#64748b" sx={{ fontSize: { xs: '0.65rem', sm: '0.75rem' }, letterSpacing: '0.5px' }}>
                   CAPITAL PRESTADO
                 </Typography>
-                <Typography variant="h6" fontWeight="bold" color="#1e293b" sx={{ letterSpacing: '0.3px' }}>
+                <Typography variant="h6" fontWeight="bold" color="#1e293b" sx={{ letterSpacing: '0.3px', fontSize: { xs: '1rem', sm: '1.25rem' } }}>
                   {formatCurrency(stats.totalPrestado)}
                 </Typography>
               </Box>
@@ -204,7 +206,7 @@ const DashboardPage: React.FC = () => {
             borderRadius: 3, 
             boxShadow: '0 4px 20px rgba(0,0,0,0.08)', 
             border: '1px solid rgba(16, 185, 129, 0.1)', 
-            p: 3, 
+            p: { xs: 2, sm: 3 }, 
             background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
             '&:hover': { 
               transform: 'translateY(-4px)', 
@@ -213,21 +215,21 @@ const DashboardPage: React.FC = () => {
               borderColor: 'rgba(16, 185, 129, 0.3)'
             } 
           }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1.5, sm: 2 } }}>
               <Box sx={{ 
-                p: 2, 
+                p: { xs: 1.5, sm: 2 }, 
                 borderRadius: 2, 
                 background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
                 color: 'white',
                 boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)'
               }}>
-                <TrendingUp sx={{ fontSize: 32 }} />
+                <TrendingUp sx={{ fontSize: { xs: 24, sm: 32 } }} />
               </Box>
               <Box>
-                <Typography variant="caption" fontWeight="bold" color="#64748b" sx={{ fontSize: '0.75rem', letterSpacing: '0.5px' }}>
+                <Typography variant="caption" fontWeight="bold" color="#64748b" sx={{ fontSize: { xs: '0.65rem', sm: '0.75rem' }, letterSpacing: '0.5px' }}>
                   RECAUDADO
                 </Typography>
-                <Typography variant="h6" fontWeight="bold" color="#1e293b" sx={{ letterSpacing: '0.3px' }}>
+                <Typography variant="h6" fontWeight="bold" color="#1e293b" sx={{ letterSpacing: '0.3px', fontSize: { xs: '1rem', sm: '1.25rem' } }}>
                   {formatCurrency(stats.totalCobrado)}
                 </Typography>
               </Box>
@@ -240,7 +242,7 @@ const DashboardPage: React.FC = () => {
             borderRadius: 3, 
             boxShadow: '0 4px 20px rgba(0,0,0,0.08)', 
             border: '1px solid rgba(245, 158, 11, 0.1)', 
-            p: 3, 
+            p: { xs: 2, sm: 3 }, 
             background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
             '&:hover': { 
               transform: 'translateY(-4px)', 
@@ -249,21 +251,21 @@ const DashboardPage: React.FC = () => {
               borderColor: 'rgba(245, 158, 11, 0.3)'
             } 
           }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1.5, sm: 2 } }}>
               <Box sx={{ 
-                p: 2, 
+                p: { xs: 1.5, sm: 2 }, 
                 borderRadius: 2, 
                 background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
                 color: 'white',
                 boxShadow: '0 4px 15px rgba(245, 158, 11, 0.3)'
               }}>
-                <Alarm sx={{ fontSize: 32 }} />
+                <Alarm sx={{ fontSize: { xs: 24, sm: 32 } }} />
               </Box>
               <Box>
-                <Typography variant="caption" fontWeight="bold" color="#64748b" sx={{ fontSize: '0.75rem', letterSpacing: '0.5px' }}>
+                <Typography variant="caption" fontWeight="bold" color="#64748b" sx={{ fontSize: { xs: '0.65rem', sm: '0.75rem' }, letterSpacing: '0.5px' }}>
                   SALDO EN CALLE
                 </Typography>
-                <Typography variant="h6" fontWeight="bold" color="#1e293b" sx={{ letterSpacing: '0.3px' }}>
+                <Typography variant="h6" fontWeight="bold" color="#1e293b" sx={{ letterSpacing: '0.3px', fontSize: { xs: '1rem', sm: '1.25rem' } }}>
                   {formatCurrency(stats.totalPendiente)}
                 </Typography>
               </Box>
@@ -276,7 +278,7 @@ const DashboardPage: React.FC = () => {
             borderRadius: 3, 
             boxShadow: '0 4px 20px rgba(0,0,0,0.08)', 
             border: '1px solid rgba(239, 68, 68, 0.1)', 
-            p: 3, 
+            p: { xs: 2, sm: 3 }, 
             background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
             '&:hover': { 
               transform: 'translateY(-4px)', 
@@ -285,21 +287,21 @@ const DashboardPage: React.FC = () => {
               borderColor: 'rgba(239, 68, 68, 0.3)'
             } 
           }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1.5, sm: 2 } }}>
               <Box sx={{ 
-                p: 2, 
+                p: { xs: 1.5, sm: 2 }, 
                 borderRadius: 2, 
                 background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
                 color: 'white',
                 boxShadow: '0 4px 15px rgba(239, 68, 68, 0.3)'
               }}>
-                <People sx={{ fontSize: 32 }} />
+                <People sx={{ fontSize: { xs: 24, sm: 32 } }} />
               </Box>
               <Box>
-                <Typography variant="caption" fontWeight="bold" color="#64748b" sx={{ fontSize: '0.75rem', letterSpacing: '0.5px' }}>
+                <Typography variant="caption" fontWeight="bold" color="#64748b" sx={{ fontSize: { xs: '0.65rem', sm: '0.75rem' }, letterSpacing: '0.5px' }}>
                   PRÉSTAMOS TOTALES
                 </Typography>
-                <Typography variant="h6" fontWeight="bold" color="#1e293b" sx={{ letterSpacing: '0.3px' }}>
+                <Typography variant="h6" fontWeight="bold" color="#1e293b" sx={{ letterSpacing: '0.3px', fontSize: { xs: '1rem', sm: '1.25rem' } }}>
                   {loans.length}
                 </Typography>
               </Box>
@@ -328,7 +330,7 @@ const DashboardPage: React.FC = () => {
                 }}>
                   <MonetizationOn sx={{ fontSize: 20 }} />
                 </Box>
-                <Typography variant="h6" fontWeight="bold" color="#1e293b" sx={{ letterSpacing: '0.3px' }}>
+                <Typography variant="h6" fontWeight="bold" color="#1e293b" sx={{ letterSpacing: '0.3px', fontSize: { xs: '1rem', sm: '1.25rem' } }}>
                   Tasa de Recuperación Financiera
                 </Typography>
               </Box>
@@ -466,7 +468,23 @@ const DashboardPage: React.FC = () => {
             Últimos Pagos Registrados (Recaudación)
           </Typography>
         </Box>
-        <TableContainer sx={{ overflowX: 'auto' }}>
+        <TableContainer 
+          sx={{ 
+            overflowX: 'auto',
+            position: 'relative',
+            '&::after': {
+              content: '""',
+              position: 'absolute',
+              top: 0,
+              right: 0,
+              bottom: 0,
+              width: 40,
+              background: 'linear-gradient(to right, transparent, rgba(255, 255, 255, 0.9))',
+              pointerEvents: 'none',
+              display: { xs: 'block', sm: 'none' }
+            }
+          }}
+        >
           <Table sx={{ minWidth: 650 }}>
             <TableHead sx={{ bgcolor: 'rgba(99, 102, 241, 0.05)' }}>
               <TableRow>

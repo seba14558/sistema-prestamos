@@ -107,7 +107,7 @@ const LoginPage: React.FC = () => {
         filter: 'blur(100px)'
       }} />
 
-      <Box sx={{ position: 'relative', zIndex: 10, width: '100%', maxWidth: 460 }}>
+      <Box sx={{ position: 'relative', zIndex: 10, width: '100%', maxWidth: { xs: '100%', sm: 460 } }}>
         <Card sx={{
           position: 'relative',
           overflow: 'hidden',
@@ -115,31 +115,32 @@ const LoginPage: React.FC = () => {
           backdropFilter: 'blur(20px)',
           border: '1px solid rgba(148, 163, 184, 0.12)',
           borderRadius: 4,
-          p: { xs: 3, sm: 4.5 },
+          p: { xs: 2.5, sm: 4.5 },
           boxShadow: '0 32px 70px -20px rgba(0, 0, 0, 0.55)'
         }}>
           <Box sx={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(79, 70, 229, 0.14) 0%, rgba(16, 185, 129, 0.05) 100%)', pointerEvents: 'none' }} />
           {/* Logo */}
           <Box sx={{ position: 'relative', zIndex: 1 }}>
             <Box sx={{
-              width: 72,
-              height: 72,
+              width: { xs: 56, sm: 72 },
+              height: { xs: 56, sm: 72 },
               borderRadius: '22px',
               background: 'linear-gradient(135deg, #6366f1 0%, #10b981 100%)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               mx: 'auto',
-              mb: 3,
+              mb: { xs: 2, sm: 3 },
               boxShadow: '0 16px 35px -10px rgba(79, 70, 229, 0.55)'
             }}>
-              <MonetizationOn sx={{ fontSize: 34, color: 'white' }} />
+              <MonetizationOn sx={{ fontSize: { xs: 28, sm: 34 }, color: 'white' }} />
             </Box>
 
             <Typography variant="h4" fontWeight="bold" align="center" sx={{
               color: 'white',
               mb: 0.75,
-              letterSpacing: '-0.03em'
+              letterSpacing: '-0.03em',
+              fontSize: { xs: '1.75rem', sm: '2.125rem' }
             }}>
               NUEVA OPCIÓN
             </Typography>

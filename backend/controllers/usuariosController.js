@@ -6,7 +6,7 @@ exports.obtenerUsuarios = async (req, res) => {
   if (req.user.rol !== 'admin') {
     return res.status(403).json({ message: 'Solo el administrador puede ver usuarios' });
   }
-  
+
   try {
     const result = await pool.query(
       'SELECT id, nombre, apellido, usuario, rol FROM usuarios ORDER BY id'
@@ -14,6 +14,23 @@ exports.obtenerUsuarios = async (req, res) => {
     res.json(result.rows);
   } catch (err) {
     res.status(500).json({ message: 'Error al obtener usuarios', error: err });
+  }
+};
+
+exports.obtenerCobradores = async (req, res) => {
+  // Solo admin puede ver los cobradores
+  if (req.user.rol !== 'admin') {
+    return res.status(403).json({ message: 'Solo el administrador puede ver cobradores' });
+  }
+
+  try {
+    const result = await pool.query(
+      'SELECT id, nombre, apellido, usuario FROM usuarios WHERE rol = $1 ORDER BY nombre, apellido',
+      ['cobrador']
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ message: 'Error al obtener cobradores', error: err });
   }
 };
 

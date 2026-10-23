@@ -38,3 +38,29 @@ export const normalizeDateString = (value?: string | Date | null) => {
   const localDate = new Date(value.getTime() - value.getTimezoneOffset() * 60000);
   return localDate.toISOString().slice(0, 10);
 };
+
+/**
+ * Calcula la fecha de vencimiento excluyendo domingos
+ * @param fechaInicio - Fecha de inicio en formato YYYY-MM-DD
+ * @param diasHabiles - Cantidad de días hábiles (lunes a sábado)
+ * @returns Fecha de vencimiento en formato YYYY-MM-DD
+ */
+export const calcularFechaVencimientoExcluyendoDomingos = (fechaInicio: string, diasHabiles: number): string => {
+  const date = new Date(fechaInicio + 'T12:00:00'); // Evitar problemas de huso horario
+  if (isNaN(date.getTime())) return fechaInicio;
+
+  let diasContados = 0;
+  let currentDate = new Date(date);
+
+  while (diasContados < diasHabiles) {
+    currentDate.setDate(currentDate.getDate() + 1);
+    const dayOfWeek = currentDate.getDay(); // 0 = domingo, 6 = sábado
+
+    // Contar solo días de lunes a sábado (1-6)
+    if (dayOfWeek !== 0) {
+      diasContados++;
+    }
+  }
+
+  return currentDate.toISOString().slice(0, 10);
+};

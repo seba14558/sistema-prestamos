@@ -15,7 +15,26 @@ exports.registrarPago = async (req, res) => {
     await client.query('BEGIN');
 
     // Primero bloquear el préstamo para evitar conflictos de concurrencia
-    await client.query('SELECT id FROM prestamos WHERE id = $1 FOR UPDATE', [prestamo_id]);
+    await client.query('SELECT id, cobrador_id FROM prestamos WHERE id = $1 FOR UPDATE', [prestamo_id]);
+
+    // Verificar que el cobrador tiene asignado este préstamo (o es admin)
+    const prestamoInfo = await client.query(
+      'SELECT id, cobrador_id FROM prestamos WHERE id = $1',
+      [prestamo_id]
+    );
+
+    if (prestamoInfo.rows.length === 0) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ message: 'Préstamo no encontrado.' });
+    }
+
+    const prestamo = prestamoInfo.rows[0];
+
+    // Si no es admin, verificar que el préstamo está asignado a este cobrador
+    if (req.user.rol !== 'admin' && prestamo.cobrador_id !== req.user.id) {
+      await client.query('ROLLBACK');
+      return res.status(403).json({ message: 'No tienes permiso para registrar pagos en este préstamo.' });
+    }
 
     // Luego calcular el saldo pendiente sin FOR UPDATE
     const prestamoResult = await client.query(
@@ -34,8 +53,8 @@ exports.registrarPago = async (req, res) => {
       return res.status(404).json({ message: 'Préstamo no encontrado.' });
     }
 
-    const prestamo = prestamoResult.rows[0];
-    const saldoPendiente = parseFloat(prestamo.saldo_pendiente);
+    const prestamoDetalle = prestamoResult.rows[0];
+    const saldoPendiente = parseFloat(prestamoDetalle.saldo_pendiente);
 
     // Comparación con tolerancia de 1 centavo para evitar errores de redondeo
     if (montoPago > saldoPendiente + 0.01) {
@@ -66,7 +85,7 @@ exports.registrarPago = async (req, res) => {
        RETURNING estado`,
       [prestamo_id]
     );
-    
+
     console.log('Estado actualizado:', estadoUpdate.rows[0].estado);
     console.log('Total pagado:', (await client.query('SELECT COALESCE(SUM(monto), 0) as total FROM pagos WHERE prestamo_id = $1', [prestamo_id])).rows[0].total);
     console.log('Monto total:', (await client.query('SELECT COALESCE(monto_total, monto) as monto FROM prestamos WHERE id = $1', [prestamo_id])).rows[0].monto);

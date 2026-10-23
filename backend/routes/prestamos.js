@@ -11,5 +11,6 @@ router.get('/vencimientos', prestamosController.prestamosVencidos); // Vencidos/
 router.get('/proximos-vencer', prestamosController.prestamosProximosAVencer); // Próximos a vencer
 router.get('/:id/saldo', prestamosController.getSaldoPrestamo); // Saldo pendiente de un préstamo
 router.put('/:id', prestamosController.editarPrestamo); // Edición (solo admin)
+router.delete('/:id', prestamosController.eliminarPrestamo); // Eliminación (solo admin, solo préstamos pagados)
 
 module.exports = router;

@@ -8,8 +8,9 @@ import {
 import { 
   Menu as MenuIcon, AccessTime as AccessTimeIcon, 
   Warning as WarningIcon, CalendarToday as CalendarTodayIcon,
-  Logout as LogoutIcon
+  Logout as LogoutIcon, Dashboard as DashboardIcon
 } from '@mui/icons-material';
+import CollectorDashboardPage from './collector/DashboardPage';
 import CollectionPage from './collector/CollectionPage';
 import DebtorsPage from './collector/DebtorsPage';
 import DueLoansPage from './collector/DueLoansPage';
@@ -56,6 +57,7 @@ const CollectorPanel: React.FC = () => {
   };
 
   const menuItems = [
+    { text: 'Mi Dashboard', path: 'dashboard', icon: <DashboardIcon /> },
     { text: 'Registro de Cobros', path: 'collection', icon: <AccessTimeIcon /> },
     { text: 'Deudores Morosos', path: 'debtors', icon: <WarningIcon /> },
     { text: 'Próximos Vencimientos', path: 'due', icon: <CalendarTodayIcon /> },
@@ -192,10 +194,11 @@ const CollectorPanel: React.FC = () => {
         {/* Main Content */}
         <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
         {/* AppBar */}
-        <AppBar position="sticky" sx={{ bgcolor: 'transparent', backdropFilter: 'blur(14px)', boxShadow: 'none', zIndex: (theme) => theme.zIndex.drawer + 3 }}>
+        <AppBar position="sticky" sx={{ bgcolor: 'transparent', backdropFilter: 'blur(14px)', boxShadow: 'none', zIndex: 1 }}>
           <Toolbar>
             <Typography variant="h6" component="div" sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' }, fontWeight: 'bold', color: '#1e293b' }}>
-              {location.pathname.includes('collection') ? 'Registro de Recaudación' : 
+              {location.pathname.includes('dashboard') ? 'Mi Dashboard' :
+               location.pathname.includes('collection') ? 'Registro de Recaudación' : 
                location.pathname.includes('debtors') ? 'Lista de Deudores Morosos' : 
                location.pathname.includes('due') ? 'Próximos Vencimientos' : 'Panel de Cobranza'}
             </Typography>
@@ -216,10 +219,11 @@ const CollectorPanel: React.FC = () => {
         {/* Main Content Area */}
         <Box component="main" sx={{ flexGrow: 1, p: { xs: 2, md: 3 } }}>
           <Routes>
+            <Route path="dashboard" element={<CollectorDashboardPage />} />
             <Route path="collection" element={<CollectionPage />} />
             <Route path="debtors" element={<DebtorsPage />} />
             <Route path="due" element={<DueLoansPage />} />
-            <Route path="" element={<Navigate to="collection" replace />} />
+            <Route path="" element={<Navigate to="dashboard" replace />} />
           </Routes>
         </Box>
       </Box>

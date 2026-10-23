@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Badge, IconButton, Menu, MenuItem, Typography, Box, 
-  Divider, CircularProgress, Chip, useTheme
+  Divider, CircularProgress, Chip, Tooltip
 } from '@mui/material';
 import { Notifications, NotificationsNone } from '@mui/icons-material';
 import { 
@@ -27,7 +27,6 @@ const NotificationBell: React.FC = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
-  const theme = useTheme();
 
   useEffect(() => {
     fetchUnreadCount();
@@ -104,32 +103,49 @@ const NotificationBell: React.FC = () => {
 
   return (
     <>
-      <IconButton
-        onClick={handleOpen}
-        sx={{ 
-          color: 'rgba(99, 102, 241, 0.9)',
-          transition: 'all 0.3s ease',
-          '&:hover': {
-            color: '#6366f1',
-            transform: 'scale(1.1)',
-            background: 'rgba(99, 102, 241, 0.1)',
-            borderRadius: '50%'
-          }
-        }}
-      >
-        <Badge 
-          badgeContent={unreadCount} 
-          color="error" 
-          max={99}
-          sx={{
-            '& .MuiBadge-badge': {
-              boxShadow: '0 2px 8px rgba(239, 68, 68, 0.4)'
+      <Tooltip title={unreadCount > 0 ? `${unreadCount} notificaciones sin leer` : 'Ver notificaciones'} arrow>
+        <IconButton
+          onClick={handleOpen}
+          sx={{ 
+            color: 'rgba(99, 102, 241, 0.9)',
+            transition: 'all 0.3s ease',
+            '&:hover': {
+              color: '#6366f1',
+              transform: 'scale(1.1)',
+              background: 'rgba(99, 102, 241, 0.1)',
+              borderRadius: '50%'
             }
           }}
         >
-          {unreadCount > 0 ? <Notifications /> : <NotificationsNone />}
-        </Badge>
-      </IconButton>
+          <Badge 
+            badgeContent={unreadCount} 
+            color="error" 
+            max={99}
+            sx={{
+              '& .MuiBadge-badge': {
+                boxShadow: '0 2px 8px rgba(239, 68, 68, 0.4)',
+                animation: unreadCount > 0 ? 'pulse 2s infinite' : 'none',
+                '@keyframes pulse': {
+                  '0%': {
+                    transform: 'scale(1)',
+                    boxShadow: '0 0 0 0 rgba(239, 68, 68, 0.7)',
+                  },
+                  '50%': {
+                    transform: 'scale(1.1)',
+                    boxShadow: '0 0 0 6px rgba(239, 68, 68, 0)',
+                  },
+                  '100%': {
+                    transform: 'scale(1)',
+                    boxShadow: '0 0 0 0 rgba(239, 68, 68, 0)',
+                  },
+                },
+              }
+            }}
+          >
+            {unreadCount > 0 ? <Notifications /> : <NotificationsNone />}
+          </Badge>
+        </IconButton>
+      </Tooltip>
 
       <Menu
         anchorEl={anchorEl}
@@ -137,13 +153,14 @@ const NotificationBell: React.FC = () => {
         onClose={handleClose}
         PaperProps={{
           sx: {
-            width: 380,
+            width: { xs: '90vw', sm: 380 },
+            maxWidth: { xs: '90vw', sm: 380 },
             maxHeight: 500,
             mt: 2,
             boxShadow: '0 8px 30px rgba(0,0,0,0.15)',
             borderRadius: 3,
             border: '1px solid rgba(99, 102, 241, 0.1)',
-            background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)'
+            background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
           }
         }}
       >
