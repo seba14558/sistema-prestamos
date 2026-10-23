@@ -88,6 +88,11 @@ const initializeDatabase = async () => {
       ALTER TABLE prestamos ADD COLUMN IF NOT EXISTS cobrador_id INTEGER REFERENCES usuarios(id)
     `);
 
+    // Asegurar que la columna porcentaje_interes existe en prestamos
+    await pool.query(`
+      ALTER TABLE prestamos ADD COLUMN IF NOT EXISTS porcentaje_interes NUMERIC(5,2)
+    `);
+
     // Crear índice para cobrador_id si no existe
     await pool.query(`
       CREATE INDEX IF NOT EXISTS idx_prestamos_cobrador_id ON prestamos(cobrador_id)
