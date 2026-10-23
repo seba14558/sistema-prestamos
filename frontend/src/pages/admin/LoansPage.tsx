@@ -41,6 +41,7 @@ interface Loan {
   plan: string;
   monto: string | number;
   monto_total?: string | number;
+  porcentaje_interes?: number;
   fecha_inicio: string;
   fecha_vencimiento: string;
   estado: string; // 'activo', 'vencido', 'pagado', 'moroso'
@@ -110,14 +111,15 @@ const LoansPage: React.FC = () => {
     const montoNumerico = parseFloat(monto);
     if (!isNaN(montoNumerico)) {
       // Si está en modo edición de porcentaje personalizado, usar ese valor
+      // Si estamos editando un préstamo existente, usar el porcentaje guardado en el préstamo
       const porcentaje = editPercentage && customPercentage
         ? parseFloat(customPercentage)
-        : selectedPlan.porcentaje_interes;
+        : (editMode && customPercentage ? parseFloat(customPercentage) : selectedPlan.porcentaje_interes);
 
       const multiplicador = 1 + (porcentaje / 100);
       setMontoTotal((montoNumerico * multiplicador).toString());
     }
-  }, [plan, fechaInicio, monto, plans, editPercentage, customPercentage]);
+  }, [plan, fechaInicio, monto, plans, editPercentage, customPercentage, editMode]);
 
   // Cargar préstamos, clientes, planes y cobradores
   const fetchData = async () => {
@@ -178,13 +180,19 @@ const LoansPage: React.FC = () => {
       setPlan(loan.plan);
       setMonto(String(loan.monto));
       setMontoTotal(loan.monto_total ? String(loan.monto_total) : '');
+      // Si el préstamo tiene un porcentaje de interés guardado, usarlo
+      if (loan.porcentaje_interes) {
+        setCustomPercentage(String(loan.porcentaje_interes));
+        setEditPercentage(true);
+      } else {
+        setEditPercentage(false);
+        setCustomPercentage('');
+      }
       // Formatear fechas para los inputs
       setFechaInicio(new Date(loan.fecha_inicio).toISOString().slice(0, 10));
       setFechaVencimiento(new Date(loan.fecha_vencimiento).toISOString().slice(0, 10));
       setEstado(loan.estado);
       setCobradorId(loan.cobrador_id || '');
-      setEditPercentage(false);
-      setCustomPercentage('');
     } else {
       setEditMode(false);
       setSelectedLoanId(null);
@@ -224,12 +232,19 @@ const LoansPage: React.FC = () => {
     setFormSubmitting(true);
 
     try {
+      // Calcular el porcentaje de interés usado
+      const selectedPlan = plans.find(p => p.nombre === plan);
+      const porcentajeInteres = editPercentage && customPercentage
+        ? parseFloat(customPercentage)
+        : (selectedPlan ? selectedPlan.porcentaje_interes : 0);
+
       if (editMode && selectedLoanId !== null) {
         // Editar préstamo existente (solo administradores)
         await api.put(`/prestamos/${selectedLoanId}`, {
           plan,
           monto: numMonto,
           monto_total: parseFloat(montoTotal || monto),
+          porcentaje_interes: porcentajeInteres,
           fecha_inicio: fechaInicio,
           fecha_vencimiento: fechaVencimiento,
           estado,
@@ -243,6 +258,7 @@ const LoansPage: React.FC = () => {
           plan,
           monto: numMonto,
           monto_total: parseFloat(montoTotal || monto),
+          porcentaje_interes: porcentajeInteres,
           fecha_inicio: fechaInicio,
           fecha_vencimiento: fechaVencimiento,
           estado: 'activo',

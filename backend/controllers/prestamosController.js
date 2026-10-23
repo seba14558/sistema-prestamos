@@ -1,11 +1,11 @@
 const pool = require('../config/db');
 
 exports.crearPrestamo = async (req, res) => {
-  const { cliente_id, plan, monto, monto_total, fecha_inicio, fecha_vencimiento, estado, cobrador_id } = req.body;
+  const { cliente_id, plan, monto, monto_total, porcentaje_interes, fecha_inicio, fecha_vencimiento, estado, cobrador_id } = req.body;
   try {
     const result = await pool.query(
-      'INSERT INTO prestamos (cliente_id, plan, monto, monto_total, fecha_inicio, fecha_vencimiento, estado, cobrador_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
-      [cliente_id, plan, monto, monto_total || monto, fecha_inicio, fecha_vencimiento, estado || 'activo', cobrador_id || null]
+      'INSERT INTO prestamos (cliente_id, plan, monto, monto_total, porcentaje_interes, fecha_inicio, fecha_vencimiento, estado, cobrador_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *',
+      [cliente_id, plan, monto, monto_total || monto, porcentaje_interes, fecha_inicio, fecha_vencimiento, estado || 'activo', cobrador_id || null]
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {
@@ -47,11 +47,11 @@ exports.editarPrestamo = async (req, res) => {
   // Solo admin puede editar
   if (req.user.rol !== 'admin') return res.status(403).json({ message: 'Solo el administrador puede editar préstamos' });
   const { id } = req.params;
-  const { plan, monto, monto_total, fecha_inicio, fecha_vencimiento, estado, cobrador_id } = req.body;
+  const { plan, monto, monto_total, porcentaje_interes, fecha_inicio, fecha_vencimiento, estado, cobrador_id } = req.body;
   try {
     const result = await pool.query(
-      'UPDATE prestamos SET plan=$1, monto=$2, monto_total=$3, fecha_inicio=$4, fecha_vencimiento=$5, estado=$6, cobrador_id=$7 WHERE id=$8 RETURNING *',
-      [plan, monto, monto_total || monto, fecha_inicio, fecha_vencimiento, estado, cobrador_id || null, id]
+      'UPDATE prestamos SET plan=$1, monto=$2, monto_total=$3, porcentaje_interes=$4, fecha_inicio=$5, fecha_vencimiento=$6, estado=$7, cobrador_id=$8 WHERE id=$9 RETURNING *',
+      [plan, monto, monto_total || monto, porcentaje_interes, fecha_inicio, fecha_vencimiento, estado, cobrador_id || null, id]
     );
     if (result.rows.length === 0) return res.status(404).json({ message: 'Préstamo no encontrado' });
     res.json(result.rows[0]);

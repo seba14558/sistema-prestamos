@@ -27,27 +27,27 @@ const Footer: React.FC = () => {
     >
       <Container maxWidth="xl">
         <Box sx={{ textAlign: 'center', position: 'relative', zIndex: 1 }}>
-          <Typography 
-            variant="body2" 
-            sx={{ 
-              letterSpacing: '0.3px', 
+          <Typography
+            variant="body2"
+            sx={{
+              letterSpacing: '0.3px',
               fontWeight: 500,
               fontSize: { xs: '0.75rem', sm: '0.875rem' }
             }}
           >
             © {new Date().getFullYear()} Nueva Opción. Todos los derechos reservados.
           </Typography>
-          <Typography 
-            variant="caption" 
-            sx={{ 
-              color: 'rgba(148, 163, 184, 0.7)', 
-              display: 'block', 
-              mt: 0.5, 
+          <Typography
+            variant="caption"
+            sx={{
+              color: 'rgba(148, 163, 184, 0.7)',
+              display: 'block',
+              mt: 0.5,
               letterSpacing: '0.3px',
               fontSize: { xs: '0.65rem', sm: '0.75rem' }
             }}
           >
-            Sistema de Gestión de Préstamos v1.0.0
+            Sistema de Gestión de Préstamos
           </Typography>
         </Box>
       </Container>

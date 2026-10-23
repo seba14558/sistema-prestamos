@@ -39,6 +39,7 @@ const DashboardPage: React.FC = () => {
   const [paymentsRowsPerPage, setPaymentsRowsPerPage] = useState(5);
   const [stats, setStats] = useState({
     totalPrestado: 0,
+    totalACobrar: 0,
     totalCobrado: 0,
     totalPendiente: 0,
     totalCobradoHoy: 0,
@@ -83,10 +84,11 @@ const DashboardPage: React.FC = () => {
       const prestamosPagados = fetchedLoans.filter(l => l.estado === 'pagado').length;
       const prestamosMorosos = fetchedLoans.filter(l => l.estado === 'moroso').length;
 
-      const porcentajeRecuperacion = totalPrestado > 0 ? (totalCobrado / totalPrestado) * 100 : 0;
+      const porcentajeRecuperacion = totalACobrar > 0 ? (totalCobrado / totalACobrar) * 100 : 0;
 
       setStats({
         totalPrestado,
+        totalACobrar,
         totalCobrado,
         totalPendiente,
         totalCobradoHoy,
@@ -195,6 +197,42 @@ const DashboardPage: React.FC = () => {
                 </Typography>
                 <Typography variant="h6" fontWeight="bold" color="#1e293b" sx={{ letterSpacing: '0.3px', fontSize: { xs: '1rem', sm: '1.25rem' } }}>
                   {formatCurrency(stats.totalPrestado)}
+                </Typography>
+              </Box>
+            </Box>
+          </Card>
+        </Grid>
+
+        <Grid item xs={12} sm={6} lg={3}>
+          <Card sx={{
+            borderRadius: 3,
+            boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+            border: '1px solid rgba(245, 158, 11, 0.1)',
+            p: { xs: 2, sm: 3 },
+            background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+            '&:hover': {
+              transform: 'translateY(-4px)',
+              transition: 'all 0.3s ease',
+              boxShadow: '0 12px 30px rgba(245, 158, 11, 0.15)',
+              borderColor: 'rgba(245, 158, 11, 0.3)'
+            }
+          }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1.5, sm: 2 } }}>
+              <Box sx={{
+                p: { xs: 1.5, sm: 2 },
+                borderRadius: 2,
+                background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                color: 'white',
+                boxShadow: '0 4px 15px rgba(245, 158, 11, 0.3)'
+              }}>
+                <AccountBalanceWallet sx={{ fontSize: { xs: 24, sm: 32 } }} />
+              </Box>
+              <Box>
+                <Typography variant="caption" fontWeight="bold" color="#64748b" sx={{ fontSize: { xs: '0.65rem', sm: '0.75rem' }, letterSpacing: '0.5px' }}>
+                  TOTAL A COBRAR
+                </Typography>
+                <Typography variant="h6" fontWeight="bold" color="#1e293b" sx={{ letterSpacing: '0.3px', fontSize: { xs: '1rem', sm: '1.25rem' } }}>
+                  {formatCurrency(stats.totalACobrar)}
                 </Typography>
               </Box>
             </Box>
