@@ -1,7 +1,8 @@
 {
   "scripts": {
     "start": "node index.js",
-    "dev": "node index.js"
+    "dev": "node index.js",
+    "migrate:planes": "node scripts/add_semanas_to_planes.js"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",

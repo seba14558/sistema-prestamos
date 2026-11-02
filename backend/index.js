@@ -131,6 +131,19 @@ const initializeDatabase = async () => {
       )
     `);
 
+    // Agregar campos para planes semanales
+    await pool.query(`
+      ALTER TABLE planes ADD COLUMN IF NOT EXISTS semanas INTEGER DEFAULT 0
+    `);
+    await pool.query(`
+      ALTER TABLE planes ADD COLUMN IF NOT EXISTS tipo_plan VARCHAR(20) DEFAULT 'dias'
+    `);
+
+    // Actualizar planes existentes a tipo_plan = 'dias'
+    await pool.query(`
+      UPDATE planes SET tipo_plan = 'dias' WHERE tipo_plan IS NULL
+    `);
+
     // Insertar planes iniciales si no existen
     const planesCount = await pool.query('SELECT COUNT(*) FROM planes');
     if (parseInt(planesCount.rows[0].count) === 0) {
@@ -142,6 +155,28 @@ const initializeDatabase = async () => {
         ('7 dias', 7, 15.00),
         ('14 dias', 14, 20.00)
       `);
+    }
+
+    // Insertar planes semanales si no existen
+    const planesSemanales = [
+      { nombre: '4 semanas', dias: 28, porcentaje: 30.00, semanas: 4 },
+      { nombre: '6 semanas', dias: 42, porcentaje: 40.00, semanas: 6 },
+      { nombre: '8 semanas', dias: 56, porcentaje: 50.00, semanas: 8 }
+    ];
+
+    for (const plan of planesSemanales) {
+      try {
+        await pool.query(
+          `INSERT INTO planes (nombre, dias, porcentaje_interes, activo, semanas, tipo_plan)
+           VALUES ($1, $2, $3, true, $4, 'semanas')
+           ON CONFLICT (nombre) DO NOTHING`,
+          [plan.nombre, plan.dias, plan.porcentaje, plan.semanas]
+        );
+      } catch (err) {
+        if (err.code !== '23505') {
+          console.error(`Error al insertar plan "${plan.nombre}":`, err.message);
+        }
+      }
     }
 
     console.log('✅ Tablas de base de datos verificadas/creadas exitosamente');

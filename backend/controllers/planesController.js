@@ -14,12 +14,12 @@ exports.listarPlanes = async (req, res) => {
 exports.crearPlan = async (req, res) => {
   // Solo admin puede crear planes
   if (req.user.rol !== 'admin') return res.status(403).json({ message: 'Solo el administrador puede crear planes' });
-  
-  const { nombre, dias, porcentaje_interes, activo } = req.body;
+
+  const { nombre, dias, porcentaje_interes, activo, semanas, tipo_plan } = req.body;
   try {
     const result = await pool.query(
-      'INSERT INTO planes (nombre, dias, porcentaje_interes, activo) VALUES ($1, $2, $3, $4) RETURNING *',
-      [nombre, dias, porcentaje_interes, activo !== undefined ? activo : true]
+      'INSERT INTO planes (nombre, dias, porcentaje_interes, activo, semanas, tipo_plan) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+      [nombre, dias, porcentaje_interes, activo !== undefined ? activo : true, semanas || 0, tipo_plan || 'dias']
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {
@@ -30,13 +30,13 @@ exports.crearPlan = async (req, res) => {
 exports.editarPlan = async (req, res) => {
   // Solo admin puede editar planes
   if (req.user.rol !== 'admin') return res.status(403).json({ message: 'Solo el administrador puede editar planes' });
-  
+
   const { id } = req.params;
-  const { nombre, dias, porcentaje_interes, activo } = req.body;
+  const { nombre, dias, porcentaje_interes, activo, semanas, tipo_plan } = req.body;
   try {
     const result = await pool.query(
-      'UPDATE planes SET nombre=$1, dias=$2, porcentaje_interes=$3, activo=$4 WHERE id=$5 RETURNING *',
-      [nombre, dias, porcentaje_interes, activo, id]
+      'UPDATE planes SET nombre=$1, dias=$2, porcentaje_interes=$3, activo=$4, semanas=$5, tipo_plan=$6 WHERE id=$7 RETURNING *',
+      [nombre, dias, porcentaje_interes, activo, semanas || 0, tipo_plan || 'dias', id]
     );
     if (result.rows.length === 0) return res.status(404).json({ message: 'Plan no encontrado' });
     res.json(result.rows[0]);

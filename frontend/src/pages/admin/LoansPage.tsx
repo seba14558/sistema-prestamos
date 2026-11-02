@@ -24,6 +24,8 @@ interface Plan {
   dias: number;
   porcentaje_interes: number;
   activo: boolean;
+  semanas: number;
+  tipo_plan: string;
 }
 
 interface Collector {
@@ -567,7 +569,16 @@ const LoansPage: React.FC = () => {
                 >
                   {plans.filter(p => p.activo).map((p) => (
                     <MenuItem key={p.id} value={p.nombre}>
-                      {p.nombre} ({p.porcentaje_interes}% interés)
+                      <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                        <Typography variant="body1" fontWeight="bold">
+                          {p.nombre} ({p.porcentaje_interes}% interés)
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {p.tipo_plan === 'semanas'
+                            ? `${p.semanas} semanas`
+                            : `${p.dias} días`}
+                        </Typography>
+                      </Box>
                     </MenuItem>
                   ))}
                 </TextField>
