@@ -556,7 +556,7 @@ const LoansPage: React.FC = () => {
                 </TextField>
               </Grid>
 
-              <Grid item xs={6}>
+              <Grid item xs={12} md={6}>
                 <TextField
                   select
                   label="Plan de Pago"
@@ -584,7 +584,7 @@ const LoansPage: React.FC = () => {
                 </TextField>
               </Grid>
 
-              <Grid item xs={6}>
+              <Grid item xs={12} md={6}>
                 <TextField
                   select
                   label="Asignar a Cobrador"
@@ -603,7 +603,7 @@ const LoansPage: React.FC = () => {
                 </TextField>
               </Grid>
 
-              <Grid item xs={6}>
+              <Grid item xs={12} md={6}>
                 <TextField
                   label="Monto del Préstamo"
                   fullWidth
@@ -668,7 +668,7 @@ const LoansPage: React.FC = () => {
                 )}
               </Grid>
 
-              <Grid item xs={6}>
+              <Grid item xs={12} md={6}>
                 <TextField
                   label="Fecha de Otorgamiento"
                   fullWidth
@@ -689,7 +689,7 @@ const LoansPage: React.FC = () => {
                 />
               </Grid>
 
-              <Grid item xs={6}>
+              <Grid item xs={12} md={6}>
                 <TextField
                   label="Fecha de Vencimiento Estimada"
                   fullWidth
