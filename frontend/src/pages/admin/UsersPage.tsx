@@ -5,7 +5,7 @@ import {
   Alert, CircularProgress, Card, Dialog, DialogTitle, 
   DialogContent, DialogActions, TextField, MenuItem, IconButton
 } from '@mui/material';
-import { Add, Edit, Delete, Person } from '@mui/icons-material';
+import { Add, Edit, Delete, Person, Visibility, VisibilityOff } from '@mui/icons-material';
 import { getUsuarios, crearUsuario, editarUsuario, eliminarUsuario } from '../../services/api';
 import Toast from '../../components/Toast';
 import ConfirmDialog from '../../components/ConfirmDialog';
@@ -31,6 +31,7 @@ const UsersPage: React.FC = () => {
   const [apellido, setApellido] = useState('');
   const [usuario, setUsuario] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [rol, setRol] = useState('cobrador');
   const [formError, setFormError] = useState('');
 
@@ -81,6 +82,7 @@ const UsersPage: React.FC = () => {
       setApellido(user.apellido);
       setUsuario(user.usuario);
       setPassword('');
+      setShowPassword(false);
       setRol(user.rol);
     } else {
       setEditingUser(null);
@@ -88,6 +90,7 @@ const UsersPage: React.FC = () => {
       setApellido('');
       setUsuario('');
       setPassword('');
+      setShowPassword(false);
       setRol('cobrador');
     }
     setFormError('');
@@ -371,11 +374,22 @@ const UsersPage: React.FC = () => {
             <TextField
               fullWidth
               label="Contraseña"
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               margin="normal"
               helperText={editingUser ? 'Dejar vacío para mantener la contraseña actual' : ''}
+              InputProps={{
+                endAdornment: (
+                  <IconButton
+                    onClick={() => setShowPassword(!showPassword)}
+                    edge="end"
+                    sx={{ mr: 1 }}
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                ),
+              }}
             />
             <TextField
               fullWidth
