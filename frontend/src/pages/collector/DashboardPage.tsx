@@ -144,7 +144,7 @@ const CollectorDashboardPage: React.FC = () => {
   }
 
   const formatCurrency = (val: number) => {
-    return val.toLocaleString('es-AR', { style: 'currency', currency: 'ARS' });
+    return `$ ${val.toLocaleString('es-AR', { maximumFractionDigits: 0 })}`;
   };
 
   return (
@@ -541,7 +541,7 @@ const CollectorDashboardPage: React.FC = () => {
                     </TableCell>
                     <TableCell sx={{ color: '#64748b', display: { md: 'table-cell' } }}>N º {pay.prestamo_id}</TableCell>
                     <TableCell sx={{ fontWeight: 'bold', color: '#10b981', letterSpacing: '0.3px' }}>
-                      +${Number(pay.monto).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      +$ {new Intl.NumberFormat('es-AR', { useGrouping: true, maximumFractionDigits: 0 }).format(Number(pay.monto))}
                     </TableCell>
                     <TableCell sx={{ display: { sm: 'table-cell' } }}>{formatDateDisplay(pay.fecha_pago)}</TableCell>
                   </TableRow>

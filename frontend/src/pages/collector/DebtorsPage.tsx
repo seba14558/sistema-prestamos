@@ -221,7 +221,7 @@ const DebtorsPage: React.FC = () => {
                           <Chip label={loan.plan} size="small" color="error" variant="outlined" sx={{ fontWeight: 'bold' }} />
                         </TableCell>
                         <TableCell sx={{ fontWeight: 'bold', color: '#0f172a', letterSpacing: '0.3px' }}>
-                          ${Number(loan.monto).toLocaleString('es-AR', { minimumFractionDigits: 2 })}
+                          $ ${Number(loan.monto).toLocaleString('es-AR', { maximumFractionDigits: 0 })}
                         </TableCell>
                         <TableCell sx={{ color: '#ef4444', fontWeight: 500, letterSpacing: '0.3px' }}>
                           {new Date(loan.fecha_vencimiento).toLocaleDateString('es-AR')}

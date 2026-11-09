@@ -344,7 +344,7 @@ const CollectionPage: React.FC = () => {
                                 Monto Total
                               </Typography>
                               <Typography variant="body2" fontWeight="600" color="#1e293b">
-                                ${Number(selectedLoan.monto_total ?? selectedLoan.monto).toLocaleString('es-AR', { minimumFractionDigits: 2 })}
+                                $ ${Number(selectedLoan.monto_total ?? selectedLoan.monto).toLocaleString('es-AR', { maximumFractionDigits: 0 })}
                               </Typography>
                             </Grid>
                             <Grid item xs={6} sm={3}>
@@ -352,11 +352,7 @@ const CollectionPage: React.FC = () => {
                                 Saldo Pendiente
                               </Typography>
                               <Typography variant="body2" fontWeight="700" color={saldoPendiente === 0 ? '#10b981' : '#ef4444'}>
-                                {loadingSaldo
-                                  ? 'Calculando...'
-                                  : saldoPendiente !== null
-                                    ? `$${saldoPendiente.toLocaleString('es-AR', { minimumFractionDigits: 2 })}`
-                                    : '-'}
+                                {loadingSaldo ? 'Calculando...' : saldoPendiente !== null ? `$ ${saldoPendiente.toLocaleString('es-AR', { maximumFractionDigits: 0 })}` : '-'}
                               </Typography>
                             </Grid>
                             <Grid item xs={6} sm={3}>
@@ -521,7 +517,7 @@ const CollectionPage: React.FC = () => {
                           </TableCell>
                           <TableCell sx={{ color: '#64748b', letterSpacing: '0.3px' }}>N º {p.prestamo_id}</TableCell>
                           <TableCell sx={{ fontWeight: 'bold', color: '#10b981', letterSpacing: '0.3px' }}>
-                            +${Number(p.monto).toLocaleString('es-AR', { minimumFractionDigits: 2 })}
+                            +$ {new Intl.NumberFormat('es-AR', { useGrouping: true, maximumFractionDigits: 0 }).format(Number(p.monto))}
                           </TableCell>
                           <TableCell sx={{ letterSpacing: '0.3px' }}>{formatDateDisplay(p.fecha_pago)}</TableCell>
                           {isAdmin && (
