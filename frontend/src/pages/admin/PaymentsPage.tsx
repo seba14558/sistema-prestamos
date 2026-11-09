@@ -657,7 +657,7 @@ const PaymentsPage: React.FC = () => {
                         <TableCell sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }}>Cliente</TableCell>
                         <TableCell sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }}>Cobrador</TableCell>
                         <TableCell sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }}>ID Préstamo</TableCell>
-                        <TableCell sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }}>Monto Cobrado</TableCell>
+                        <TableCell sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px', minWidth: { xs: 140, sm: 120 } }}>Monto Cobrado</TableCell>
                         <TableCell sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }}>Fecha de Cobro</TableCell>
                         <TableCell sx={{ fontWeight: 'bold', color: '#475569', letterSpacing: '0.3px' }} align="center">Acciones</TableCell>
                     </TableRow>
