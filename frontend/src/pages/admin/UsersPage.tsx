@@ -3,7 +3,7 @@ import {
   Box, Button, Typography, Table, TableBody, 
   TableCell, TableContainer, TableHead, TableRow, 
   Alert, CircularProgress, Card, Dialog, DialogTitle, 
-  DialogContent, DialogActions, TextField, MenuItem, IconButton
+  DialogContent, DialogActions, TextField, MenuItem, IconButton, TablePagination
 } from '@mui/material';
 import { Add, Edit, Delete, Person, Visibility, VisibilityOff } from '@mui/icons-material';
 import { getUsuarios, crearUsuario, editarUsuario, eliminarUsuario } from '../../services/api';
@@ -23,6 +23,8 @@ const UsersPage: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [usersPage, setUsersPage] = useState(0);
+  const [usersRowsPerPage, setUsersRowsPerPage] = useState(10);
   
   // Estado del diálogo
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -74,6 +76,20 @@ const UsersPage: React.FC = () => {
   useEffect(() => {
     fetchUsers();
   }, []);
+
+  const paginatedUsers = users.slice(
+    usersPage * usersRowsPerPage,
+    usersPage * usersRowsPerPage + usersRowsPerPage
+  );
+
+  const handleUsersPageChange = (_event: unknown, newPage: number) => {
+    setUsersPage(newPage);
+  };
+
+  const handleUsersRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setUsersRowsPerPage(parseInt(event.target.value, 10));
+    setUsersPage(0);
+  };
 
   const handleOpenDialog = (user?: User) => {
     if (user) {
@@ -258,7 +274,7 @@ const UsersPage: React.FC = () => {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  users.map((user) => (
+                  paginatedUsers.map((user) => (
                     <TableRow key={user.id} sx={{ 
                       '&:hover': { 
                         bgcolor: 'rgba(99, 102, 241, 0.05)',
@@ -328,6 +344,23 @@ const UsersPage: React.FC = () => {
               </TableBody>
             </Table>
           </TableContainer>
+          <TablePagination
+            component="div"
+            count={users.length}
+            page={usersPage}
+            onPageChange={handleUsersPageChange}
+            rowsPerPage={usersRowsPerPage}
+            onRowsPerPageChange={handleUsersRowsPerPageChange}
+            rowsPerPageOptions={[5, 10, 25]}
+            labelRowsPerPage="Filas por página"
+            labelDisplayedRows={({ from, to, count }) => `${from}-${to} de ${count}`}
+            sx={{
+              borderTop: '1px solid rgba(99, 102, 241, 0.1)',
+              '.MuiTablePagination-toolbar': {
+                px: 2
+              }
+            }}
+          />
         </Card>
       )}
 

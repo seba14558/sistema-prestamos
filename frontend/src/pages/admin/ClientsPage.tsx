@@ -3,7 +3,7 @@ import {
   Box, Button, TextField, Typography, Paper, Table, TableBody,
   TableCell, TableContainer, TableHead, TableRow, IconButton,
   Dialog, DialogTitle, DialogContent, DialogActions, Grid,
-  InputAdornment, Alert, CircularProgress, Card, Tooltip
+  InputAdornment, Alert, CircularProgress, Card, Tooltip, TablePagination
 } from '@mui/material';
 import { Search, Edit, Person, LocationOn, Delete, Phone } from '@mui/icons-material';
 import api, { editarCliente, eliminarCliente } from '../../services/api';
@@ -26,6 +26,8 @@ const ClientsPage: React.FC = () => {
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
   const [isAdmin, setIsAdmin] = useState(false);
+  const [clientsPage, setClientsPage] = useState(0);
+  const [clientsRowsPerPage, setClientsRowsPerPage] = useState(10);
 
   // Estados del modal
   const [open, setOpen] = useState(false);
@@ -95,6 +97,7 @@ const ClientsPage: React.FC = () => {
 
   // Filtrar clientes en tiempo real
   useEffect(() => {
+    setClientsPage(0);
     if (search.trim() === '') {
       setFilteredClients(clients);
     } else {
@@ -110,6 +113,20 @@ const ClientsPage: React.FC = () => {
       setFilteredClients(filtered);
     }
   }, [search, clients]);
+
+  const paginatedClients = filteredClients.slice(
+    clientsPage * clientsRowsPerPage,
+    clientsPage * clientsRowsPerPage + clientsRowsPerPage
+  );
+
+  const handleClientsPageChange = (_event: unknown, newPage: number) => {
+    setClientsPage(newPage);
+  };
+
+  const handleClientsRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setClientsRowsPerPage(parseInt(event.target.value, 10));
+    setClientsPage(0);
+  };
 
   const handleOpenDialog = (client?: Client) => {
     if (client) {
@@ -308,6 +325,7 @@ const ClientsPage: React.FC = () => {
         {loading ? (
           <TableSkeleton rows={8} columns={4} />
         ) : (
+          <>
           <TableContainer 
             sx={{ 
               overflowX: 'auto',
@@ -343,7 +361,7 @@ const ClientsPage: React.FC = () => {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filteredClients.map((client) => (
+                  paginatedClients.map((client) => (
                     <TableRow 
                       key={client.id}
                       sx={{ 
@@ -414,6 +432,24 @@ const ClientsPage: React.FC = () => {
               </TableBody>
             </Table>
           </TableContainer>
+          <TablePagination
+            component="div"
+            count={filteredClients.length}
+            page={clientsPage}
+            onPageChange={handleClientsPageChange}
+            rowsPerPage={clientsRowsPerPage}
+            onRowsPerPageChange={handleClientsRowsPerPageChange}
+            rowsPerPageOptions={[5, 10, 25]}
+            labelRowsPerPage="Filas por página"
+            labelDisplayedRows={({ from, to, count }) => `${from}-${to} de ${count}`}
+            sx={{
+              borderTop: '1px solid rgba(99, 102, 241, 0.1)',
+              '.MuiTablePagination-toolbar': {
+                px: 2
+              }
+            }}
+          />
+          </>
         )}
       </Card>
 

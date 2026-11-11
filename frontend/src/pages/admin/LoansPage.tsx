@@ -3,7 +3,7 @@ import {
   Box, Button, TextField, Typography, Table, TableBody,
   TableCell, TableContainer, TableHead, TableRow, Dialog,
   DialogTitle, DialogContent, DialogActions, Grid,
-  InputAdornment, Alert, CircularProgress, Card, MenuItem, Chip, IconButton
+  InputAdornment, Alert, CircularProgress, Card, MenuItem, Chip, IconButton, TablePagination
 } from '@mui/material';
 import { Search, Add, Edit, Delete, AccountBalance, CalendarToday, AttachMoney } from '@mui/icons-material';
 import api from '../../services/api';
@@ -60,6 +60,8 @@ const LoansPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
+  const [loansPage, setLoansPage] = useState(0);
+  const [loansRowsPerPage, setLoansRowsPerPage] = useState(10);
 
   // Estados del modal
   const [open, setOpen] = useState(false);
@@ -158,6 +160,7 @@ const LoansPage: React.FC = () => {
 
   // Filtrar préstamos en tiempo real
   useEffect(() => {
+    setLoansPage(0);
     if (search.trim() === '') {
       setFilteredLoans(loans);
     } else {
@@ -173,6 +176,20 @@ const LoansPage: React.FC = () => {
       setFilteredLoans(filtered);
     }
   }, [search, loans]);
+
+  const paginatedLoans = filteredLoans.slice(
+    loansPage * loansRowsPerPage,
+    loansPage * loansRowsPerPage + loansRowsPerPage
+  );
+
+  const handleLoansPageChange = (_event: unknown, newPage: number) => {
+    setLoansPage(newPage);
+  };
+
+  const handleLoansRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setLoansRowsPerPage(parseInt(event.target.value, 10));
+    setLoansPage(0);
+  };
 
   const handleOpenDialog = (loan?: Loan) => {
     if (loan) {
@@ -410,7 +427,8 @@ const LoansPage: React.FC = () => {
         {loading ? (
           <TableSkeleton rows={8} columns={8} />
         ) : (
-          <TableContainer sx={{ overflowX: 'auto' }}>
+          <>
+            <TableContainer sx={{ overflowX: 'auto' }}>
             <Table sx={{ minWidth: 650 }}>
               <TableHead sx={{ bgcolor: 'rgba(99, 102, 241, 0.05)' }}>
                 <TableRow>
@@ -433,7 +451,7 @@ const LoansPage: React.FC = () => {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filteredLoans.map((loan) => (
+                  paginatedLoans.map((loan) => (
                     <TableRow 
                       key={loan.id}
                       sx={{ 
@@ -505,6 +523,24 @@ const LoansPage: React.FC = () => {
               </TableBody>
             </Table>
           </TableContainer>
+          <TablePagination
+            component="div"
+            count={filteredLoans.length}
+            page={loansPage}
+            onPageChange={handleLoansPageChange}
+            rowsPerPage={loansRowsPerPage}
+            onRowsPerPageChange={handleLoansRowsPerPageChange}
+            rowsPerPageOptions={[5, 10, 25]}
+            labelRowsPerPage="Filas por página"
+            labelDisplayedRows={({ from, to, count }) => `${from}-${to} de ${count}`}
+            sx={{
+              borderTop: '1px solid rgba(99, 102, 241, 0.1)',
+              '.MuiTablePagination-toolbar': {
+                px: 2
+              }
+            }}
+          />
+          </>
         )}
       </Card>
 
